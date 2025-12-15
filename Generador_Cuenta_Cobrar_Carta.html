@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de Cuenta por Cobrar SST - Nepal 2</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1f4e78 0%, #2e5c8a 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #1f4e78 0%, #2e5c8a 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.2em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+        
+        .form-section {
+            padding: 40px;
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-bottom: 25px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .form-group label {
+            font-weight: 600;
+            color: #1f4e78;
+            margin-bottom: 10px;
+            font-size: 1.05em;
+        }
+        
+        select, input, textarea {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+        
+        select:focus, input:focus, textarea:focus {
+            outline: none;
+            border-color: #4a90e2;
+        }
+        
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+            font-family: inherit;
+        }
+        
+        .btn-container {
+            text-align: center;
+            padding: 30px;
+            background: #f8f9fa;
+        }
+        
+        .btn {
+            padding: 16px 40px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            margin: 10px;
+            min-width: 200px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(74, 144, 226, 0.4);
+        }
+        
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #059669;
+        }
+        
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+        }
+        
+        /* Modal Preview */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            max-width: 850px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+        
+        .modal-header {
+            background: #1f4e78;
+            color: white;
+            padding: 25px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        .modal-footer {
+            padding: 25px;
+            background: #f8f9fa;
+            text-align: center;
+            position: sticky;
+            bottom: 0;
+        }
+        
+        /* Cuenta Preview - Optimizada para tamaño carta */
+        .cuenta-preview {
+            background: white;
+            padding: 40px;
+            width: 8.5in;
+            min-height: 11in;
+            margin: 0 auto;
+            position: relative;
+        }
+        
+        .cuenta-header {
+            display: grid;
+            grid-template-columns: 120px 1fr;
+            gap: 20px;
+            align-items: start;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #1f4e78;
+        }
+        
+        .cuenta-logo {
+            width: 100px;
+            height: 100px;
+            background: #f0f0f0;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7em;
+            color: #666;
+            text-align: center;
+        }
+        
+        .cuenta-info {
+            text-align: right;
+        }
+        
+        .cuenta-info h2 {
+            color: #1f4e78;
+            font-size: 1.8em;
+            margin-bottom: 5px;
+        }
+        
+        .cuenta-info p {
+            color: #666;
+            line-height: 1.6;
+            font-size: 0.9em;
+        }
+        
+        .cuenta-numero {
+            background: #1f4e78;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            text-align: center;
+            margin: 20px 0;
+            font-size: 1.2em;
+            font-weight: 600;
+        }
+        
+        .cuenta-datos {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin: 25px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .cuenta-dato {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .cuenta-dato strong {
+            color: #1f4e78;
+            font-size: 0.85em;
+            margin-bottom: 3px;
+        }
+        
+        .cuenta-dato span {
+            color: #333;
+            font-size: 0.95em;
+        }
+        
+        .cuenta-tabla {
+            margin: 25px 0;
+        }
+        
+        .cuenta-tabla table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .cuenta-tabla th {
+            background: #1f4e78;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-size: 0.9em;
+        }
+        
+        .cuenta-tabla td {
+            padding: 12px;
+            border-bottom: 1px solid #e0e0e0;
+            font-size: 0.9em;
+        }
+        
+        .cuenta-tabla .text-right {
+            text-align: right;
+        }
+        
+        .cuenta-total {
+            margin: 20px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            text-align: right;
+        }
+        
+        .cuenta-total-row {
+            display: flex;
+            justify-content: flex-end;
+            gap: 100px;
+            margin: 8px 0;
+            font-size: 1.05em;
+        }
+        
+        .cuenta-total-final {
+            font-size: 1.4em;
+            font-weight: 700;
+            color: #1f4e78;
+            margin-top: 10px;
+            padding-top: 15px;
+            border-top: 2px solid #1f4e78;
+        }
+        
+        .cuenta-notas {
+            margin: 25px 0;
+            padding: 15px;
+            background: #fffbeb;
+            border-left: 4px solid #f59e0b;
+            border-radius: 8px;
+        }
+        
+        .cuenta-notas h4 {
+            color: #92400e;
+            margin-bottom: 8px;
+            font-size: 0.95em;
+        }
+        
+        .cuenta-notas p {
+            color: #78350f;
+            line-height: 1.6;
+            font-size: 0.85em;
+        }
+        
+        .cuenta-footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #e0e0e0;
+            text-align: center;
+        }
+        
+        .cuenta-footer p {
+            color: #666;
+            font-size: 0.85em;
+            line-height: 1.6;
+        }
+        
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            
+            .modal-header, .modal-footer, .btn, .container {
+                display: none;
+            }
+            
+            .modal {
+                display: block;
+                position: static;
+                background: white;
+            }
+            
+            .modal-content {
+                max-width: none;
+                max-height: none;
+                box-shadow: none;
+            }
+            
+            .cuenta-preview {
+                margin: 0;
+                padding: 0.5in;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💰 Generador de Cuenta por Cobrar</h1>
+            <p>Servicios SST - Edificio Nepal 2</p>
+        </div>
+        
+        <div class="form-section">
+            <h2 style="color: #1f4e78; margin-bottom: 25px; font-size: 1.6em;">Datos de la Cuenta</h2>
+            
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="numeroCuenta">Número de Cuenta *</label>
+                    <input type="text" id="numeroCuenta" placeholder="Ej: 001-2026" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="fecha">Fecha de Emisión *</label>
+                    <input type="date" id="fecha" required>
+                </div>
+            </div>
+            
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="periodo">Período del Servicio *</label>
+                    <select id="periodo" required>
+                        <option value="">Seleccionar período...</option>
+                        <option value="Enero 2026">Enero 2026</option>
+                        <option value="Febrero 2026">Febrero 2026</option>
+                        <option value="Marzo 2026">Marzo 2026</option>
+                        <option value="Abril 2026">Abril 2026</option>
+                        <option value="Mayo 2026">Mayo 2026</option>
+                        <option value="Junio 2026">Junio 2026</option>
+                        <option value="Julio 2026">Julio 2026</option>
+                        <option value="Agosto 2026">Agosto 2026</option>
+                        <option value="Septiembre 2026">Septiembre 2026</option>
+                        <option value="Octubre 2026">Octubre 2026</option>
+                        <option value="Noviembre 2026">Noviembre 2026</option>
+                        <option value="Diciembre 2026">Diciembre 2026</option>
+                        <option value="Q1 2026 (Ene-Mar)">Q1 2026 (Ene-Mar)</option>
+                        <option value="Q2 2026 (Abr-Jun)">Q2 2026 (Abr-Jun)</option>
+                        <option value="Q3 2026 (Jul-Sep)">Q3 2026 (Jul-Sep)</option>
+                        <option value="Q4 2026 (Oct-Dic)">Q4 2026 (Oct-Dic)</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="valorTotal">Valor Total (COP) *</label>
+                    <input type="number" id="valorTotal" placeholder="500000" required>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="concepto">Concepto del Servicio *</label>
+                <textarea id="concepto" placeholder="Ej: Asesoría y acompañamiento en la implementación del Sistema de Gestión de Seguridad y Salud en el Trabajo (SG-SST) según Decreto 1072/2015 y Resolución 0312/2019" required></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="observaciones">Observaciones (Opcional)</label>
+                <textarea id="observaciones" placeholder="Información adicional, forma de pago, plazo, etc."></textarea>
+            </div>
+        </div>
+        
+        <div class="btn-container">
+            <button class="btn btn-primary" onclick="generarVistaPrevia()">
+                👁️ Vista Previa
+            </button>
+            <button class="btn btn-secondary" onclick="window.close()">
+                ← Volver
+            </button>
+        </div>
+    </div>
+    
+    <!-- Modal Preview -->
+    <div id="previewModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Vista Previa - Cuenta por Cobrar</h2>
+                <p style="opacity: 0.9; margin-top: 10px;">Formato tamaño carta (8.5" x 11")</p>
+            </div>
+            
+            <div id="previewContent">
+                <!-- El contenido se genera dinámicamente -->
+            </div>
+            
+            <div class="modal-footer">
+                <button class="btn btn-success" onclick="imprimirCuenta()">
+                    🖨️ Imprimir Cuenta
+                </button>
+                <button class="btn btn-secondary" onclick="cerrarPreview()">
+                    Cerrar
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Establecer fecha actual y número de cuenta automático
+        const hoy = new Date();
+        document.getElementById('fecha').valueAsDate = hoy;
+        document.getElementById('numeroCuenta').value = generarNumeroCuenta();
+        
+        function generarNumeroCuenta() {
+            const mes = String(hoy.getMonth() + 1).padStart(2, '0');
+            const anio = hoy.getFullYear();
+            const consecutivo = String(Math.floor(Math.random() * 100) + 1).padStart(3, '0');
+            return `${consecutivo}-${mes}${anio}`;
+        }
+        
+        function generarVistaPrevia() {
+            const numeroCuenta = document.getElementById('numeroCuenta').value;
+            const fecha = document.getElementById('fecha').value;
+            const periodo = document.getElementById('periodo').value;
+            const valorTotal = document.getElementById('valorTotal').value;
+            const concepto = document.getElementById('concepto').value;
+            const observaciones = document.getElementById('observaciones').value;
+            
+            if (!numeroCuenta || !fecha || !periodo || !valorTotal || !concepto) {
+                alert('⚠️ Por favor completa todos los campos obligatorios');
+                return;
+            }
+            
+            const valorNumerico = parseFloat(valorTotal);
+            const subtotal = valorNumerico;
+            const iva = 0; // SST está exento de IVA
+            const total = subtotal;
+            
+            const previewHTML = `
+                <div class="cuenta-preview">
+                    <div class="cuenta-header">
+                        <div class="cuenta-logo">
+                            Logo<br>Nepal 2
+                        </div>
+                        <div class="cuenta-info">
+                            <h2>CUENTA POR COBRAR</h2>
+                            <p><strong>AZECHE P.H.</strong></p>
+                            <p>Carla Castellano Madriz</p>
+                            <p>C.E. 679955</p>
+                            <p>Asesoría SST</p>
+                        </div>
+                    </div>
+                    
+                    <div class="cuenta-numero">
+                        Cuenta N° ${numeroCuenta}
+                    </div>
+                    
+                    <div class="cuenta-datos">
+                        <div class="cuenta-dato">
+                            <strong>PARA:</strong>
+                            <span>Propiedad Horizontal Nepal 2</span>
+                        </div>
+                        <div class="cuenta-dato">
+                            <strong>NIT:</strong>
+                            <span>830142380-4</span>
+                        </div>
+                        <div class="cuenta-dato">
+                            <strong>DIRECCIÓN:</strong>
+                            <span>Calle 55 #4a-24, Bogotá D.C.</span>
+                        </div>
+                        <div class="cuenta-dato">
+                            <strong>FECHA DE EMISIÓN:</strong>
+                            <span>${formatearFecha(fecha)}</span>
+                        </div>
+                        <div class="cuenta-dato">
+                            <strong>PERÍODO DEL SERVICIO:</strong>
+                            <span>${periodo}</span>
+                        </div>
+                        <div class="cuenta-dato">
+                            <strong>VENCIMIENTO:</strong>
+                            <span>${calcularVencimiento(fecha)}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="cuenta-tabla">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th style="width: 60%;">DESCRIPCIÓN DEL SERVICIO</th>
+                                    <th style="width: 20%;" class="text-right">CANTIDAD</th>
+                                    <th style="width: 20%;" class="text-right">VALOR</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>${concepto}</td>
+                                    <td class="text-right">1</td>
+                                    <td class="text-right">$${formatearMoneda(valorNumerico)}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="cuenta-total">
+                        <div class="cuenta-total-row">
+                            <strong>SUBTOTAL:</strong>
+                            <span>$${formatearMoneda(subtotal)}</span>
+                        </div>
+                        <div class="cuenta-total-row">
+                            <strong>IVA (0%):</strong>
+                            <span>$${formatearMoneda(iva)}</span>
+                        </div>
+                        <div class="cuenta-total-row cuenta-total-final">
+                            <strong>TOTAL A PAGAR:</strong>
+                            <span>$${formatearMoneda(total)}</span>
+                        </div>
+                    </div>
+                    
+                    ${observaciones ? `
+                    <div class="cuenta-notas">
+                        <h4>OBSERVACIONES:</h4>
+                        <p>${observaciones}</p>
+                    </div>
+                    ` : ''}
+                    
+                    <div class="cuenta-footer">
+                        <p><strong>Información de Pago:</strong></p>
+                        <p>
+                            Banco: [Nombre del Banco]<br>
+                            Tipo de Cuenta: Ahorros<br>
+                            Número de Cuenta: [Número]<br>
+                            Titular: Carla Castellano Madriz
+                        </p>
+                        <p style="margin-top: 15px; font-size: 0.75em;">
+                            Esta es una cuenta por cobrar electrónica. Para mayor información contactar a: carla@azeche-ph.com
+                        </p>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('previewContent').innerHTML = previewHTML;
+            document.getElementById('previewModal').classList.add('active');
+        }
+        
+        function formatearFecha(fecha) {
+            const opciones = { year: 'numeric', month: 'long', day: 'numeric' };
+            return new Date(fecha + 'T00:00:00').toLocaleDateString('es-CO', opciones);
+        }
+        
+        function calcularVencimiento(fecha) {
+            const fechaEmision = new Date(fecha + 'T00:00:00');
+            fechaEmision.setDate(fechaEmision.getDate() + 30);
+            const opciones = { year: 'numeric', month: 'long', day: 'numeric' };
+            return fechaEmision.toLocaleDateString('es-CO', opciones);
+        }
+        
+        function formatearMoneda(valor) {
+            return new Intl.NumberFormat('es-CO', {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(valor);
+        }
+        
+        function cerrarPreview() {
+            document.getElementById('previewModal').classList.remove('active');
+        }
+        
+        function imprimirCuenta() {
+            window.print();
+        }
+    </script>
+</body>
+</html>
