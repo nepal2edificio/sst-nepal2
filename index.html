@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema SG-SST Nepal 2 - 2026</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .info-bar {
+            background: #f8f9fa;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            border-bottom: 3px solid #e9ecef;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .info-item strong {
+            color: #1e3c72;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 40px;
+            background: #f8f9fa;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            font-size: 2rem;
+            color: #1e3c72;
+            margin-bottom: 5px;
+        }
+
+        .stat-card p {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        .main-content {
+            padding: 40px;
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            color: #1e3c72;
+            margin-bottom: 30px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 50px;
+        }
+
+        .module-card {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 15px;
+            padding: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .module-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+            border-color: #667eea;
+        }
+
+        .module-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+
+        .module-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+
+        .module-card h3 {
+            color: #1e3c72;
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+        }
+
+        .module-card p {
+            color: #6c757d;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+
+        .module-status {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .status-pendiente {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-completado {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-trimestral {
+            background: #cce5ff;
+            color: #004085;
+        }
+
+        .login-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .login-box {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .login-box h2 {
+            color: #1e3c72;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #495057;
+            font-weight: 600;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+            margin-top: 10px;
+        }
+
+        .new-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #28a745;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Overlay -->
+    <div class="login-overlay" id="loginOverlay">
+        <div class="login-box">
+            <h2>🔐 Acceso Restringido</h2>
+            <div class="input-group">
+                <label>Usuario:</label>
+                <input type="text" id="username" placeholder="Ingrese usuario">
+            </div>
+            <div class="input-group">
+                <label>Contraseña:</label>
+                <input type="password" id="password" placeholder="Ingrese contraseña">
+            </div>
+            <button class="btn btn-primary" onclick="login()">Ingresar</button>
+            <button class="btn btn-secondary" onclick="closeLogin()">Cancelar</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🏢 Sistema de Gestión SST - NEPAL 2</h1>
+            <p>Edificio Nepal 2 | NIT: 830142380-4 | Calle 55 #4a-24, Bogotá D.C.</p>
+        </div>
+
+        <!-- Info Bar -->
+        <div class="info-bar">
+            <div class="info-item">
+                <span>👤</span>
+                <span><strong>Responsable SST:</strong> Carla Castellano Madriz (C.E. 679955)</span>
+            </div>
+            <div class="info-item">
+                <span>📅</span>
+                <span><strong>Año:</strong> 2026</span>
+            </div>
+            <div class="info-item">
+                <span>🔄</span>
+                <span><strong>Última actualización:</strong> <span id="lastUpdate">29/12/2025</span></span>
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>16</h3>
+                <p>Documentos Totales</p>
+            </div>
+            <div class="stat-card">
+                <h3>100%</h3>
+                <p>Cumplimiento Normativo</p>
+            </div>
+            <div class="stat-card">
+                <h3>6</h3>
+                <p>Módulos Activos</p>
+            </div>
+            <div class="stat-card">
+                <h3>✅</h3>
+                <p>Estado del Sistema</p>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Sección: Ejecución Constante 2026 -->
+            <h2 class="section-title">🔒 Ejecución Constante 2026</h2>
+            <p style="margin-bottom: 30px; color: #6c757d;">Registros operacionales en tiempo real - Solo Administrador</p>
+            
+            <div class="cards-grid">
+                <div class="module-card" onclick="requireLogin('supervision')">
+                    <span class="new-badge">NUEVO</span>
+                    <div class="module-icon">📋</div>
+                    <h3>Supervisión Mensual</h3>
+                    <p>Inspecciones con fotografías y registro automático</p>
+                    <span class="module-status status-pendiente">Pendiente Diciembre</span>
+                </div>
+
+                <div class="module-card" onclick="requireLogin('induccion')">
+                    <div class="module-icon">🎓</div>
+                    <h3>Registro de Inducción/Reinducción</h3>
+                    <p>Registro mensual de capacitaciones</p>
+                    <span class="module-status status-pendiente">Pendiente Enero</span>
+                </div>
+
+                <div class="module-card" onclick="requireLogin('inspecciones')">
+                    <div class="module-icon">🔍</div>
+                    <h3>Inspecciones Locativas y Equipos</h3>
+                    <p>Registro mensual de inspecciones</p>
+                    <span class="module-status status-completado">0/12 realizadas</span>
+                </div>
+
+                <div class="module-card" onclick="requireLogin('mantenimientos')">
+                    <div class="module-icon">🔧</div>
+                    <h3>Registro de Mantenimientos</h3>
+                    <p>Soportes de mantenimientos ejecutados</p>
+                    <span class="module-status status-completado">0/12 registrados</span>
+                </div>
+
+                <div class="module-card" onclick="requireLogin('contratistas')">
+                    <div class="module-icon">📄</div>
+                    <h3>Soportes de Contratistas</h3>
+                    <p>Documentación y seguimiento</p>
+                    <span class="module-status status-trimestral">Q1 2026</span>
+                </div>
+
+                <div class="module-card" onclick="requireLogin('accidentes')">
+                    <div class="module-icon">⚠️</div>
+                    <h3>Investigación de Accidentes</h3>
+                    <p>Registro e investigación (si ocurren)</p>
+                    <span class="module-status status-completado">0 accidentes</span>
+                </div>
+
+                <div class="module-card" onclick="requireLogin('simulacros')">
+                    <div class="module-icon">🚨</div>
+                    <h3>Registro de Simulacros</h3>
+                    <p>Actas y evaluaciones</p>
+                    <span class="module-status status-pendiente">2 programados</span>
+                </div>
+            </div>
+
+            <!-- Sección: Generadores e Informes -->
+            <h2 class="section-title">📊 Generadores e Informes</h2>
+            
+            <div class="cards-grid">
+                <div class="module-card" onclick="requireLogin('informe-consolidado')">
+                    <span class="new-badge">MEJORADO</span>
+                    <div class="module-icon">📈</div>
+                    <h3>Informe Consolidado Mensual</h3>
+                    <p>Genera automáticamente el informe con TODOS los registros del mes</p>
+                    <span class="module-status status-pendiente">Generar Diciembre</span>
+                </div>
+
+                <div class="module-card" onclick="requireLogin('cuenta-cobro')">
+                    <div class="module-icon">💰</div>
+                    <h3>Cuenta de Cobro</h3>
+                    <p>Generador profesional de cuentas</p>
+                    <span class="module-status status-completado">Disponible</span>
+                </div>
+
+                <div class="module-card" onclick="abrirPlanAnual()">
+                    <div class="module-icon">📅</div>
+                    <h3>Plan Anual SST 2026</h3>
+                    <p>Calendario y actividades programadas</p>
+                    <span class="module-status status-completado">Activo</span>
+                </div>
+
+                <div class="module-card" onclick="abrirMantenimiento()">
+                    <div class="module-icon">🛠️</div>
+                    <h3>Programa de Mantenimiento 2026</h3>
+                    <p>Cronograma de mantenimientos preventivos</p>
+                    <span class="module-status status-completado">Activo</span>
+                </div>
+            </div>
+
+            <!-- Sección: Documentos Oficiales -->
+            <h2 class="section-title">📁 Documentos Oficiales SST</h2>
+            <p style="margin-bottom: 30px; color: #6c757d;">16 documentos disponibles en Google Drive - Acceso directo</p>
+            
+            <div class="cards-grid">
+                <div class="module-card" onclick="abrirGoogleDrive()">
+                    <div class="module-icon">☁️</div>
+                    <h3>Acceso a Google Drive</h3>
+                    <p>Ver todos los documentos oficiales SST</p>
+                    <span class="module-status status-completado">16 documentos</span>
+                </div>
+
+                <div class="module-card" onclick="abrirBitacora()">
+                    <div class="module-icon">📖</div>
+                    <h3>Bitácora SST (Imprimir)</h3>
+                    <p>31 páginas para anillar</p>
+                    <span class="module-status status-completado">Lista</span>
+                </div>
+
+                <div class="module-card" onclick="abrirCarteles()">
+                    <div class="module-icon">🖼️</div>
+                    <h3>Carteles para Imprimir</h3>
+                    <p>5 carteles para lobby y portería</p>
+                    <span class="module-status status-completado">Listo</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let pendingAction = null;
+
+        function requireLogin(action) {
+            pendingAction = action;
+            document.getElementById('loginOverlay').style.display = 'flex';
+        }
+
+        function closeLogin() {
+            document.getElementById('loginOverlay').style.display = 'none';
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+            pendingAction = null;
+        }
+
+        function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            // Login simple
+            if (username === 'c3madriz' && password === 'azeche2026') {
+                closeLogin();
+                executeAction(pendingAction);
+            } else {
+                alert('❌ Usuario o contraseña incorrectos');
+            }
+        }
+
+        function executeAction(action) {
+            switch(action) {
+                case 'supervision':
+                    window.location.href = 'Modulo_Supervision.html';
+                    break;
+                case 'induccion':
+                    window.location.href = 'Formularios_Registros_Nepal2.html#induccion';
+                    break;
+                case 'inspecciones':
+                    window.location.href = 'Formularios_Registros_Nepal2.html#inspecciones';
+                    break;
+                case 'mantenimientos':
+                    window.location.href = 'Formularios_Registros_Nepal2.html#mantenimientos';
+                    break;
+                case 'contratistas':
+                    window.location.href = 'Formularios_Registros_Nepal2.html#contratistas';
+                    break;
+                case 'accidentes':
+                    window.location.href = 'Formularios_Registros_Nepal2.html#accidentes';
+                    break;
+                case 'simulacros':
+                    window.location.href = 'Formularios_Registros_Nepal2.html#simulacros';
+                    break;
+                case 'informe-consolidado':
+                    window.location.href = 'Generador_Informe_Consolidado_Mejorado.html';
+                    break;
+                case 'cuenta-cobro':
+                    window.location.href = 'Generador_Cuenta_Cobrar_Carta.html';
+                    break;
+            }
+        }
+
+        // Funciones públicas (sin login)
+        function abrirPlanAnual() {
+            window.location.href = 'Plan_Anual_SST_2026_-_Edificio_Nepal_2.html';
+        }
+
+        function abrirMantenimiento() {
+            window.location.href = 'Programa_de_Mantenimiento_2026.html';
+        }
+
+        function abrirGoogleDrive() {
+            window.location.href = 'Sistema_Nepal2_GOOGLE_DRIVE.html';
+        }
+
+        function abrirBitacora() {
+            window.location.href = 'Bitacora_SST_Nepal2.html';
+        }
+
+        function abrirCarteles() {
+            window.location.href = 'Carteles_Para_Imprimir_Nepal2.html';
+        }
+
+        // Actualizar fecha
+        document.getElementById('lastUpdate').textContent = new Date().toLocaleDateString('es-CO');
+    </script>
+</body>
+</html>
