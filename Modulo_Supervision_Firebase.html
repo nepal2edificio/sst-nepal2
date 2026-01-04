@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supervisión Mensual SST - Nepal 2</title>
+    
+    <!-- Firebase Scripts (v9 compat) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 30px;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+        }
+
+        .nav-buttons {
+            padding: 20px 30px;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e9ecef;
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-back {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-back:hover {
+            background: #5a6268;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .form-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+        }
+
+        .form-section h2 {
+            color: #1e3c72;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #495057;
+            font-weight: 600;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: inherit;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: auto;
+            cursor: pointer;
+        }
+
+        /* Foto Upload Section */
+        .foto-section {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px dashed #667eea;
+            margin-bottom: 20px;
+        }
+
+        .foto-upload-area {
+            text-align: center;
+            padding: 40px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .foto-upload-area:hover {
+            background: #e9ecef;
+        }
+
+        .foto-upload-area input[type="file"] {
+            display: none;
+        }
+
+        .foto-icon {
+            font-size: 4rem;
+            margin-bottom: 10px;
+        }
+
+        .fotos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .foto-card {
+            position: relative;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .foto-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .foto-card-info {
+            padding: 10px;
+            background: white;
+        }
+
+        .foto-card-info input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #e9ecef;
+            border-radius: 5px;
+            font-size: 0.9rem;
+        }
+
+        .foto-delete {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            line-height: 1;
+        }
+
+        .foto-delete:hover {
+            background: #c82333;
+        }
+
+        .hallazgos-container {
+            display: grid;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .hallazgo-item {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #28a745;
+        }
+
+        .hallazgo-item.negativo {
+            border-left-color: #dc3545;
+        }
+
+        .hallazgo-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .nivel-riesgo {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .riesgo-alto {
+            background: #dc3545;
+            color: white;
+        }
+
+        .riesgo-medio {
+            background: #ffc107;
+            color: #000;
+        }
+
+        .riesgo-bajo {
+            background: #28a745;
+            color: white;
+        }
+
+        .acciones-correctivas {
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        .resumen-supervision {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-top: 30px;
+        }
+
+        .resumen-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .resumen-stat {
+            text-align: center;
+        }
+
+        .resumen-stat h3 {
+            font-size: 2.5rem;
+            margin-bottom: 5px;
+        }
+
+        .resumen-stat p {
+            opacity: 0.9;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .action-buttons .btn {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        @media (max-width: 768px) {
+            .checkbox-group {
+                grid-template-columns: 1fr;
+            }
+            
+            .fotos-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .action-buttons .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📋 Supervisión Mensual SST</h1>
+            <p>Edificio Nepal 2 | Sistema de registro con fotografías</p>
+        </div>
+
+        <div class="nav-buttons">
+            <button class="btn btn-back" onclick="volverInicio()">← Volver al Inicio</button>
+            <button class="btn btn-primary" onclick="guardarBorrador()">💾 Guardar Borrador</button>
+            <button class="btn btn-primary" onclick="cargarSupervisiones()">📋 Ver Supervisiones Guardadas</button>
+        </div>
+
+        <div class="content">
+            <!-- Datos Generales -->
+            <div class="form-section">
+                <h2>📌 Datos Generales</h2>
+                <div class="form-group">
+                    <label>Fecha de Supervisión:</label>
+                    <input type="date" id="fecha" required>
+                </div>
+                <div class="form-group">
+                    <label>Responsable:</label>
+                    <input type="text" id="responsable" value="Carla Castellano Madriz (C.E. 679955)" readonly>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div class="form-group">
+                        <label>Hora Inicio:</label>
+                        <input type="time" id="horaInicio">
+                    </div>
+                    <div class="form-group">
+                        <label>Hora Fin:</label>
+                        <input type="time" id="horaFin">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Áreas Inspeccionadas -->
+            <div class="form-section">
+                <h2>🏢 Áreas Inspeccionadas</h2>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="area-porteria" value="Portería">
+                        <label for="area-porteria">Portería</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="area-lobby" value="Lobby">
+                        <label for="area-lobby">Lobby</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="area-escaleras" value="Escaleras">
+                        <label for="area-escaleras">Escaleras</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="area-cuarto-maquinas" value="Cuarto de Máquinas">
+                        <label for="area-cuarto-maquinas">Cuarto de Máquinas</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="area-tanques" value="Tanques de Agua">
+                        <label for="area-tanques">Tanques de Agua</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="area-zonas-comunes" value="Zonas Comunes">
+                        <label for="area-zonas-comunes">Zonas Comunes</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="area-extintores" value="Extintores">
+                        <label for="area-extintores">Extintores</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="area-salidas" value="Salidas de Emergencia">
+                        <label for="area-salidas">Salidas de Emergencia</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Subida de Fotos -->
+            <div class="form-section">
+                <h2>📸 Fotografías de la Supervisión</h2>
+                <div class="foto-section">
+                    <label for="foto-upload" class="foto-upload-area">
+                        <input type="file" id="foto-upload" accept="image/*" multiple onchange="procesarFotos(event)">
+                        <div class="foto-icon">📷</div>
+                        <p><strong>Click para subir fotos</strong></p>
+                        <p style="font-size: 0.9rem; color: #6c757d; margin-top: 10px;">
+                            Puedes seleccionar múltiples fotos<br>
+                            Formatos: JPG, PNG (Máx 5MB cada una)
+                        </p>
+                    </label>
+                    <div id="fotos-container" class="fotos-grid"></div>
+                </div>
+            </div>
+
+            <!-- Hallazgos Positivos -->
+            <div class="form-section">
+                <h2>✅ Hallazgos Positivos</h2>
+                <div class="form-group">
+                    <label>Describe los aspectos positivos encontrados:</label>
+                    <textarea id="hallazgos-positivos" placeholder="Ejemplo: Se encontró que todos los extintores están vigentes y correctamente señalizados..."></textarea>
+                </div>
+                <button class="btn btn-primary" onclick="agregarHallazgoPositivo()">+ Agregar Hallazgo Positivo</button>
+                <div id="hallazgos-positivos-lista" class="hallazgos-container"></div>
+            </div>
+
+            <!-- Hallazgos Negativos -->
+            <div class="form-section">
+                <h2>⚠️ Hallazgos Negativos / Riesgos</h2>
+                <button class="btn btn-primary" onclick="agregarHallazgoNegativo()">+ Agregar Hallazgo Negativo</button>
+                <div id="hallazgos-negativos-lista" class="hallazgos-container"></div>
+            </div>
+
+            <!-- Resumen -->
+            <div class="resumen-supervision">
+                <h2 style="text-align: center; margin-bottom: 10px;">📊 Resumen de la Supervisión</h2>
+                <div class="resumen-grid">
+                    <div class="resumen-stat">
+                        <h3 id="total-fotos">0</h3>
+                        <p>Fotografías</p>
+                    </div>
+                    <div class="resumen-stat">
+                        <h3 id="total-hallazgos-positivos">0</h3>
+                        <p>Hallazgos Positivos</p>
+                    </div>
+                    <div class="resumen-stat">
+                        <h3 id="total-hallazgos-negativos">0</h3>
+                        <p>Hallazgos Negativos</p>
+                    </div>
+                    <div class="resumen-stat">
+                        <h3 id="total-areas">0</h3>
+                        <p>Áreas Inspeccionadas</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Botones de Acción -->
+            <div class="action-buttons">
+                <button class="btn btn-primary" onclick="generarInforme()">📄 Generar Informe PDF</button>
+                <button class="btn btn-primary" onclick="guardarSupervision()">💾 Guardar Supervisión</button>
+                <button class="btn btn-back" onclick="limpiarFormulario()">🗑️ Limpiar Todo</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let fotosArray = [];
+        let hallazgosPositivos = [];
+        let hallazgosNegativos = [];
+        let contadorHallazgosNegativos = 0;
+
+        // Cargar datos guardados
+        window.onload = function() {
+            cargarBorrador();
+            document.getElementById('fecha').valueAsDate = new Date();
+            actualizarResumen();
+        };
+
+        function procesarFotos(event) {
+            const files = event.target.files;
+            
+            for (let file of files) {
+                if (file.size > 5 * 1024 * 1024) {
+                    alert('La foto ' + file.name + ' es muy grande (máx 5MB)');
+                    continue;
+                }
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const fotoObj = {
+                        id: Date.now() + Math.random(),
+                        nombre: file.name,
+                        data: e.target.result,
+                        descripcion: '',
+                        area: ''
+                    };
+                    
+                    fotosArray.push(fotoObj);
+                    renderizarFotos();
+                    actualizarResumen();
+                };
+                
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function renderizarFotos() {
+            const container = document.getElementById('fotos-container');
+            container.innerHTML = '';
+
+            fotosArray.forEach((foto, index) => {
+                const card = document.createElement('div');
+                card.className = 'foto-card';
+                card.innerHTML = `
+                    <img src="${foto.data}" alt="${foto.nombre}">
+                    <button class="foto-delete" onclick="eliminarFoto(${index})">×</button>
+                    <div class="foto-card-info">
+                        <input type="text" placeholder="Descripción de la foto..." 
+                               value="${foto.descripcion}" 
+                               onchange="actualizarDescripcionFoto(${index}, this.value)">
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function eliminarFoto(index) {
+            if (confirm('¿Eliminar esta foto?')) {
+                fotosArray.splice(index, 1);
+                renderizarFotos();
+                actualizarResumen();
+            }
+        }
+
+        function actualizarDescripcionFoto(index, descripcion) {
+            fotosArray[index].descripcion = descripcion;
+        }
+
+        function agregarHallazgoPositivo() {
+            const texto = document.getElementById('hallazgos-positivos').value.trim();
+            if (!texto) {
+                alert('Escribe el hallazgo positivo');
+                return;
+            }
+
+            hallazgosPositivos.push({
+                id: Date.now(),
+                texto: texto
+            });
+
+            document.getElementById('hallazgos-positivos').value = '';
+            renderizarHallazgosPositivos();
+            actualizarResumen();
+        }
+
+        function renderizarHallazgosPositivos() {
+            const container = document.getElementById('hallazgos-positivos-lista');
+            container.innerHTML = '';
+
+            hallazgosPositivos.forEach((hallazgo, index) => {
+                const item = document.createElement('div');
+                item.className = 'hallazgo-item';
+                item.innerHTML = `
+                    <div class="hallazgo-header">
+                        <h4>✅ Hallazgo Positivo #${index + 1}</h4>
+                        <button class="btn" onclick="eliminarHallazgoPositivo(${index})" 
+                                style="background: #dc3545; color: white; padding: 5px 15px;">
+                            Eliminar
+                        </button>
+                    </div>
+                    <p>${hallazgo.texto}</p>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        function eliminarHallazgoPositivo(index) {
+            if (confirm('¿Eliminar este hallazgo?')) {
+                hallazgosPositivos.splice(index, 1);
+                renderizarHallazgosPositivos();
+                actualizarResumen();
+            }
+        }
+
+        function agregarHallazgoNegativo() {
+            contadorHallazgosNegativos++;
+            const id = Date.now();
+            
+            const container = document.getElementById('hallazgos-negativos-lista');
+            const item = document.createElement('div');
+            item.className = 'hallazgo-item negativo';
+            item.id = 'hallazgo-' + id;
+            item.innerHTML = `
+                <div class="hallazgo-header">
+                    <h4>⚠️ Hallazgo Negativo #${contadorHallazgosNegativos}</h4>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <select id="nivel-${id}" class="nivel-riesgo" onchange="actualizarNivelRiesgo(this)">
+                            <option value="alto">Alto</option>
+                            <option value="medio" selected>Medio</option>
+                            <option value="bajo">Bajo</option>
+                        </select>
+                        <button class="btn" onclick="eliminarHallazgoNegativo('${id}')" 
+                                style="background: #dc3545; color: white; padding: 5px 15px;">
+                            Eliminar
+                        </button>
+                    </div>
+                </div>
+                <div class="form-group" style="margin-top: 15px;">
+                    <label>Descripción del hallazgo:</label>
+                    <textarea id="desc-${id}" placeholder="Describe el riesgo o condición insegura encontrada..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Área/Ubicación:</label>
+                    <input type="text" id="ubicacion-${id}" placeholder="Ej: 3er piso, escalera principal">
+                </div>
+                <div class="form-group">
+                    <label>Foto relacionada (opcional):</label>
+                    <select id="foto-${id}">
+                        <option value="">Ninguna</option>
+                        ${fotosArray.map((f, i) => `<option value="${i}">Foto ${i + 1}: ${f.nombre}</option>`).join('')}
+                    </select>
+                </div>
+                <div class="acciones-correctivas">
+                    <label><strong>Acción Correctiva:</strong></label>
+                    <textarea id="accion-${id}" placeholder="¿Qué se debe hacer para corregir este hallazgo?"></textarea>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
+                        <div>
+                            <label>Responsable:</label>
+                            <input type="text" id="responsable-${id}" placeholder="Nombre">
+                        </div>
+                        <div>
+                            <label>Plazo:</label>
+                            <input type="date" id="plazo-${id}">
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            container.appendChild(item);
+            
+            hallazgosNegativos.push({ id: id });
+            actualizarResumen();
+        }
+
+        function actualizarNivelRiesgo(select) {
+            const nivel = select.value;
+            select.className = 'nivel-riesgo riesgo-' + nivel;
+        }
+
+        function eliminarHallazgoNegativo(id) {
+            if (confirm('¿Eliminar este hallazgo?')) {
+                document.getElementById('hallazgo-' + id).remove();
+                hallazgosNegativos = hallazgosNegativos.filter(h => h.id != id);
+                actualizarResumen();
+            }
+        }
+
+        function actualizarResumen() {
+            document.getElementById('total-fotos').textContent = fotosArray.length;
+            document.getElementById('total-hallazgos-positivos').textContent = hallazgosPositivos.length;
+            document.getElementById('total-hallazgos-negativos').textContent = hallazgosNegativos.length;
+            
+            const checkboxes = document.querySelectorAll('.checkbox-item input[type="checkbox"]:checked');
+            document.getElementById('total-areas').textContent = checkboxes.length;
+        }
+
+        function guardarSupervision() {
+            const datos = recopilarDatos();
+            
+            // Guardar en Firebase
+            const supervisionId = 'supervision-' + Date.now();
+            const supervisionRef = database.ref(`edificios/${EDIFICIO_ID}/supervisiones/${supervisionId}`);
+            
+            supervisionRef.set(datos)
+                .then(() => {
+                    console.log('✅ Supervisión guardada en Firebase:', supervisionId);
+                    
+                    // También guardar como borrador (para backup local)
+                    localStorage.setItem('supervision_borrador', JSON.stringify(datos));
+                    
+                    alert('✅ Supervisión guardada exitosamente en la nube!\n\nPuedes verla desde cualquier dispositivo en el Informe Consolidado.');
+                    
+                    if (confirm('¿Deseas ir al Generador de Informe Consolidado ahora?')) {
+                        window.location.href = 'Generador_Informe_Consolidado_Mejorado.html';
+                    }
+                })
+                .catch((error) => {
+                    console.error('❌ Error guardando supervisión:', error);
+                    alert('❌ Error guardando en la nube. Datos guardados localmente como respaldo.');
+                    
+                    // Fallback: guardar en localStorage si Firebase falla
+                    const supervisiones = JSON.parse(localStorage.getItem('supervisiones_nepal2') || '[]');
+                    supervisiones.push(datos);
+                    localStorage.setItem('supervisiones_nepal2', JSON.stringify(supervisiones));
+                });
+            
+            alert('✅ Supervisión guardada exitosamente!\n\nPuedes verla en el Informe Consolidado.');
+            
+            if (confirm('¿Deseas ir al Generador de Informe Consolidado ahora?')) {
+                window.location.href = 'Generador_Informe_Consolidado_Mejorado.html';
+            }
+        }
+
+        function guardarBorrador() {
+            const datos = recopilarDatos();
+            localStorage.setItem('supervision_borrador', JSON.stringify(datos));
+            alert('💾 Borrador guardado');
+        }
+
+        function cargarBorrador() {
+            const borrador = localStorage.getItem('supervision_borrador');
+            if (borrador && confirm('¿Cargar el borrador guardado?')) {
+                const datos = JSON.parse(borrador);
+                // Implementar carga de datos...
+                alert('Borrador cargado');
+            }
+        }
+
+        // ============================================
+        // PASO 4: CARGAR SUPERVISIONES DESDE FIREBASE
+        // ============================================
+        function cargarSupervisiones() {
+            const supervisionesRef = database.ref(`edificios/${EDIFICIO_ID}/supervisiones`);
+            
+            supervisionesRef.once('value')
+                .then((snapshot) => {
+                    const supervisiones = [];
+                    
+                    snapshot.forEach((childSnapshot) => {
+                        supervisiones.push({
+                            id: childSnapshot.key,
+                            ...childSnapshot.val()
+                        });
+                    });
+                    
+                    console.log(`✅ ${supervisiones.length} supervisiones cargadas desde Firebase`);
+                    console.log('📋 Supervisiones:', supervisiones);
+                    
+                    if (supervisiones.length === 0) {
+                        alert('📭 No hay supervisiones guardadas aún');
+                    } else {
+                        // Mostrar lista de supervisiones
+                        mostrarListaSupervisiones(supervisiones);
+                    }
+                })
+                .catch((error) => {
+                    console.error('❌ Error cargando supervisiones:', error);
+                    alert('❌ Error cargando supervisiones desde Firebase');
+                });
+        }
+
+        function mostrarListaSupervisiones(supervisiones) {
+            // Ordenar por fecha (más reciente primero)
+            supervisiones.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+            
+            let mensaje = '📋 SUPERVISIONES GUARDADAS:\n\n';
+            
+            supervisiones.forEach((sup, index) => {
+                const fecha = new Date(sup.timestamp);
+                const fechaStr = fecha.toLocaleDateString('es-CO');
+                const horaStr = fecha.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
+                
+                mensaje += `${index + 1}. ${sup.fecha || fechaStr} - ${sup.horaInicio || horaStr}\n`;
+                mensaje += `   Responsable: ${sup.responsable || 'N/A'}\n`;
+                mensaje += `   Áreas: ${sup.areas?.length || 0}\n\n`;
+            });
+            
+            alert(mensaje);
+        }
+
+        function recopilarDatos() {
+            const checkboxes = document.querySelectorAll('.checkbox-item input[type="checkbox"]:checked');
+            const areas = Array.from(checkboxes).map(cb => cb.value);
+            
+            const hallazgosNeg = hallazgosNegativos.map(h => {
+                return {
+                    nivel: document.getElementById('nivel-' + h.id).value,
+                    descripcion: document.getElementById('desc-' + h.id).value,
+                    ubicacion: document.getElementById('ubicacion-' + h.id).value,
+                    foto: document.getElementById('foto-' + h.id).value,
+                    accion: document.getElementById('accion-' + h.id).value,
+                    responsable: document.getElementById('responsable-' + h.id).value,
+                    plazo: document.getElementById('plazo-' + h.id).value
+                };
+            });
+
+            return {
+                fecha: document.getElementById('fecha').value,
+                horaInicio: document.getElementById('horaInicio').value,
+                horaFin: document.getElementById('horaFin').value,
+                responsable: document.getElementById('responsable').value,
+                areas: areas,
+                fotos: fotosArray,
+                hallazgosPositivos: hallazgosPositivos,
+                hallazgosNegativos: hallazgosNeg,
+                timestamp: new Date().toISOString()
+            };
+        }
+
+        function generarInforme() {
+            const datos = recopilarDatos();
+            
+            // Guardar y redirigir al generador
+            localStorage.setItem('ultima_supervision', JSON.stringify(datos));
+            guardarSupervision();
+            
+            window.open('Generador_Informe_Consolidado_Mejorado.html', '_blank');
+        }
+
+        function limpiarFormulario() {
+            if (confirm('¿Estás segura de limpiar todo el formulario?')) {
+                fotosArray = [];
+                hallazgosPositivos = [];
+                hallazgosNegativos = [];
+                contadorHallazgosNegativos = 0;
+                
+                renderizarFotos();
+                renderizarHallazgosPositivos();
+                document.getElementById('hallazgos-negativos-lista').innerHTML = '';
+                
+                document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+                document.querySelectorAll('textarea').forEach(ta => ta.value = '');
+                document.querySelectorAll('input[type="text"]').forEach(inp => {
+                    if (inp.id !== 'responsable') inp.value = '';
+                });
+                
+                actualizarResumen();
+            }
+        }
+
+        function volverInicio() {
+            if (confirm('¿Volver al inicio? (Se guardará un borrador automáticamente)')) {
+                guardarBorrador();
+                window.location.href = 'index.html';
+            }
+        }
+
+        // Actualizar resumen al cambiar checkboxes
+        document.addEventListener('change', function(e) {
+            if (e.target.type === 'checkbox') {
+                actualizarResumen();
+            }
+        });
+
+        // ============================================
+        // FIREBASE CONFIGURATION - Nepal 2
+        // ============================================
+        const firebaseConfig = {
+          apiKey: "AIzaSyCb2pko11_UOP6V5VPQV_xARWrC5wybQ6w",
+          authDomain: "compliancepro--o--sistemass.firebaseapp.com",
+          databaseURL: "https://compliancepro--o--sistemass-default-rtdb.firebaseio.com",
+          projectId: "compliancepro--o--sistemass",
+          storageBucket: "compliancepro--o--sistemass.firebasestorage.app",
+          messagingSenderId: "188559834704",
+          appId: "1:188559834704:web:73f1b088e9dcda16ab9b55"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        const storage = firebase.storage();
+
+        // Edificio ID
+        const EDIFICIO_ID = 'nepal-2';
+
+        console.log('✅ Firebase inicializado - Módulo Supervisión Nepal 2');
+        console.log('📊 Edificio:', EDIFICIO_ID);
+    </script>
+</body>
+</html>
