@@ -1,0 +1,1834 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SG-SST Nepal 2 | 2025-2026</title>
+    
+    <!-- Firebase Scripts (v9 compat) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #1f4e78;
+            --secondary: #2e5c8a;
+            --accent: #4a90e2;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --light-bg: #f8fafc;
+            --card-bg: white;
+            --text-dark: #1e293b;
+            --text-gray: #64748b;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: var(--light-bg);
+            color: var(--text-dark);
+        }
+
+        /* Header */
+        .main-header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .main-header h1 {
+            font-size: 2rem;
+            margin-bottom: 5px;
+        }
+
+        .main-header .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .admin-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 8px 20px;
+            border-radius: 20px;
+            margin-top: 15px;
+            font-size: 0.9rem;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Navigation */
+        .main-nav {
+            background: white;
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .nav-btn {
+            background: white;
+            border: 2px solid var(--accent);
+            color: var(--accent);
+            padding: 12px 25px;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .nav-btn:hover {
+            background: var(--accent);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .nav-btn.active {
+            background: var(--accent);
+            color: white;
+        }
+
+        .nav-btn.private {
+            border-color: var(--warning);
+            color: var(--warning);
+        }
+
+        .nav-btn.private.active {
+            background: var(--warning);
+            color: white;
+        }
+
+        /* Sections */
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Section Header */
+        .section-header {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            color: var(--primary);
+            margin-bottom: 8px;
+        }
+
+        .section-subtitle {
+            color: var(--text-gray);
+            font-size: 1rem;
+        }
+
+        /* Dashboard Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            text-align: center;
+        }
+
+        .stat-icon {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: var(--text-gray);
+            font-size: 0.9rem;
+        }
+
+        .stat-change {
+            font-size: 0.85rem;
+            margin-top: 8px;
+            padding: 4px 12px;
+            border-radius: 12px;
+            display: inline-block;
+        }
+
+        .stat-change.positive {
+            background: #d1fae5;
+            color: var(--success);
+        }
+
+        /* Documents Grid */
+        .docs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .doc-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+
+        .doc-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        .doc-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+
+        .doc-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-dark);
+        }
+
+        .doc-meta {
+            display: flex;
+            gap: 15px;
+            font-size: 0.85rem;
+            color: var(--text-gray);
+            margin: 10px 0;
+            flex-wrap: wrap;
+        }
+
+        .doc-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex: 1;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary);
+        }
+
+        .btn-secondary {
+            background: var(--light-bg);
+            color: var(--text-dark);
+        }
+
+        /* Operational Tools */
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .tool-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-left: 4px solid var(--accent);
+        }
+
+        .tool-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        .tool-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .tool-icon {
+            font-size: 2.5rem;
+        }
+
+        .tool-info h3 {
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+        }
+
+        .tool-info p {
+            font-size: 0.9rem;
+            color: var(--text-gray);
+        }
+
+        .tool-status {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .frequency {
+            font-size: 0.85rem;
+            color: var(--text-gray);
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .status-badge.pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-badge.completed {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        /* Login Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            width: 400px;
+            max-width: 90%;
+        }
+
+        .modal-title {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            margin: 20px 0;
+        }
+
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            color: var(--text-gray);
+        }
+
+        .progress-bar {
+            height: 10px;
+            background: #e2e8f0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--success), var(--accent));
+            transition: width 0.5s ease;
+        }
+
+        /* Year Tabs */
+        .year-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+
+        .year-tab {
+            padding: 10px 25px;
+            border-radius: 10px;
+            border: 2px solid var(--accent);
+            background: white;
+            color: var(--accent);
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .year-tab.active {
+            background: var(--accent);
+            color: white;
+        }
+
+        .record-form {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .main-nav {
+                flex-direction: column;
+            }
+
+            .nav-btn {
+                width: 100%;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-header">
+        <h1>🏛️ Sistema SG-SST Nepal 2</h1>
+        <p class="subtitle">Propiedad Horizontal Nepal 2 | NIT: 830142380-4</p>
+        <div id="adminBadge" style="display: none;" class="admin-badge">
+            👤 Sesión Administrador: Carla Castellano
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Main Navigation -->
+        <nav class="main-nav">
+            <button class="nav-btn active" onclick="showSection('dashboard')">📊 Dashboard</button>
+            <button class="nav-btn" onclick="showSection('historico')">📚 Documentos 2025</button>
+            <button class="nav-btn" onclick="showSection('marco')">📋 Marco SG-SST</button>
+            <button class="nav-btn private" onclick="showPrivateSection('ejecucion')" id="btnEjecucion">
+                🔒 Ejecución Constante 2026
+            </button>
+            <button class="nav-btn private" onclick="showPrivateSection('herramientas')" id="btnHerramientas">
+                🔧 Herramientas Admin
+            </button>
+        </nav>
+
+        <!-- SECTION: Dashboard -->
+        <section id="dashboard" class="section active">
+            <div class="section-header">
+                <h2 class="section-title">Dashboard - Estadísticas de Implementación</h2>
+                <p class="section-subtitle">Visión general del Sistema de Gestión SST Nepal 2</p>
+            </div>
+
+            <!-- Year Selector -->
+            <div class="year-tabs">
+                <button class="year-tab active" onclick="filterDashboard(2026)">2026</button>
+                <button class="year-tab" onclick="filterDashboard(2025)">2025</button>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">✅</div>
+                    <div class="stat-value" id="statCumplimiento">95%</div>
+                    <div class="stat-label">Cumplimiento Global SG-SST</div>
+                    <div class="stat-change positive">+5% vs 2025</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon">📄</div>
+                    <div class="stat-value" id="statDocumentos">15/15</div>
+                    <div class="stat-label">Documentos Completos</div>
+                    <div class="stat-change positive">100%</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon">🎓</div>
+                    <div class="stat-value" id="statCapacitacion">100%</div>
+                    <div class="stat-label">Cobertura Capacitación</div>
+                    <div class="stat-change positive">Todos capacitados</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon">⚠️</div>
+                    <div class="stat-value" id="statAccidentes">0</div>
+                    <div class="stat-label">Accidentes 2025</div>
+                    <div class="stat-change positive">3er año consecutivo</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon">🔍</div>
+                    <div class="stat-value" id="statInspecciones">12/12</div>
+                    <div class="stat-label">Inspecciones Realizadas</div>
+                    <div class="stat-change positive">Mensual completo</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon">🏗️</div>
+                    <div class="stat-value" id="statContratistas">85%</div>
+                    <div class="stat-label">Seguimiento Contratistas</div>
+                    <div class="stat-change positive">SOSA + SERDAN</div>
+                </div>
+            </div>
+
+            <!-- Progress Bars -->
+            <div class="record-form">
+                <h3 style="margin-bottom: 20px;">📈 Progreso Plan Anual de Trabajo 2026</h3>
+                
+                <div class="progress-container">
+                    <div class="progress-label">
+                        <span>Enero - Actividades Ejecutadas</span>
+                        <span id="labelEnero"><strong>0/4</strong> (0%)</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressEnero" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <div class="progress-container">
+                    <div class="progress-label">
+                        <span>Total PAT 2026</span>
+                        <span id="labelPAT"><strong>0/48</strong> (0%)</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressPAT" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <div class="progress-container">
+                    <div class="progress-label">
+                        <span>Programa Mantenimiento 2026</span>
+                        <span id="labelMantenimiento"><strong>0/12</strong> (0%)</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressMantenimiento" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: Documentos 2025 (Histórico) -->
+        <section id="historico" class="section">
+            <div class="section-header">
+                <h2 class="section-title">📚 Documentos Históricos 2025</h2>
+                <p class="section-subtitle">Documentación completa del cierre año 2025</p>
+            </div>
+
+            <h3 style="margin: 20px 0; color: var(--primary);">Sección I - Verificación y Revisión</h3>
+            <div class="docs-grid">
+                <div class="doc-card">
+                    <div class="doc-icon">📊</div>
+                    <div class="doc-title">1. Informe de Revisión por la Dirección</div>
+                    <div class="doc-meta">
+                        <span>📅 2025</span>
+                        <span>📄 15 páginas</span>
+                        <span>✅ Completo</span>
+                    </div>
+                    <div class="doc-actions">
+                        <button class="btn btn-primary" onclick="window.open(DRIVE_URLS.doc01, '_blank')">Ver PDF</button>
+                    </div>
+                </div>
+
+                <div class="doc-card">
+                    <div class="doc-icon">✓</div>
+                    <div class="doc-title">2. Autoevaluación Estándares Mínimos</div>
+                    <div class="doc-meta">
+                        <span>📅 2025</span>
+                        <span>📊 90%</span>
+                        <span>✅ Completo</span>
+                    </div>
+                    <div class="doc-actions">
+                        <button class="btn btn-primary" onclick="window.open(DRIVE_URLS.doc02, '_blank')">Ver PDF</button>
+                    </div>
+                </div>
+
+                <div class="doc-card">
+                    <div class="doc-icon">📈</div>
+                    <div class="doc-title">3. Informe Final de Indicadores</div>
+                    <div class="doc-meta">
+                        <span>📅 2025</span>
+                        <span>📄 10 páginas</span>
+                        <span>✅ Completo</span>
+                    </div>
+                    <div class="doc-actions">
+                        <button class="btn btn-primary" onclick="window.open(DRIVE_URLS.doc03, '_blank')">Ver PDF</button>
+                    </div>
+                </div>
+
+                <div class="doc-card">
+                    <div class="doc-icon">📋</div>
+                    <div class="doc-title">4. Plan de Mejoramiento 2026</div>
+                    <div class="doc-meta">
+                        <span>📅 2026</span>
+                        <span>⚠️ 3 NC críticas</span>
+                        <span>✅ Completo</span>
+                    </div>
+                    <div class="doc-actions">
+                        <button class="btn btn-primary" onclick="window.open(DRIVE_URLS.doc04, '_blank')">Ver PDF</button>
+                    </div>
+                </div>
+
+                <div class="doc-card">
+                    <div class="doc-icon">📅</div>
+                    <div class="doc-title">5. Plan Anual de Trabajo 2026</div>
+                    <div class="doc-meta">
+                        <span>📅 2026</span>
+                        <span>📄 Completo</span>
+                    </div>
+                    <div class="doc-actions">
+                        <button class="btn btn-primary" onclick="window.open(DRIVE_URLS.doc05, '_blank')">Ver PDF</button>
+                    </div>
+                </div>
+            </div>
+
+            <h3 style="margin: 30px 0 20px; color: var(--primary);">Sección II - Registros Históricos (Conservación: 20 años)</h3>
+            <div class="docs-grid">
+                <div class="doc-card">
+                    <div class="doc-icon">🎓</div>
+                    <div class="doc-title">6. Registros de Capacitación 2025</div>
+                    <div class="doc-meta">
+                        <span>12 capacitaciones</span>
+                        <span>100% ejecutadas</span>
+                    </div>
+                    <div class="doc-actions">
+                        <button class="btn btn-primary" onclick="window.open(DRIVE_URLS.doc06, '_blank')">Ver PDF</button>
+                    </div>
+                </div>
+
+                <div class="doc-card">
+                    <div class="doc-icon">⚠️</div>
+                    <div class="doc-title">7. Matriz de Peligros GTC-45</div>
+                    <div class="doc-meta">
+                        <span>📊 Excel</span>
+                        <span>Actualizada</span>
+                    </div>
+                    <div class="doc-actions">
+                        <button class="btn btn-primary" onclick="window.open(DRIVE_URLS.doc07, '_blank')">Descargar</button>
+                    </div>
+                </div>
+
+                <div class="doc-card">
+                    <div class="doc-icon">🔍</div>
+                    <div class="doc-title">8. Registros de Inspecciones</div>
+                    <div class="doc-meta">
+                        <span>12 mensuales</span>
+                        <span>4 trimestrales</span>
+                    </div>
+                    <div class="doc-actions">
+                        <button class="btn btn-primary" onclick="window.open(DRIVE_URLS.doc08, '_blank')">Ver PDF</button>
+                    </div>
+                </div>
+
+                <div class="doc-card">
+                    <div class="doc-icon">🏗️</div>
+                    <div class="doc-title">9. Seguimiento Contratistas</div>
+                    <div class="doc-meta">
+                        <span>SOSA + SERDAN</span>
+                        <span>📊 Excel</span>
+                    </div>
+                    <div class="doc-actions">
+                        <button class="btn btn-primary" onclick="window.open(DRIVE_URLS.doc09, '_blank')">Descargar</button>
+                    </div>
+                </div>
+
+                <div class="doc-card">
+                    <div class="doc-icon">🚨</div>
+                    <div class="doc-title">10. Simulacros 2025</div>
+                    <div class="doc-meta">
+                        <span>Julio + Octubre</span>
+                        <span>2 informes</span>
+                    </div>
+                    <div class="doc-actions">
+                        <button class="btn btn-primary" onclick="window.open(DRIVE_URLS.doc10a, '_blank'); window.open(DRIVE_URLS.doc10b, '_blank')">Ver PDFs</button>
+                    </div>
+                </div>
+            </div>
+
+            <h3 style="margin: 30px 0 20px; color: var(--primary);">Sección III - Documentos de Estructura</h3>
+            <div class="docs-grid">
+                <div class="doc-card">
+                    <div class="doc-icon">📜</div>
+                    <div class="doc-title">11. Política SST 2026</div>
+                    <div class="doc-meta">
+                        <span>Firmada</span>
+                        <span>Vigente</span>
+                    </div>
+                    <div class="doc-actions">
+                        <button class="btn btn-primary" onclick="window.open(DRIVE_URLS.doc11, '_blank')">Ver PDF</button>
+                    </div>
+                </div>
+
+                <div class="doc-card">
+                    <div class="doc-icon">⚖️</div>
+                    <div class="doc-title">12. Matriz Legal</div>
+                    <div class="doc-meta">
+                        <span>20 normas</span>
+                        <span>100% cumplimiento</span>
+                    </div>
+                    <div class="doc-actions">
+                        <button class="btn btn-primary" onclick="window.open(DRIVE_URLS.doc12, '_blank')">Ver PDF</button>
+                    </div>
+                </div>
+
+                <div class="doc-card">
+                    <div class="doc-icon">🚨</div>
+                    <div class="doc-title">13. Plan de Emergencias</div>
+                    <div class="doc-meta">
+                        <span>Actualizado 2026</span>
+                    </div>
+                    <div class="doc-actions">
+                        <button class="btn btn-primary" onclick="window.open(DRIVE_URLS.doc13, '_blank')">Ver PDF</button>
+                    </div>
+                </div>
+
+                <div class="doc-card">
+                    <div class="doc-icon">👥</div>
+                    <div class="doc-title">14. Organigrama y Responsabilidades</div>
+                    <div class="doc-meta">
+                        <span>Vigente 2026</span>
+                    </div>
+                    <div class="doc-actions">
+                        <button class="btn btn-primary" onclick="window.open(DRIVE_URLS.doc14, '_blank')">Ver PDF</button>
+                    </div>
+                </div>
+
+                <div class="doc-card">
+                    <div class="doc-icon">🔧</div>
+                    <div class="doc-title">15. Programa Mantenimiento 2026</div>
+                    <div class="doc-meta">
+                        <span>Cronograma anual</span>
+                    </div>
+                    <div class="doc-actions">
+                        <button class="btn btn-primary" onclick="window.open(DRIVE_URLS.doc15, '_blank')">Ver PDF</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: Marco SG-SST -->
+        <section id="marco" class="section">
+            <div class="section-header">
+                <h2 class="section-title">📋 Marco del Sistema SG-SST</h2>
+                <p class="section-subtitle">Documentos de estructura (Solo lectura - No se modifican)</p>
+            </div>
+
+            <div class="docs-grid">
+                <div class="doc-card">
+                    <div class="doc-icon">📜</div>
+                    <div class="doc-title">Política de Seguridad y Salud en el Trabajo</div>
+                    <div class="doc-meta">
+                        <span>📅 Vigencia 2026</span>
+                        <span>✍️ Firmada</span>
+                    </div>
+                    <div class="doc-actions">
+                        <button class="btn btn-primary" onclick="window.open(DRIVE_URLS.doc11, '_blank')">Ver Documento</button>
+                    </div>
+                </div>
+
+                <div class="doc-card">
+                    <div class="doc-icon">⚖️</div>
+                    <div class="doc-title">Matriz Legal Actualizada</div>
+                    <div class="doc-meta">
+                        <span>📅 Dic 2025</span>
+                        <span>✅ 100% cumplimiento</span>
+                    </div>
+                    <div class="doc-actions">
+                        <button class="btn btn-primary" onclick="window.open(DRIVE_URLS.doc12, '_blank')">Ver Documento</button>
+                    </div>
+                </div>
+
+                <div class="doc-card">
+                    <div class="doc-icon">🚨</div>
+                    <div class="doc-title">Plan de Emergencias</div>
+                    <div class="doc-meta">
+                        <span>📅 Actualizado 2026</span>
+                        <span>🔄 Vigente</span>
+                    </div>
+                    <div class="doc-actions">
+                        <button class="btn btn-primary" onclick="window.open(DRIVE_URLS.doc13, '_blank')">Ver Documento</button>
+                    </div>
+                </div>
+
+                <div class="doc-card">
+                    <div class="doc-icon">👥</div>
+                    <div class="doc-title">Organigrama y Responsabilidades</div>
+                    <div class="doc-meta">
+                        <span>📅 2026</span>
+                        <span>📋 4 niveles</span>
+                    </div>
+                    <div class="doc-actions">
+                        <button class="btn btn-primary" onclick="window.open(DRIVE_URLS.doc14, '_blank')">Ver Documento</button>
+                    </div>
+                </div>
+
+                <div class="doc-card">
+                    <div class="doc-icon">📅</div>
+                    <div class="doc-title">Plan Anual de Trabajo 2026</div>
+                    <div class="doc-meta">
+                        <span>📅 2026</span>
+                        <span>📊 48 actividades</span>
+                    </div>
+                    <div class="doc-actions">
+                        <button class="btn btn-primary" onclick="window.open(DRIVE_URLS.doc05, '_blank')">Ver Documento</button>
+                    </div>
+                </div>
+
+                <div class="doc-card">
+                    <div class="doc-icon">🔧</div>
+                    <div class="doc-title">Programa de Mantenimiento 2026</div>
+                    <div class="doc-meta">
+                        <span>📅 2026</span>
+                        <span>🔄 12 meses</span>
+                    </div>
+                    <div class="doc-actions">
+                        <button class="btn btn-primary" onclick="window.open(DRIVE_URLS.doc15, '_blank')">Ver Documento</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: Ejecución Constante 2026 (PRIVADA) -->
+        <section id="ejecucion" class="section">
+            <div class="section-header">
+                <h2 class="section-title">🔒 Ejecución Constante 2026</h2>
+                <p class="section-subtitle">Registros operacionales en tiempo real - Solo Administrador</p>
+            </div>
+
+            <div class="tools-grid">
+                <div class="tool-card" onclick="openTool('supervision')" style="border-left: 4px solid #10b981;">
+                    <div class="tool-header">
+                        <div class="tool-icon">📋</div>
+                        <div class="tool-info">
+                            <h3>Supervisión Mensual <span style="background:#10b981;color:white;padding:3px 8px;border-radius:5px;font-size:0.7rem;margin-left:8px;">NUEVO</span></h3>
+                            <p>Inspecciones con fotografías y registro automático</p>
+                        </div>
+                    </div>
+                    <div class="tool-status">
+                        <span class="frequency">📅 Mensual</span>
+                        <span class="status-badge pending">Pendiente Diciembre</span>
+                    </div>
+                </div>
+
+                <div class="tool-card" onclick="openTool('induccion')">
+                    <div class="tool-header">
+                        <div class="tool-icon">🎓</div>
+                        <div class="tool-info">
+                            <h3>Registro de Inducción/Reinducción</h3>
+                            <p>Registro mensual de capacitaciones</p>
+                        </div>
+                    </div>
+                    <div class="tool-status">
+                        <span class="frequency">📅 Mensual</span>
+                        <span class="status-badge pending">Pendiente Enero</span>
+                    </div>
+                </div>
+
+                <div class="tool-card" onclick="openTool('inspecciones')">
+                    <div class="tool-header">
+                        <div class="tool-icon">🔍</div>
+                        <div class="tool-info">
+                            <h3>Inspecciones Locativas y Equipos</h3>
+                            <p>Registro mensual de inspecciones</p>
+                        </div>
+                    </div>
+                    <div class="tool-status">
+                        <span class="frequency">📅 Mensual</span>
+                        <span class="status-badge pending">0/12 realizadas</span>
+                    </div>
+                </div>
+
+                <div class="tool-card" onclick="openTool('mantenimiento-registro')">
+                    <div class="tool-header">
+                        <div class="tool-icon">🔧</div>
+                        <div class="tool-info">
+                            <h3>Registro de Mantenimientos</h3>
+                            <p>Soportes de mantenimientos ejecutados</p>
+                        </div>
+                    </div>
+                    <div class="tool-status">
+                        <span class="frequency">📅 Según programa</span>
+                        <span class="status-badge pending">0/12 registrados</span>
+                    </div>
+                </div>
+
+                <div class="tool-card" onclick="openTool('contratistas')">
+                    <div class="tool-header">
+                        <div class="tool-icon">🏗️</div>
+                        <div class="tool-info">
+                            <h3>Soportes de Contratistas</h3>
+                            <p>Documentación y seguimiento</p>
+                        </div>
+                    </div>
+                    <div class="tool-status">
+                        <span class="frequency">📅 Trimestral</span>
+                        <span class="status-badge pending">Q1 2026</span>
+                    </div>
+                </div>
+
+                <div class="tool-card" onclick="openTool('accidentes')">
+                    <div class="tool-header">
+                        <div class="tool-icon">⚠️</div>
+                        <div class="tool-info">
+                            <h3>Investigación de Accidentes</h3>
+                            <p>Registro e investigación (si ocurren)</p>
+                        </div>
+                    </div>
+                    <div class="tool-status">
+                        <span class="frequency">📅 Según ocurrencia</span>
+                        <span class="status-badge completed">0 accidentes</span>
+                    </div>
+                </div>
+
+                <div class="tool-card" onclick="openTool('simulacros')">
+                    <div class="tool-header">
+                        <div class="tool-icon">🚨</div>
+                        <div class="tool-info">
+                            <h3>Registro de Simulacros</h3>
+                            <p>Actas y evaluaciones</p>
+                        </div>
+                    </div>
+                    <div class="tool-status">
+                        <span class="frequency">📅 Semestral</span>
+                        <span class="status-badge pending">2 programados</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: Herramientas Admin (PRIVADA) -->
+        <section id="herramientas" class="section">
+            <div class="section-header">
+                <h2 class="section-title">🔧 Herramientas Administrativas</h2>
+                <p class="section-subtitle">Generadores y herramientas exclusivas - Solo Administrador</p>
+            </div>
+
+            <div class="tools-grid">
+                <div class="tool-card" onclick="openGenerador('informe-consolidado')">
+                    <div class="tool-header">
+                        <div class="tool-icon">📈</div>
+                        <div class="tool-info">
+                            <h3>Generador de Informe Consolidado</h3>
+                            <p>Informe mensual con observaciones</p>
+                        </div>
+                    </div>
+                    <div class="tool-status">
+                        <span class="frequency">📅 Mensual</span>
+                        <span class="status-badge pending">Generar Enero 2026</span>
+                    </div>
+                </div>
+
+                <div class="tool-card" onclick="openGenerador('cuenta-cobrar')">
+                    <div class="tool-header">
+                        <div class="tool-icon">💰</div>
+                        <div class="tool-info">
+                            <h3>Generador de Cuenta por Cobrar</h3>
+                            <p>Genera cuenta en 1 página carta</p>
+                        </div>
+                    </div>
+                    <div class="tool-status">
+                        <span class="frequency">📅 Según necesidad</span>
+                        <span class="status-badge pending">Listo para usar</span>
+                    </div>
+                </div>
+
+                <div class="tool-card" onclick="openEditor('pat')">
+                    <div class="tool-header">
+                        <div class="tool-icon">📅</div>
+                        <div class="tool-info">
+                            <h3>Editor PAT 2026</h3>
+                            <p>Edita el Plan Anual de Trabajo</p>
+                        </div>
+                    </div>
+                    <div class="tool-status">
+                        <span class="frequency">🔄 Actualización continua</span>
+                        <span class="status-badge completed">Activo</span>
+                    </div>
+                </div>
+
+                <div class="tool-card" onclick="openEditor('mantenimiento')">
+                    <div class="tool-header">
+                        <div class="tool-icon">🔧</div>
+                        <div class="tool-info">
+                            <h3>Editor Programa Mantenimiento</h3>
+                            <p>Actualiza cronograma</p>
+                        </div>
+                    </div>
+                    <div class="tool-status">
+                        <span class="frequency">🔄 Actualización continua</span>
+                        <span class="status-badge completed">Activo</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <h2 class="modal-title">🔐 Acceso Privado</h2>
+            <div class="form-group">
+                <label class="form-label">Usuario</label>
+                <input type="text" id="loginUser" class="form-input" placeholder="Ingresa tu usuario">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Contraseña</label>
+                <input type="password" id="loginPass" class="form-input" placeholder="Ingresa tu contraseña">
+            </div>
+            <button class="btn btn-primary" style="width: 100%; margin-bottom: 10px;" onclick="attemptLogin()">
+                Iniciar Sesión
+            </button>
+            <button class="btn btn-secondary" style="width: 100%;" onclick="closeLogin()">
+                Cancelar
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // ═══════════════════════════════════════════════════════════════
+        // CONFIGURACIÓN FIREBASE
+        // ═══════════════════════════════════════════════════════════════
+        const firebaseConfig = {
+            apiKey: "AIzaSyDvOSbIFNIVQNJIHBDmP0SgQ-YMYyakHFI",
+            authDomain: "compliancepro--o--sistemass.firebaseapp.com",
+            databaseURL: "https://compliancepro--o--sistemass-default-rtdb.firebaseio.com",
+            projectId: "compliancepro--o--sistemass",
+            storageBucket: "compliancepro--o--sistemass.firebasestorage.app",
+            messagingSenderId: "188559834704",
+            appId: "1:188559834704:web:73f1b088e9dcda16ab9b55"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        const EDIFICIO_ID = 'nepal-2';
+        
+        console.log('✅ Firebase inicializado - Dashboard Nepal 2');
+
+        // ═══════════════════════════════════════════════════════════════
+        // CLASE SISTEMA HÍBRIDO
+        // ═══════════════════════════════════════════════════════════════
+        
+        class SistemaNepal2Hibrido {
+            constructor() {
+                this.firebase = database;
+                this.edificioId = EDIFICIO_ID;
+                this.datos = {
+                    supervisiones: [],
+                    inspecciones: [],
+                    inducciones: [],
+                    mantenimientos: [],
+                    contratistas: [],
+                    accidentes: [],
+                    simulacros: []
+                };
+            }
+
+            async cargarDesdeFuentes(coleccionFirebase, claveLocalStorage) {
+                let datos = [];
+                
+                try {
+                    const ref = this.firebase.ref(`edificios/${this.edificioId}/${coleccionFirebase}`);
+                    const snapshot = await ref.once('value');
+                    
+                    if (snapshot.exists()) {
+                        const data = snapshot.val();
+                        Object.values(data).forEach(item => datos.push(item));
+                        console.log(`✅ ${datos.length} ${coleccionFirebase} desde Firebase`);
+                    }
+                } catch (error) {
+                    console.log(`⚠️ Firebase (${coleccionFirebase}):`, error.message);
+                }
+                
+                try {
+                    const local = JSON.parse(localStorage.getItem(claveLocalStorage) || '[]');
+                    if (local.length > 0) {
+                        console.log(`✅ ${local.length} ${coleccionFirebase} desde LocalStorage`);
+                        datos = datos.concat(local);
+                    }
+                } catch (error) {
+                    console.log(`⚠️ LocalStorage (${claveLocalStorage}):`, error.message);
+                }
+                
+                return this.eliminarDuplicados(datos);
+            }
+
+            async cargarSupervisiones() {
+                return await this.cargarDesdeFuentes('supervisiones', 'supervisiones_nepal2');
+            }
+
+            async cargarInducciones() {
+                return await this.cargarDesdeFuentes('inducciones', 'inducciones_nepal2');
+            }
+
+            async cargarInspecciones() {
+                return await this.cargarDesdeFuentes('inspecciones', 'inspecciones_nepal2');
+            }
+
+            async cargarMantenimientos() {
+                let mantenimientos = [];
+                
+                const firebase = await this.cargarDesdeFuentes('mantenimientos', 'mantenimientos_nepal2');
+                mantenimientos = mantenimientos.concat(firebase);
+                
+                try {
+                    const programaData = localStorage.getItem('programa_mantenimiento_2026_data');
+                    if (programaData) {
+                        const data = JSON.parse(programaData);
+                        
+                        if (data.checkboxes && Array.isArray(data.checkboxes)) {
+                            const actividades = [
+                                'Extintores', 'Botiquín', 'Iluminación emergencia', 
+                                'Sistema eléctrico', 'Tanques de agua', 'Planta eléctrica',
+                                'Ascensor', 'Zonas comunes', 'Equipos de seguridad',
+                                'Señalización', 'Rutas de evacuación', 'Punto de encuentro'
+                            ];
+                            
+                            data.checkboxes.forEach((marcado, index) => {
+                                if (marcado) {
+                                    mantenimientos.push({
+                                        fecha: data.fechaGuardado || new Date().toISOString(),
+                                        tipo: 'Preventivo',
+                                        actividad: actividades[index],
+                                        descripcion: actividades[index],
+                                        responsable: data.responsableSst || 'Administración',
+                                        fuente: 'programa'
+                                    });
+                                }
+                            });
+                            
+                            console.log(`✅ ${data.checkboxes.filter(c => c).length} mantenimientos del programa`);
+                        }
+                    }
+                } catch (error) {
+                    console.log('⚠️ Error programa:', error.message);
+                }
+                
+                return this.eliminarDuplicados(mantenimientos);
+            }
+
+            async cargarContratistas() {
+                return await this.cargarDesdeFuentes('contratistas', 'contratistas_nepal2');
+            }
+
+            async cargarAccidentes() {
+                return await this.cargarDesdeFuentes('accidentes', 'accidentes_nepal2');
+            }
+
+            async cargarSimulacros() {
+                return await this.cargarDesdeFuentes('simulacros', 'simulacros_nepal2');
+            }
+
+            eliminarDuplicados(array) {
+                return array.filter((item, index, self) => 
+                    index === self.findIndex(t => JSON.stringify(t) === JSON.stringify(item))
+                );
+            }
+
+            async cargarTodo() {
+                console.log('🔄 Cargando datos de Firebase + LocalStorage...');
+                
+                this.datos.supervisiones = await this.cargarSupervisiones();
+                this.datos.inducciones = await this.cargarInducciones();
+                this.datos.inspecciones = await this.cargarInspecciones();
+                this.datos.mantenimientos = await this.cargarMantenimientos();
+                this.datos.contratistas = await this.cargarContratistas();
+                this.datos.accidentes = await this.cargarAccidentes();
+                this.datos.simulacros = await this.cargarSimulacros();
+                
+                console.log('✅ Datos cargados:', {
+                    supervisiones: this.datos.supervisiones.length,
+                    inducciones: this.datos.inducciones.length,
+                    inspecciones: this.datos.inspecciones.length,
+                    mantenimientos: this.datos.mantenimientos.length,
+                    contratistas: this.datos.contratistas.length
+                });
+                
+                return this.datos;
+            }
+
+            obtenerEstadisticas() {
+                const añoActual = new Date().getFullYear();
+                const mesActual = new Date().getMonth();
+                
+                const filtrarPorMes = (items) => items.filter(item => {
+                    if (!item.fecha) return false;
+                    try {
+                        const fecha = new Date(item.fecha);
+                        return fecha.getFullYear() === añoActual && fecha.getMonth() === mesActual;
+                    } catch (e) {
+                        return false;
+                    }
+                });
+                
+                const filtrarPorAño = (items) => items.filter(item => {
+                    if (!item.fecha) return false;
+                    try {
+                        const fecha = new Date(item.fecha);
+                        return fecha.getFullYear() === añoActual;
+                    } catch (e) {
+                        return false;
+                    }
+                });
+                
+                const datosMes = {
+                    supervisiones: filtrarPorMes(this.datos.supervisiones),
+                    inducciones: filtrarPorMes(this.datos.inducciones),
+                    inspecciones: filtrarPorMes(this.datos.inspecciones),
+                    mantenimientos: filtrarPorMes(this.datos.mantenimientos)
+                };
+                
+                const datosAño = {
+                    supervisiones: filtrarPorAño(this.datos.supervisiones),
+                    inducciones: filtrarPorAño(this.datos.inducciones),
+                    inspecciones: filtrarPorAño(this.datos.inspecciones),
+                    mantenimientos: filtrarPorAño(this.datos.mantenimientos),
+                    accidentes: filtrarPorAño(this.datos.accidentes),
+                    simulacros: filtrarPorAño(this.datos.simulacros)
+                };
+                
+                return {
+                    mes: {
+                        supervisiones: datosMes.supervisiones.length,
+                        inducciones: datosMes.inducciones.length,
+                        inspecciones: datosMes.inspecciones.length,
+                        mantenimientos: datosMes.mantenimientos.length,
+                        total: datosMes.supervisiones.length + datosMes.inducciones.length + 
+                               datosMes.inspecciones.length + datosMes.mantenimientos.length
+                    },
+                    año: {
+                        supervisiones: datosAño.supervisiones.length,
+                        inducciones: datosAño.inducciones.length,
+                        inspecciones: datosAño.inspecciones.length,
+                        mantenimientos: datosAño.mantenimientos.length,
+                        accidentes: datosAño.accidentes.length,
+                        simulacros: datosAño.simulacros.length,
+                        total: datosAño.supervisiones.length + datosAño.inducciones.length + 
+                               datosAño.inspecciones.length + datosAño.mantenimientos.length
+                    },
+                    contratistas: {
+                        total: this.datos.contratistas.length,
+                        cumplimiento: this.calcularCumplimientoContratistas()
+                    },
+                    datos: this.datos
+                };
+            }
+
+            calcularCumplimientoContratistas() {
+                if (this.datos.contratistas.length === 0) return 0;
+                
+                const completos = this.datos.contratistas.filter(c => {
+                    return (c.cumplimiento && c.cumplimiento >= 90) || 
+                           (c.documentosCompletos === true);
+                }).length;
+                
+                return Math.round((completos / this.datos.contratistas.length) * 100);
+            }
+        }
+
+        let sistemaNepal2Hibrido;
+
+        // ═══════════════════════════════════════════════════════════════
+        // SISTEMA DE LOGIN
+        // ═══════════════════════════════════════════════════════════════
+        
+        let isLoggedIn = false;
+
+        function attemptLogin() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            if (username === 'c3madriz' && password === 'azeche2026') {
+                isLoggedIn = true;
+                document.getElementById('loginOverlay').style.display = 'none';
+                document.querySelectorAll('.private').forEach(el => el.style.display = 'inline-block');
+                actualizarDashboard2026();
+            } else {
+                alert('❌ Credenciales incorrectas');
+            }
+        }
+
+        function logout() {
+            isLoggedIn = false;
+            location.reload();
+        }
+
+        function showSection(sectionId) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(sectionId).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function showPrivateSection(sectionId) {
+            if (!isLoggedIn) {
+                alert('🔒 Acceso denegado');
+                return;
+            }
+            showSection(sectionId);
+        }
+
+        function openTool(url) {
+            if (!isLoggedIn) {
+                alert('🔒 Acceso denegado');
+                return;
+            }
+            window.open(url, '_blank');
+        }
+
+        function openEditor(editorId) {
+            if (!isLoggedIn) {
+                alert('🔒 Acceso denegado');
+                return;
+            }
+
+            if (editorId === 'pat') {
+                window.open('Plan_Anual_SST_2026_-_Edificio_Nepal_2.html', '_blank');
+            } else if (editorId === 'mantenimiento') {
+                window.open('Programa_de_Mantenimiento_2026.html', '_blank');
+            }
+        }
+
+        function filterDashboard(year) {
+            document.querySelectorAll('.year-tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            if (year === 2025) {
+                document.getElementById('statCumplimiento').textContent = '90%';
+                document.getElementById('statDocumentos').textContent = '15/15';
+                document.getElementById('statCapacitacion').textContent = '100%';
+                document.getElementById('statAccidentes').textContent = '0';
+                document.getElementById('statInspecciones').textContent = '12/12';
+                document.getElementById('statContratistas').textContent = '85%';
+            } else {
+                actualizarDashboard2026();
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // DASHBOARD DINÁMICO
+        // ═══════════════════════════════════════════════════════════════
+        
+        async function actualizarDashboard2026() {
+            if (!sistemaNepal2Hibrido) {
+                sistemaNepal2Hibrido = new SistemaNepal2Hibrido();
+            }
+            
+            await sistemaNepal2Hibrido.cargarTodo();
+            const stats = sistemaNepal2Hibrido.obtenerEstadisticas();
+            
+            const inspeccionesMes = stats.mes.supervisiones + stats.mes.inspecciones;
+            if (document.getElementById('statInspecciones')) {
+                document.getElementById('statInspecciones').textContent = inspeccionesMes + '/12';
+            }
+            
+            if (document.getElementById('statContratistas')) {
+                document.getElementById('statContratistas').textContent = stats.contratistas.cumplimiento + '%';
+            }
+            
+            if (document.getElementById('statAccidentes')) {
+                document.getElementById('statAccidentes').textContent = stats.año.accidentes;
+            }
+            
+            const mesActual = new Date().getMonth();
+            if (mesActual === 0) {
+                const actividadesEnero = stats.mes.total;
+                const porcentajeEnero = Math.round((actividadesEnero / 4) * 100);
+                
+                if (document.getElementById('labelEnero')) {
+                    document.getElementById('labelEnero').innerHTML = 
+                        `<strong>${actividadesEnero}/4</strong> (${porcentajeEnero}%)`;
+                }
+                if (document.getElementById('progressEnero')) {
+                    document.getElementById('progressEnero').style.width = Math.min(porcentajeEnero, 100) + '%';
+                }
+            }
+            
+            const totalPAT = stats.año.total;
+            const porcentajePAT = Math.round((totalPAT / 48) * 100);
+            
+            if (document.getElementById('labelPAT')) {
+                document.getElementById('labelPAT').innerHTML = 
+                    `<strong>${totalPAT}/48</strong> (${porcentajePAT}%)`;
+            }
+            if (document.getElementById('progressPAT')) {
+                document.getElementById('progressPAT').style.width = Math.min(porcentajePAT, 100) + '%';
+            }
+            
+            const mantenimientosMes = stats.mes.mantenimientos;
+            const porcentajeMantenimiento = Math.round((mantenimientosMes / 12) * 100);
+            
+            if (document.getElementById('labelMantenimiento')) {
+                document.getElementById('labelMantenimiento').innerHTML = 
+                    `<strong>${mantenimientosMes}/12</strong> (${porcentajeMantenimiento}%)`;
+            }
+            if (document.getElementById('progressMantenimiento')) {
+                document.getElementById('progressMantenimiento').style.width = 
+                    Math.min(porcentajeMantenimiento, 100) + '%';
+            }
+            
+            let cumplimientoGlobal = 95;
+            if (totalPAT > 0) {
+                cumplimientoGlobal = Math.min(95 + Math.round(totalPAT / 10), 100);
+            }
+            if (document.getElementById('statCumplimiento')) {
+                document.getElementById('statCumplimiento').textContent = cumplimientoGlobal + '%';
+            }
+            
+            console.log('✅ Dashboard actualizado:', stats);
+        }
+
+        document.addEventListener('DOMContentLoaded', async function() {
+            console.log('🚀 Sistema Nepal 2 cargado');
+            await actualizarDashboard2026();
+        });
+
+        setInterval(function() {
+            actualizarDashboard2026();
+        }, 30000);
+
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden) {
+                actualizarDashboard2026();
+            }
+        });
+
+        function actualizarDashboardManual() {
+            actualizarDashboard2026();
+            alert('✅ Dashboard actualizado con datos híbridos');
+        }
+    </script>
+        // ═══════════════════════════════════════════════════════════════
+        // URLs DE GOOGLE DRIVE - DOCUMENTOS SST NEPAL 2
+        // ═══════════════════════════════════════════════════════════════
+        const DRIVE_URLS = {
+            // Sección I - Verificación y Revisión
+            doc01: 'https://drive.google.com/file/d/1gw6SyTEf5LduNDjvhXQ5H15uIFKbcyE1/preview',
+            doc02: 'https://drive.google.com/file/d/1ZjXyqvz1EKm-ssVF-q17zHJERUFR6zT5/preview',
+            doc03: 'https://drive.google.com/file/d/1LswnliHAHNTwKmq2bEJ5W6AGxLE6rwPK/preview',
+            doc04: 'https://drive.google.com/file/d/1tcl49EHdnc5_-avnYaTY-04DT_bU66es/preview',
+            doc05: 'https://drive.google.com/file/d/1w_p9EDgYZmkGf5RRRZT8aER_0Ti_lNmo/preview',
+            
+            // Sección II - Conservación Histórica
+            doc06: 'https://drive.google.com/file/d/1nIItadsHcLuuN-9s7UO5vKAPd0VCwIST/preview',
+            doc07: 'https://docs.google.com/spreadsheets/d/1Lz89abEakAABrhntCfzdotDWL2zaUfAM/edit',
+            doc08: 'https://drive.google.com/file/d/1dWDC3VxRQxZpDDZKAWgak2-1FToQjXF5/preview',
+            doc09: 'https://docs.google.com/spreadsheets/d/1TGsJqnloINmV9kplLeS9mgjoYG3BQw2F/edit',
+            doc10a: 'https://drive.google.com/file/d/1yFoZfxtTiwQZ3ne8osuhwR6lEKGmqp63/preview',
+            doc10b: 'https://drive.google.com/file/d/1JjVnXDyp40UdZ6sYauvmAEZMoo_h6knM/preview',
+            
+            // Sección III - Estructura
+            doc11: 'https://drive.google.com/file/d/1XdejA82g7IV8X18cPUN7NwtPw8_Z3we1/preview',
+            doc12: 'https://drive.google.com/file/d/10WScp7RH_unnBUCApwTLLVWbMgy5oucJ/preview',
+            doc13: 'https://drive.google.com/file/d/19guRbnSSLqRpwe-UJCwMYsYn3Vi7ImxG/preview',
+            doc14: 'https://drive.google.com/file/d/11owqD4GKMwg7PKJpMD9evmjULdtJdyM-/preview',
+            doc15: 'https://drive.google.com/file/d/10Sgi0xtGrKP-4lr3O7hKi2chrvZ6VsLw/preview',
+        };
+
+        let isLoggedIn = false;
+
+        // Show Section
+        function showSection(sectionId) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            
+            document.getElementById(sectionId).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // Show Private Section
+        function showPrivateSection(sectionId) {
+            if (!isLoggedIn) {
+                showLogin();
+                return;
+            }
+            showSection(sectionId);
+        }
+
+        // Login Functions
+        function showLogin() {
+            document.getElementById('loginModal').classList.add('active');
+        }
+
+        function closeLogin() {
+            document.getElementById('loginModal').classList.remove('active');
+        }
+
+        function attemptLogin() {
+            const user = document.getElementById('loginUser').value;
+            const pass = document.getElementById('loginPass').value;
+
+            if (user === 'c3madriz' && pass === 'azeche2026') {
+                isLoggedIn = true;
+                closeLogin();
+                document.getElementById('adminBadge').style.display = 'inline-block';
+                alert('✅ Bienvenida Carla! Acceso concedido.');
+            } else {
+                alert('❌ Credenciales incorrectas');
+            }
+        }
+
+        // Tool Functions
+        function openTool(toolId) {
+            if (!isLoggedIn) {
+                alert('🔒 Debes iniciar sesión para acceder a esta herramienta');
+                showLogin();
+                return;
+            }
+            
+            // Si es supervisión, abre el módulo nuevo
+            if (toolId === 'supervision') {
+                window.open('Modulo_Supervision_Firebase.html', '_blank');
+            } else {
+                // Abre la página de formularios en nueva pestaña
+                window.open('Formularios_Registros_Firebase.html', '_blank');
+            }
+        }
+
+        function openGenerador(genId) {
+            if (!isLoggedIn) {
+                alert('🔒 Acceso denegado');
+                return;
+            }
+
+            if (genId === 'informe-consolidado') {
+                window.open('Generador_Informe_Firebase.html', '_blank');
+            } else if (genId === 'cuenta-cobrar') {
+                window.open('Generador_Cuenta_Cobrar_Carta.html', '_blank');
+            }
+        }
+
+        function openEditor(editorId) {
+            if (!isLoggedIn) {
+                alert('🔒 Acceso denegado');
+                return;
+            }
+
+            if (editorId === 'pat') {
+                window.open('Plan_Anual_SST_2026_-_Edificio_Nepal_2.html', '_blank');
+            } else if (editorId === 'mantenimiento') {
+                window.open('Programa_de_Mantenimiento_2026.html', '_blank');
+            }
+        }
+
+        function filterDashboard(year) {
+            document.querySelectorAll('.year-tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            if (year === 2025) {
+                document.getElementById('statCumplimiento').textContent = '90%';
+                document.getElementById('statDocumentos').textContent = '15/15';
+                document.getElementById('statCapacitacion').textContent = '100%';
+                document.getElementById('statAccidentes').textContent = '0';
+                document.getElementById('statInspecciones').textContent = '12/12';
+                document.getElementById('statContratistas').textContent = '85%';
+            } else {
+                // Para 2026, usar datos dinámicos
+                actualizarDashboard2026();
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // FUNCIÓN MEJORADA - LEE MANTENIMIENTOS DE TODAS LAS FUENTES
+        // ═══════════════════════════════════════════════════════════════
+
+        function obtenerTodosLosMantenimientos() {
+            let todosLosMantenimientos = [];
+            
+            // 1. Programa de Mantenimiento 2026 (checkboxes marcados)
+            try {
+                const programaData = localStorage.getItem('programa_mantenimiento_2026_data');
+                if (programaData) {
+                    const data = JSON.parse(programaData);
+                    console.log('📋 Programa Mantenimiento encontrado');
+                    
+                    // Contar checkboxes marcados como mantenimientos realizados
+                    if (data.checkboxes && Array.isArray(data.checkboxes)) {
+                        const realizados = data.checkboxes.filter(cb => cb === true).length;
+                        console.log('✅ Mantenimientos marcados en programa:', realizados);
+                        
+                        // Crear objetos de mantenimiento por cada checkbox marcado
+                        const actividades = [
+                            'Extintores', 'Botiquín', 'Iluminación emergencia', 'Sistema eléctrico',
+                            'Tanques de agua', 'Planta eléctrica', 'Ascensor', 'Zonas comunes',
+                            'Equipos de seguridad', 'Señalización', 'Rutas de evacuación', 'Punto de encuentro'
+                        ];
+                        
+                        data.checkboxes.forEach((marcado, index) => {
+                            if (marcado) {
+                                todosLosMantenimientos.push({
+                                    fecha: data.fechaGuardado || new Date().toISOString(),
+                                    tipo: 'Preventivo',
+                                    descripcion: actividades[index] || `Mantenimiento #${index + 1}`,
+                                    fuente: 'programa'
+                                });
+                            }
+                        });
+                    }
+                }
+            } catch (e) {
+                console.log('Error leyendo programa mantenimiento:', e);
+            }
+            
+            // 2. Registros de mantenimiento manuales
+            const posiblesClaves = [
+                'mantenimientos_nepal2',
+                'mantenimiento_nepal2',
+                'registros_mantenimiento_nepal2'
+            ];
+            
+            posiblesClaves.forEach(clave => {
+                try {
+                    const data = localStorage.getItem(clave);
+                    if (data) {
+                        const parsed = JSON.parse(data);
+                        if (Array.isArray(parsed)) {
+                            console.log(`✅ ${parsed.length} mantenimientos en ${clave}`);
+                            todosLosMantenimientos = todosLosMantenimientos.concat(parsed);
+                        }
+                    }
+                } catch (e) {
+                    // Ignorar errores
+                }
+            });
+            
+            console.log('🔧 Total mantenimientos combinados:', todosLosMantenimientos.length);
+            return todosLosMantenimientos;
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // DASHBOARD DINÁMICO - LEE DATOS DE LOCALSTORAGE
+        // ═══════════════════════════════════════════════════════════════
+
+        function actualizarDashboard2026() {
+            // Cargar datos del LocalStorage
+            const supervisiones = JSON.parse(localStorage.getItem('supervisiones_nepal2') || '[]');
+            const inspecciones = JSON.parse(localStorage.getItem('inspecciones_nepal2') || '[]');
+            const inducciones = JSON.parse(localStorage.getItem('inducciones_nepal2') || '[]');
+            const mantenimientos = obtenerTodosLosMantenimientos(); // ← LEE DE PROGRAMA + REGISTROS
+            const contratistas = JSON.parse(localStorage.getItem('contratistas_nepal2') || '[]');
+            const accidentes = JSON.parse(localStorage.getItem('accidentes_nepal2') || '[]');
+
+            // Calcular estadísticas
+            const mesActual = new Date().getMonth();
+            const añoActual = new Date().getFullYear();
+
+            console.log('📊 Datos cargados:', {
+                supervisiones: supervisiones.length,
+                inspecciones: inspecciones.length,
+                inducciones: inducciones.length,
+                mantenimientos: mantenimientos.length,
+                contratistas: contratistas.length
+            });
+
+            // INSPECCIONES DEL MES
+            const inspeccionesMes = supervisiones.filter(s => {
+                const fecha = new Date(s.fecha);
+                return fecha.getMonth() === mesActual && fecha.getFullYear() === añoActual;
+            }).length + inspecciones.filter(i => {
+                const fecha = new Date(i.fecha);
+                return fecha.getMonth() === mesActual && fecha.getFullYear() === añoActual;
+            }).length;
+
+            if (document.getElementById('statInspecciones')) {
+                document.getElementById('statInspecciones').textContent = inspeccionesMes + '/12';
+            }
+
+            // CONTRATISTAS
+            let porcentajeContratistas = 0;
+            if (contratistas.length > 0) {
+                const completos = contratistas.filter(c => c.cumplimiento >= 90).length;
+                porcentajeContratistas = Math.round((completos / contratistas.length) * 100);
+            }
+            if (document.getElementById('statContratistas')) {
+                document.getElementById('statContratistas').textContent = porcentajeContratistas + '%';
+            }
+
+            // ACCIDENTES
+            const accidentesAño = accidentes.filter(a => new Date(a.fecha).getFullYear() === añoActual).length;
+            if (document.getElementById('statAccidentes')) {
+                document.getElementById('statAccidentes').textContent = accidentesAño;
+            }
+
+            // ACTIVIDADES ENERO
+            const actividadesEnero = supervisiones.filter(s => {
+                const fecha = new Date(s.fecha);
+                return fecha.getMonth() === 0 && fecha.getFullYear() === añoActual;
+            }).length + inspecciones.filter(i => {
+                const fecha = new Date(i.fecha);
+                return fecha.getMonth() === 0 && fecha.getFullYear() === añoActual;
+            }).length + inducciones.filter(i => {
+                const fecha = new Date(i.fecha);
+                return fecha.getMonth() === 0 && fecha.getFullYear() === añoActual;
+            }).length;
+
+            const porcentajeEnero = Math.round((actividadesEnero / 4) * 100);
+            if (document.getElementById('labelEnero')) {
+                document.getElementById('labelEnero').innerHTML = `<strong>${actividadesEnero}/4</strong> (${porcentajeEnero}%)`;
+            }
+            if (document.getElementById('progressEnero')) {
+                document.getElementById('progressEnero').style.width = porcentajeEnero + '%';
+            }
+
+            // TOTAL PAT 2026
+            const totalPAT = supervisiones.filter(s => new Date(s.fecha).getFullYear() === añoActual).length +
+                            inspecciones.filter(i => new Date(i.fecha).getFullYear() === añoActual).length +
+                            inducciones.filter(i => new Date(i.fecha).getFullYear() === añoActual).length +
+                            mantenimientos.length;
+
+            const porcentajePAT = Math.round((totalPAT / 48) * 100);
+            if (document.getElementById('labelPAT')) {
+                document.getElementById('labelPAT').innerHTML = `<strong>${totalPAT}/48</strong> (${porcentajePAT}%)`;
+            }
+            if (document.getElementById('progressPAT')) {
+                document.getElementById('progressPAT').style.width = porcentajePAT + '%';
+            }
+
+            // MANTENIMIENTOS DEL MES
+            const mantenimientosMes = mantenimientos.filter(m => {
+                if (!m.fecha) return true; // Contar si no tiene fecha
+                try {
+                    const fecha = new Date(m.fecha);
+                    return fecha.getMonth() === mesActual && fecha.getFullYear() === añoActual;
+                } catch (e) {
+                    return true;
+                }
+            }).length;
+
+            console.log('🔧 Mantenimientos del mes:', mantenimientosMes);
+
+            const porcentajeMantenimiento = Math.round((mantenimientosMes / 12) * 100);
+            if (document.getElementById('labelMantenimiento')) {
+                document.getElementById('labelMantenimiento').innerHTML = `<strong>${mantenimientosMes}/12</strong> (${porcentajeMantenimiento}%)`;
+            }
+            if (document.getElementById('progressMantenimiento')) {
+                document.getElementById('progressMantenimiento').style.width = Math.min(porcentajeMantenimiento, 100) + '%';
+            }
+
+            // Mostrar cumplimiento global (95% base + datos reales)
+            let cumplimientoGlobal = 95;
+            if (totalPAT > 0) {
+                cumplimientoGlobal = Math.min(95 + Math.round(totalPAT / 10), 100);
+            }
+            if (document.getElementById('statCumplimiento')) {
+                document.getElementById('statCumplimiento').textContent = cumplimientoGlobal + '%';
+            }
+
+            console.log('✅ Dashboard actualizado:', {
+                inspeccionesMes,
+                mantenimientosMes,
+                totalPAT,
+                cumplimientoGlobal
+            });
+        }
+
+        // ACTUALIZAR AL CARGAR LA PÁGINA
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Sistema Nepal 2 cargado');
+            actualizarDashboard2026();
+        });
+
+        // ACTUALIZAR CADA 30 SEGUNDOS
+        setInterval(function() {
+            actualizarDashboard2026();
+        }, 30000);
+
+        // ACTUALIZAR AL VOLVER A LA PESTAÑA
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden) {
+                actualizarDashboard2026();
+            }
+        });
+
+        // FUNCIÓN PÚBLICA PARA ACTUALIZAR MANUALMENTE
+        function actualizarDashboardManual() {
+            actualizarDashboard2026();
+            alert('✅ Dashboard actualizado con datos del LocalStorage\n\nMantenimientos encontrados: ' + obtenerTodosLosMantenimientos().length);
+        }
+    </script>
+</body>
+</html>
