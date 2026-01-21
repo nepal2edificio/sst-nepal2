@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de Cuenta por Cobrar SST - Compliance Pro</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #2c5f7c 0%, #3d7a96 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2c5f7c 0%, #3d7a96 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.2em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+        
+        .form-section {
+            padding: 40px;
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-bottom: 25px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .form-group label {
+            font-weight: 600;
+            color: #2c5f7c;
+            margin-bottom: 10px;
+            font-size: 1.05em;
+        }
+        
+        select, input, textarea {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+        
+        select:focus, input:focus, textarea:focus {
+            outline: none;
+            border-color: #4a90e2;
+        }
+        
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+            font-family: inherit;
+        }
+        
+        .highlight {
+            background: #e8f4f8;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #2c5f7c;
+            margin-bottom: 25px;
+        }
+        
+        .btn-container {
+            text-align: center;
+            padding: 30px;
+            background: #f8f9fa;
+        }
+        
+        .btn {
+            padding: 16px 40px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #2c5f7c 0%, #3d7a96 100%);
+            color: white;
+            margin: 0 10px;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(44, 95, 124, 0.3);
+        }
+        
+        #preview {
+            display: none;
+            margin-top: 30px;
+            padding: 40px;
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+        }
+        
+        .cuenta-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px;
+            background: white;
+            font-family: Arial, sans-serif;
+            color: #333;
+        }
+        
+        .cuenta-header {
+            display: grid;
+            grid-template-columns: 150px 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #2c5f7c;
+        }
+        
+        .cuenta-logo {
+            width: 150px;
+            height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .cuenta-logo img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        
+        .cuenta-info-header {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .cuenta-info-header h2 {
+            color: #2c5f7c;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        
+        .cuenta-info-header p {
+            color: #666;
+            margin: 5px 0;
+            font-size: 14px;
+        }
+        
+        .cuenta-titulo {
+            text-align: center;
+            margin: 30px 0;
+        }
+        
+        .cuenta-titulo h1 {
+            color: #2c5f7c;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        .cuenta-numero {
+            font-size: 18px;
+            color: #666;
+        }
+        
+        .cuenta-detalles {
+            display: grid;
+            grid-template-columns: 150px 1fr;
+            gap: 15px;
+            margin: 30px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .cuenta-detalles .label {
+            font-weight: 600;
+            color: #2c5f7c;
+        }
+        
+        .cuenta-detalles .value {
+            color: #333;
+        }
+        
+        .cuenta-tabla {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 30px 0;
+        }
+        
+        .cuenta-tabla th {
+            background: #2c5f7c;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        .cuenta-tabla td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .cuenta-tabla tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .cuenta-total {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            text-align: right;
+        }
+        
+        .cuenta-total .total-label {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2c5f7c;
+        }
+        
+        .cuenta-total .total-monto {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2c5f7c;
+            margin-top: 10px;
+        }
+        
+        .cuenta-pago {
+            margin: 30px 0;
+            padding: 20px;
+            background: #e8f4f8;
+            border-left: 4px solid #2c5f7c;
+            border-radius: 5px;
+        }
+        
+        .cuenta-pago h3 {
+            color: #2c5f7c;
+            margin-bottom: 15px;
+        }
+        
+        .cuenta-pago p {
+            margin: 8px 0;
+            line-height: 1.6;
+        }
+        
+        .cuenta-footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px solid #ddd;
+            text-align: center;
+            color: #666;
+            font-size: 12px;
+        }
+        
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            .form-section, .btn-container, .header {
+                display: none;
+            }
+            #preview {
+                display: block !important;
+                border: none;
+                padding: 0;
+                margin: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💼 Generador de Cuenta por Cobrar</h1>
+            <p>Servicios SST - Compliance Pro</p>
+        </div>
+        
+        <div class="form-section">
+            <!-- Selector de Edificio -->
+            <div class="highlight">
+                <div class="form-group">
+                    <label>🏢 Seleccione el Edificio *</label>
+                    <select id="edificioSelect" onchange="cargarDatosEdificio()" required>
+                        <option value="">-- Seleccione un edificio --</option>
+                        <option value="nepal2">Edificio Nepal 2</option>
+                        <option value="convivienda">Edificio Convivienda I</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Número de Cuenta *</label>
+                    <input type="text" id="numeroCuenta" placeholder="Ej: 001-2026" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Fecha de Emisión *</label>
+                    <input type="date" id="fechaEmision" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Fecha de Vencimiento *</label>
+                    <input type="date" id="fechaVencimiento" required>
+                </div>
+            </div>
+            
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Nombre del Cliente/Edificio *</label>
+                    <input type="text" id="nombreCliente" placeholder="Auto-completado al seleccionar edificio" required readonly style="background: #f0f0f0;">
+                </div>
+                
+                <div class="form-group">
+                    <label>NIT *</label>
+                    <input type="text" id="nitCliente" placeholder="Auto-completado" required readonly style="background: #f0f0f0;">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>Dirección</label>
+                <input type="text" id="direccionCliente" placeholder="Auto-completado" readonly style="background: #f0f0f0;">
+            </div>
+            
+            <div class="form-group">
+                <label>Descripción del Servicio *</label>
+                <textarea id="descripcionServicio" placeholder="Ej: Servicios de Gestión SST - Mes de Enero 2026" required></textarea>
+            </div>
+            
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Valor Total *</label>
+                    <input type="number" id="valorTotal" placeholder="Ej: 850000" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Moneda</label>
+                    <select id="moneda">
+                        <option value="COP">COP - Pesos Colombianos</option>
+                        <option value="USD">USD - Dólares</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        
+        <div class="btn-container">
+            <button class="btn btn-primary" onclick="generarVistaPrevia()">👁️ Ver Vista Previa</button>
+            <button class="btn btn-primary" onclick="window.print()">🖨️ Imprimir/Guardar PDF</button>
+        </div>
+        
+        <div id="preview" class="form-section">
+            <!-- Aquí se generará la vista previa -->
+        </div>
+    </div>
+    
+    <script>
+        // Base de datos de edificios
+        const edificios = {
+            nepal2: {
+                nombre: 'Edificio Nepal 2',
+                nit: '900123456-7',
+                direccion: 'Calle 138 #10a-71, Usaquén, Bogotá D.C.'
+            },
+            convivienda: {
+                nombre: 'Edificio Convivienda I',
+                nit: '830112728-5',
+                direccion: 'CR 10a #138-71, Usaquén, Bogotá D.C.'
+            }
+        };
+        
+        // Establecer fecha actual por defecto
+        document.getElementById('fechaEmision').valueAsDate = new Date();
+        
+        // Establecer fecha de vencimiento 30 días después
+        const fechaVenc = new Date();
+        fechaVenc.setDate(fechaVenc.getDate() + 30);
+        document.getElementById('fechaVencimiento').valueAsDate = fechaVenc;
+        
+        function cargarDatosEdificio() {
+            const edificioId = document.getElementById('edificioSelect').value;
+            
+            if (!edificioId) {
+                // Limpiar campos
+                document.getElementById('nombreCliente').value = '';
+                document.getElementById('nitCliente').value = '';
+                document.getElementById('direccionCliente').value = '';
+                return;
+            }
+            
+            const edificio = edificios[edificioId];
+            
+            // Auto-llenar datos
+            document.getElementById('nombreCliente').value = edificio.nombre;
+            document.getElementById('nitCliente').value = edificio.nit;
+            document.getElementById('direccionCliente').value = edificio.direccion;
+            
+            // Auto-generar número de cuenta
+            const mes = new Date().getMonth() + 1;
+            const año = new Date().getFullYear();
+            const numeroAuto = `${edificioId.toUpperCase()}-${mes.toString().padStart(2, '0')}${año}`;
+            document.getElementById('numeroCuenta').value = numeroAuto;
+        }
+        
+        function generarVistaPrevia() {
+            // Validar campos requeridos
+            const edificioSelect = document.getElementById('edificioSelect').value;
+            if (!edificioSelect) {
+                alert('⚠️ Por favor seleccione un edificio primero');
+                document.getElementById('edificioSelect').focus();
+                return;
+            }
+            
+            const campos = ['numeroCuenta', 'fechaEmision', 'fechaVencimiento', 'nombreCliente', 'nitCliente', 'descripcionServicio', 'valorTotal'];
+            let valido = true;
+            
+            campos.forEach(campo => {
+                const elemento = document.getElementById(campo);
+                if (!elemento.value) {
+                    elemento.style.borderColor = 'red';
+                    valido = false;
+                } else {
+                    elemento.style.borderColor = '#ddd';
+                }
+            });
+            
+            if (!valido) {
+                alert('Por favor complete todos los campos marcados con *');
+                return;
+            }
+            
+            // Obtener valores
+            const numeroCuenta = document.getElementById('numeroCuenta').value;
+            const fechaEmision = document.getElementById('fechaEmision').value;
+            const fechaVencimiento = document.getElementById('fechaVencimiento').value;
+            const nombreCliente = document.getElementById('nombreCliente').value;
+            const nitCliente = document.getElementById('nitCliente').value;
+            const direccionCliente = document.getElementById('direccionCliente').value;
+            const descripcionServicio = document.getElementById('descripcionServicio').value;
+            const valorTotal = parseFloat(document.getElementById('valorTotal').value);
+            const moneda = document.getElementById('moneda').value;
+            
+            // Formatear fechas
+            const formatoFecha = (fecha) => {
+                const f = new Date(fecha + 'T00:00:00');
+                return f.toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' });
+            };
+            
+            // Formatear moneda
+            const formatoMoneda = (valor, mon) => {
+                if (mon === 'COP') {
+                    return `$${valor.toLocaleString('es-CO')} COP`;
+                } else {
+                    return `$${valor.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD`;
+                }
+            };
+            
+            // Logo en base64
+            const logoBase64 = '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';
+            
+            // Generar HTML de vista previa
+            const vistaPrevia = `
+                <div class="cuenta-container">
+                    <div class="cuenta-header">
+                        <div class="cuenta-logo">
+                            <img src="data:image/png;base64,${logoBase64}" alt="Compliance Pro Logo">
+                        </div>
+                        <div class="cuenta-info-header">
+                            <h2>COMPLIANCE PRO</h2>
+                            <p><strong>Sistema SG-SST</strong></p>
+                            <p>Carla Castellano Madriz</p>
+                            <p>C.E. 679955</p>
+                            <p>Email: c3madrizmedia@gmail.com</p>
+                        </div>
+                    </div>
+                    
+                    <div class="cuenta-titulo">
+                        <h1>CUENTA POR COBRAR</h1>
+                        <p class="cuenta-numero">No. ${numeroCuenta}</p>
+                    </div>
+                    
+                    <div class="cuenta-detalles">
+                        <span class="label">Fecha de Emisión:</span>
+                        <span class="value">${formatoFecha(fechaEmision)}</span>
+                        
+                        <span class="label">Fecha de Vencimiento:</span>
+                        <span class="value">${formatoFecha(fechaVencimiento)}</span>
+                        
+                        <span class="label">Cliente:</span>
+                        <span class="value"><strong>${nombreCliente}</strong></span>
+                        
+                        <span class="label">NIT:</span>
+                        <span class="value">${nitCliente}</span>
+                        
+                        <span class="label">Dirección:</span>
+                        <span class="value">${direccionCliente}</span>
+                    </div>
+                    
+                    <table class="cuenta-tabla">
+                        <thead>
+                            <tr>
+                                <th>Descripción</th>
+                                <th style="text-align: right; width: 200px;">Valor</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>${descripcionServicio}</td>
+                                <td style="text-align: right;">${formatoMoneda(valorTotal, moneda)}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <div class="cuenta-total">
+                        <div class="total-label">TOTAL A PAGAR:</div>
+                        <div class="total-monto">${formatoMoneda(valorTotal, moneda)}</div>
+                    </div>
+                    
+                    <div class="cuenta-pago">
+                        <h3>Información de Pago</h3>
+                        <p><strong>Banco:</strong> Bancolombia</p>
+                        <p><strong>Tipo de Cuenta:</strong> Ahorros</p>
+                        <p><strong>Número de Cuenta:</strong> 141-71042276</p>
+                        <p><strong>Titular:</strong> Carla Castellano Madriz</p>
+                        <p style="margin-top: 15px; font-style: italic; font-size: 0.9em;">
+                            Esta es una cuenta por cobrar electrónica. Para mayor información contactar a: c3madrizmedia@gmail.com
+                        </p>
+                    </div>
+                    
+                    <div class="cuenta-footer">
+                        <p>COMPLIANCE PRO - Sistema SG-SST</p>
+                        <p>Documento generado electrónicamente</p>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('preview').innerHTML = vistaPrevia;
+            document.getElementById('preview').style.display = 'block';
+            
+            // Scroll a vista previa
+            document.getElementById('preview').scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
