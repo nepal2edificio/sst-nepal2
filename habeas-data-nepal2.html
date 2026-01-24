@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Habeas Data - Edificio Nepal 2</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2C5F6F 0%, #5DCCC1 100%);
+            padding: 40px;
+            text-align: center;
+            color: white;
+        }
+
+        .logo {
+            max-width: 200px;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .intro {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 40px;
+            border-left: 5px solid #2C5F6F;
+        }
+
+        .intro h2 {
+            color: #2C5F6F;
+            margin-bottom: 15px;
+        }
+
+        .intro p {
+            line-height: 1.8;
+            color: #555;
+            margin-bottom: 10px;
+        }
+
+        .cards-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            padding: 30px;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(44, 95, 111, 0.2);
+            border-color: #2C5F6F;
+        }
+
+        .card-icon {
+            font-size: 3em;
+            margin-bottom: 20px;
+        }
+
+        .card h3 {
+            color: #2C5F6F;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .card p {
+            color: #666;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #2C5F6F 0%, #5DCCC1 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(44, 95, 111, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(44, 95, 111, 0.4);
+        }
+
+        .info-section {
+            background: #fff9e6;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            border-left: 5px solid #ffc107;
+        }
+
+        .info-section h3 {
+            color: #e67e22;
+            margin-bottom: 15px;
+        }
+
+        .info-section ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .info-section li {
+            padding: 10px 0;
+            border-bottom: 1px solid #ffe0b2;
+            color: #555;
+        }
+
+        .info-section li:before {
+            content: "✓ ";
+            color: #5DCCC1;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .contact-box {
+            background: #e3f2fd;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .contact-box h3 {
+            color: #2C5F6F;
+            margin-bottom: 15px;
+        }
+
+        .contact-box p {
+            color: #555;
+            margin: 10px 0;
+            font-size: 1.1em;
+        }
+
+        .contact-box a {
+            color: #2C5F6F;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .back-btn {
+            display: inline-block;
+            margin-top: 30px;
+            padding: 12px 25px;
+            background: #6c757d;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: #5a6268;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.5em;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            .cards-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📋 HABEAS DATA</h1>
+            <p>Edificio Nepal 2</p>
+            <p style="font-size: 0.9em; margin-top: 10px;">Protección de Datos Personales - Ley 1581 de 2012</p>
+        </div>
+
+        <div class="content">
+            <div class="intro">
+                <h2>¿Qué es Habeas Data?</h2>
+                <p>El Habeas Data es un derecho fundamental consagrado en la Constitución Política de Colombia que le permite conocer, actualizar y rectificar la información que se haya recogido sobre usted en bases de datos.</p>
+                <p>De acuerdo con la <strong>Ley 1581 de 2012</strong>, el Edificio Nepal 2 requiere su autorización expresa para el tratamiento de sus datos personales.</p>
+            </div>
+
+            <h2 style="text-align: center; color: #2C5F6F; margin-bottom: 30px;">Autorización de Datos Personales</h2>
+
+            <div class="cards-container">
+                <div class="card">
+                    <div class="card-icon">👥</div>
+                    <h3>Propietarios y Residentes</h3>
+                    <p>Si usted es propietario o residente del edificio, complete este formulario para autorizar el tratamiento de sus datos personales.</p>
+                    <a href="https://www.jotform.com/sign/260228588052055/invite/01kfq5maxpef2648d406bb0e0a" class="btn" target="_blank">Firmar Autorización</a>
+                </div>
+
+                <div class="card">
+                    <div class="card-icon">👷</div>
+                    <h3>Trabajadores</h3>
+                    <p>Si usted trabaja en el edificio, complete este formulario para autorizar el tratamiento de sus datos laborales y de SST.</p>
+                    <a href="https://www.jotform.com/sign/260229052845052/invite/01kfq5pjyy7946d86aaaacbb8a" class="btn" target="_blank">Firmar Autorización</a>
+                </div>
+            </div>
+
+            <div class="info-section">
+                <h3>Sus Derechos ARCO</h3>
+                <p style="margin-bottom: 15px;">Como titular de datos personales, usted tiene derecho a:</p>
+                <ul>
+                    <li><strong>ACCESO:</strong> Conocer qué datos personales tenemos sobre usted</li>
+                    <li><strong>RECTIFICACIÓN:</strong> Solicitar la corrección de datos inexactos o incompletos</li>
+                    <li><strong>CANCELACIÓN:</strong> Solicitar la eliminación de sus datos (sujeto a obligaciones legales)</li>
+                    <li><strong>OPOSICIÓN:</strong> Oponerse al tratamiento de sus datos por motivos legítimos</li>
+                </ul>
+            </div>
+
+            <div class="info-section" style="background: #f3e5f5; border-left-color: #9c27b0;">
+                <h3 style="color: #7b1fa2;">¿Para qué usamos sus datos?</h3>
+                <ul>
+                    <li>Administración de la propiedad horizontal</li>
+                    <li>Gestión financiera y cobro de cuotas</li>
+                    <li>Comunicaciones oficiales y convocatorias</li>
+                    <li>Seguridad y control de acceso</li>
+                    <li>Cumplimiento de obligaciones legales</li>
+                </ul>
+            </div>
+
+            <div class="contact-box">
+                <h3>📞 Contacto para Ejercer sus Derechos</h3>
+                <p>📧 Email: <a href="mailto:nepal2edificio@gmail.com">nepal2edificio@gmail.com</a></p>
+                <p>📱 Teléfono: <a href="tel:+573026662046">+57 302 666 2046</a></p>
+                <p style="font-size: 0.9em; margin-top: 15px; color: #666;">
+                    <strong>Plazos de respuesta:</strong><br>
+                    Consultas: 10 días hábiles | Reclamos: 15 días hábiles
+                </p>
+            </div>
+
+            <div style="text-align: center;">
+                <a href="index.html" class="back-btn">← Volver al Inicio</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
