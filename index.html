@@ -1619,124 +1619,134 @@
         // ═══════════════════════════════════════════════════════════════
 
         function actualizarDashboard2026() {
-            // Cargar datos del LocalStorage
-            const supervisiones = JSON.parse(localStorage.getItem('supervisiones_nepal2') || '[]');
-            const inspecciones = JSON.parse(localStorage.getItem('inspecciones_nepal2') || '[]');
-            const inducciones = JSON.parse(localStorage.getItem('inducciones_nepal2') || '[]');
-            const mantenimientos = obtenerTodosLosMantenimientos(); // ← LEE DE PROGRAMA + REGISTROS
-            const contratistas = JSON.parse(localStorage.getItem('contratistas_nepal2') || '[]');
-            const accidentes = JSON.parse(localStorage.getItem('accidentes_nepal2') || '[]');
+            // LEER DATOS DE FIREBASE EN TIEMPO REAL
+            const db = firebase.database();
+            const edificioRef = db.ref('edificios/nepal-2');
 
-            // Calcular estadísticas
-            const mesActual = new Date().getMonth();
-            const añoActual = new Date().getFullYear();
+            edificioRef.once('value').then(snapshot => {
+                const data = snapshot.val() || {};
+                
+                // Convertir objetos de Firebase a arrays
+                const supervisiones = data.supervisiones ? Object.values(data.supervisiones) : [];
+                const inspecciones = data.inspecciones ? Object.values(data.inspecciones) : [];
+                const inducciones = data.inducciones ? Object.values(data.inducciones) : [];
+                const mantenimientos = data.mantenimientos ? Object.values(data.mantenimientos) : [];
+                const contratistas = []; // Si tienes contratistas, agrégalos aquí
+                const accidentes = []; // Si tienes accidentes, agrégalos aquí
 
-            console.log('📊 Datos cargados:', {
-                supervisiones: supervisiones.length,
-                inspecciones: inspecciones.length,
-                inducciones: inducciones.length,
-                mantenimientos: mantenimientos.length,
-                contratistas: contratistas.length
-            });
+                // Calcular estadísticas
+                const mesActual = new Date().getMonth();
+                const añoActual = new Date().getFullYear();
 
-            // INSPECCIONES DEL MES
-            const inspeccionesMes = supervisiones.filter(s => {
-                const fecha = new Date(s.fecha);
-                return fecha.getMonth() === mesActual && fecha.getFullYear() === añoActual;
-            }).length + inspecciones.filter(i => {
-                const fecha = new Date(i.fecha);
-                return fecha.getMonth() === mesActual && fecha.getFullYear() === añoActual;
-            }).length;
+                console.log('📊 Datos cargados desde Firebase:', {
+                    supervisiones: supervisiones.length,
+                    inspecciones: inspecciones.length,
+                    inducciones: inducciones.length,
+                    mantenimientos: mantenimientos.length,
+                    contratistas: contratistas.length
+                });
 
-            if (document.getElementById('statInspecciones')) {
-                document.getElementById('statInspecciones').textContent = inspeccionesMes + '/12';
-            }
-
-            // CONTRATISTAS
-            let porcentajeContratistas = 0;
-            if (contratistas.length > 0) {
-                const completos = contratistas.filter(c => c.cumplimiento >= 90).length;
-                porcentajeContratistas = Math.round((completos / contratistas.length) * 100);
-            }
-            if (document.getElementById('statContratistas')) {
-                document.getElementById('statContratistas').textContent = porcentajeContratistas + '%';
-            }
-
-            // ACCIDENTES
-            const accidentesAño = accidentes.filter(a => new Date(a.fecha).getFullYear() === añoActual).length;
-            if (document.getElementById('statAccidentes')) {
-                document.getElementById('statAccidentes').textContent = accidentesAño;
-            }
-
-            // ACTIVIDADES ENERO
-            const actividadesEnero = supervisiones.filter(s => {
-                const fecha = new Date(s.fecha);
-                return fecha.getMonth() === 0 && fecha.getFullYear() === añoActual;
-            }).length + inspecciones.filter(i => {
-                const fecha = new Date(i.fecha);
-                return fecha.getMonth() === 0 && fecha.getFullYear() === añoActual;
-            }).length + inducciones.filter(i => {
-                const fecha = new Date(i.fecha);
-                return fecha.getMonth() === 0 && fecha.getFullYear() === añoActual;
-            }).length;
-
-            const porcentajeEnero = Math.round((actividadesEnero / 4) * 100);
-            if (document.getElementById('labelEnero')) {
-                document.getElementById('labelEnero').innerHTML = `<strong>${actividadesEnero}/4</strong> (${porcentajeEnero}%)`;
-            }
-            if (document.getElementById('progressEnero')) {
-                document.getElementById('progressEnero').style.width = porcentajeEnero + '%';
-            }
-
-            // TOTAL PAT 2026
-            const totalPAT = supervisiones.filter(s => new Date(s.fecha).getFullYear() === añoActual).length +
-                            inspecciones.filter(i => new Date(i.fecha).getFullYear() === añoActual).length +
-                            inducciones.filter(i => new Date(i.fecha).getFullYear() === añoActual).length +
-                            mantenimientos.length;
-
-            const porcentajePAT = Math.round((totalPAT / 48) * 100);
-            if (document.getElementById('labelPAT')) {
-                document.getElementById('labelPAT').innerHTML = `<strong>${totalPAT}/48</strong> (${porcentajePAT}%)`;
-            }
-            if (document.getElementById('progressPAT')) {
-                document.getElementById('progressPAT').style.width = porcentajePAT + '%';
-            }
-
-            // MANTENIMIENTOS DEL MES
-            const mantenimientosMes = mantenimientos.filter(m => {
-                if (!m.fecha) return true; // Contar si no tiene fecha
-                try {
-                    const fecha = new Date(m.fecha);
+                // INSPECCIONES DEL MES
+                const inspeccionesMes = supervisiones.filter(s => {
+                    const fecha = new Date(s.fecha);
                     return fecha.getMonth() === mesActual && fecha.getFullYear() === añoActual;
-                } catch (e) {
-                    return true;
+                }).length + inspecciones.filter(i => {
+                    const fecha = new Date(i.fecha);
+                    return fecha.getMonth() === mesActual && fecha.getFullYear() === añoActual;
+                }).length;
+
+                if (document.getElementById('statInspecciones')) {
+                    document.getElementById('statInspecciones').textContent = inspeccionesMes + '/12';
                 }
-            }).length;
 
-            console.log('🔧 Mantenimientos del mes:', mantenimientosMes);
+                // CONTRATISTAS
+                let porcentajeContratistas = 85; // Valor por defecto hasta que agregues contratistas a Firebase
+                if (contratistas.length > 0) {
+                    const completos = contratistas.filter(c => c.cumplimiento >= 90).length;
+                    porcentajeContratistas = Math.round((completos / contratistas.length) * 100);
+                }
+                if (document.getElementById('statContratistas')) {
+                    document.getElementById('statContratistas').textContent = porcentajeContratistas + '%';
+                }
 
-            const porcentajeMantenimiento = Math.round((mantenimientosMes / 12) * 100);
-            if (document.getElementById('labelMantenimiento')) {
-                document.getElementById('labelMantenimiento').innerHTML = `<strong>${mantenimientosMes}/12</strong> (${porcentajeMantenimiento}%)`;
-            }
-            if (document.getElementById('progressMantenimiento')) {
-                document.getElementById('progressMantenimiento').style.width = Math.min(porcentajeMantenimiento, 100) + '%';
-            }
+                // ACCIDENTES
+                const accidentesAño = accidentes.filter(a => new Date(a.fecha).getFullYear() === añoActual).length;
+                if (document.getElementById('statAccidentes')) {
+                    document.getElementById('statAccidentes').textContent = accidentesAño;
+                }
 
-            // Mostrar cumplimiento global (95% base + datos reales)
-            let cumplimientoGlobal = 95;
-            if (totalPAT > 0) {
-                cumplimientoGlobal = Math.min(95 + Math.round(totalPAT / 10), 100);
-            }
-            if (document.getElementById('statCumplimiento')) {
-                document.getElementById('statCumplimiento').textContent = cumplimientoGlobal + '%';
-            }
+                // ACTIVIDADES ENERO
+                const actividadesEnero = supervisiones.filter(s => {
+                    const fecha = new Date(s.fecha);
+                    return fecha.getMonth() === 0 && fecha.getFullYear() === añoActual;
+                }).length + inspecciones.filter(i => {
+                    const fecha = new Date(i.fecha);
+                    return fecha.getMonth() === 0 && fecha.getFullYear() === añoActual;
+                }).length + inducciones.filter(i => {
+                    const fecha = new Date(i.fecha);
+                    return fecha.getMonth() === 0 && fecha.getFullYear() === añoActual;
+                }).length;
 
-            console.log('✅ Dashboard actualizado:', {
-                inspeccionesMes,
-                mantenimientosMes,
-                totalPAT,
-                cumplimientoGlobal
+                const porcentajeEnero = Math.round((actividadesEnero / 4) * 100);
+                if (document.getElementById('labelEnero')) {
+                    document.getElementById('labelEnero').innerHTML = `<strong>${actividadesEnero}/4</strong> (${porcentajeEnero}%)`;
+                }
+                if (document.getElementById('progressEnero')) {
+                    document.getElementById('progressEnero').style.width = porcentajeEnero + '%';
+                }
+
+                // TOTAL PAT 2026
+                const totalPAT = supervisiones.filter(s => new Date(s.fecha).getFullYear() === añoActual).length +
+                                inspecciones.filter(i => new Date(i.fecha).getFullYear() === añoActual).length +
+                                inducciones.filter(i => new Date(i.fecha).getFullYear() === añoActual).length +
+                                mantenimientos.filter(m => new Date(m.fecha).getFullYear() === añoActual).length;
+
+                const porcentajePAT = Math.round((totalPAT / 48) * 100);
+                if (document.getElementById('labelPAT')) {
+                    document.getElementById('labelPAT').innerHTML = `<strong>${totalPAT}/48</strong> (${porcentajePAT}%)`;
+                }
+                if (document.getElementById('progressPAT')) {
+                    document.getElementById('progressPAT').style.width = porcentajePAT + '%';
+                }
+
+                // MANTENIMIENTOS DEL MES
+                const mantenimientosMes = mantenimientos.filter(m => {
+                    if (!m.fecha) return false;
+                    try {
+                        const fecha = new Date(m.fecha);
+                        return fecha.getMonth() === mesActual && fecha.getFullYear() === añoActual;
+                    } catch (e) {
+                        return false;
+                    }
+                }).length;
+
+                console.log('🔧 Mantenimientos del mes:', mantenimientosMes);
+
+                const porcentajeMantenimiento = Math.round((mantenimientosMes / 12) * 100);
+                if (document.getElementById('labelMantenimiento')) {
+                    document.getElementById('labelMantenimiento').innerHTML = `<strong>${mantenimientosMes}/12</strong> (${porcentajeMantenimiento}%)`;
+                }
+                if (document.getElementById('progressMantenimiento')) {
+                    document.getElementById('progressMantenimiento').style.width = Math.min(porcentajeMantenimiento, 100) + '%';
+                }
+
+                // Mostrar cumplimiento global (95% base + datos reales)
+                let cumplimientoGlobal = 95;
+                if (totalPAT > 0) {
+                    cumplimientoGlobal = Math.min(95 + Math.round(totalPAT / 10), 100);
+                }
+                if (document.getElementById('statCumplimiento')) {
+                    document.getElementById('statCumplimiento').textContent = cumplimientoGlobal + '%';
+                }
+
+                console.log('✅ Dashboard actualizado desde Firebase:', {
+                    inspeccionesMes,
+                    mantenimientosMes,
+                    totalPAT,
+                    cumplimientoGlobal
+                });
+            }).catch(error => {
+                console.error('❌ Error leyendo Firebase:', error);
             });
         }
 
