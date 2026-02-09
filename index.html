@@ -1750,28 +1750,108 @@
             });
         }
 
+        // ═══════════════════════════════════════════════════════════════
+        // ACTUALIZAR BADGES DE EJECUCIÓN CONSTANTE
+        // ═══════════════════════════════════════════════════════════════
+        
+        function actualizarBadgesEjecucion() {
+            const db = firebase.database();
+            const edificioRef = db.ref('edificios/nepal-2');
+
+            edificioRef.once('value').then(snapshot => {
+                const data = snapshot.val() || {};
+                
+                const supervisiones = data.supervisiones ? Object.values(data.supervisiones) : [];
+                const inspecciones = data.inspecciones ? Object.values(data.inspecciones) : [];
+                const inducciones = data.inducciones ? Object.values(data.inducciones) : [];
+                const mantenimientos = data.mantenimientos ? Object.values(data.mantenimientos) : [];
+                
+                const mesActual = new Date().getMonth();
+                const añoActual = new Date().getFullYear();
+                
+                // SUPERVISIÓN MENSUAL - último mes realizado
+                const supervisionesMeses = supervisiones.map(s => {
+                    const fecha = new Date(s.fecha);
+                    return fecha.toLocaleString('es', { month: 'long', year: 'numeric' });
+                });
+                const ultimaSupervision = supervisionesMeses[supervisionesMeses.length - 1] || 'Pendiente';
+                const badgeSupervision = document.querySelector('[onclick="openTool(\'supervision\')"] .status-badge');
+                if (badgeSupervision) {
+                    if (supervisiones.length > 0) {
+                        badgeSupervision.textContent = `Última: ${ultimaSupervision}`;
+                        badgeSupervision.className = 'status-badge completed';
+                    } else {
+                        badgeSupervision.textContent = 'Pendiente';
+                        badgeSupervision.className = 'status-badge pending';
+                    }
+                }
+                
+                // INDUCCIONES - contar del año
+                const induccionesAño = inducciones.filter(i => new Date(i.fecha).getFullYear() === añoActual).length;
+                const badgeInduccion = document.querySelector('[onclick="openTool(\'induccion\')"] .status-badge');
+                if (badgeInduccion) {
+                    if (induccionesAño > 0) {
+                        badgeInduccion.textContent = `${induccionesAño} realizadas`;
+                        badgeInduccion.className = 'status-badge completed';
+                    } else {
+                        badgeInduccion.textContent = 'Pendiente';
+                        badgeInduccion.className = 'status-badge pending';
+                    }
+                }
+                
+                // INSPECCIONES - contar del año
+                const inspeccionesAño = inspecciones.filter(i => new Date(i.fecha).getFullYear() === añoActual).length;
+                const badgeInspecciones = document.querySelector('[onclick="openTool(\'inspecciones\')"] .status-badge');
+                if (badgeInspecciones) {
+                    badgeInspecciones.textContent = `${inspeccionesAño}/12 realizadas`;
+                    badgeInspecciones.className = inspeccionesAño >= 12 ? 'status-badge completed' : 'status-badge pending';
+                }
+                
+                // MANTENIMIENTOS - contar del año
+                const mantenimientosAño = mantenimientos.filter(m => new Date(m.fecha).getFullYear() === añoActual).length;
+                const badgeMantenimientos = document.querySelector('[onclick="openTool(\'mantenimiento-registro\')"] .status-badge');
+                if (badgeMantenimientos) {
+                    badgeMantenimientos.textContent = `${mantenimientosAño}/12 registrados`;
+                    badgeMantenimientos.className = mantenimientosAño >= 12 ? 'status-badge completed' : 'status-badge pending';
+                }
+                
+                console.log('✅ Badges actualizados:', {
+                    supervisiones: supervisiones.length,
+                    inducciones: induccionesAño,
+                    inspecciones: inspeccionesAño,
+                    mantenimientos: mantenimientosAño
+                });
+            }).catch(error => {
+                console.error('❌ Error actualizando badges:', error);
+            });
+        }
+
         // ACTUALIZAR AL CARGAR LA PÁGINA
         document.addEventListener('DOMContentLoaded', function() {
             console.log('🚀 Sistema Nepal 2 cargado');
             actualizarDashboard2026();
+            actualizarBadgesEjecucion();
         });
 
         // ACTUALIZAR CADA 30 SEGUNDOS
         setInterval(function() {
             actualizarDashboard2026();
+            actualizarBadgesEjecucion();
         }, 30000);
 
         // ACTUALIZAR AL VOLVER A LA PESTAÑA
         document.addEventListener('visibilitychange', function() {
             if (!document.hidden) {
                 actualizarDashboard2026();
+                actualizarBadgesEjecucion();
             }
         });
 
         // FUNCIÓN PÚBLICA PARA ACTUALIZAR MANUALMENTE
         function actualizarDashboardManual() {
             actualizarDashboard2026();
-            alert('✅ Dashboard actualizado con datos del LocalStorage\n\nMantenimientos encontrados: ' + obtenerTodosLosMantenimientos().length);
+            actualizarBadgesEjecucion();
+            alert('✅ Dashboard y badges actualizados con datos de Firebase');
         }
     </script>
 </body>
