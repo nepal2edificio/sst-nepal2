@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Supervisión Mensual SST - Nepal 2</title>
+    <title>Supervisión Mensual SST - Convivienda 1</title>
     
     <!-- Firebase Scripts (v9 compat) -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -353,7 +353,7 @@
     <div class="container">
         <div class="header">
             <h1>📋 Supervisión Mensual SST</h1>
-            <p>Edificio Nepal 2 | Sistema de registro con fotografías</p>
+            <p>Edificio Convivienda 1 | Sistema de registro con fotografías</p>
         </div>
 
         <div class="nav-buttons">
@@ -456,6 +456,10 @@
             <!-- Hallazgos Negativos -->
             <div class="form-section">
                 <h2>⚠️ Hallazgos Negativos / Riesgos</h2>
+                <div class="form-group">
+                    <label>Describe el hallazgo negativo o condición de riesgo:</label>
+                    <textarea id="hallazgos-negativos-input" placeholder="Ejemplo: Se encontró extintor con fecha de recarga vencida en el piso 3..."></textarea>
+                </div>
                 <button class="btn btn-primary" onclick="agregarHallazgoNegativo()">+ Agregar Hallazgo Negativo</button>
                 <div id="hallazgos-negativos-lista" class="hallazgos-container"></div>
             </div>
@@ -612,9 +616,11 @@
         }
 
         function agregarHallazgoNegativo() {
+            const textoInicial = document.getElementById('hallazgos-negativos-input').value.trim();
+
             contadorHallazgosNegativos++;
             const id = Date.now();
-            
+
             const container = document.getElementById('hallazgos-negativos-lista');
             const item = document.createElement('div');
             item.className = 'hallazgo-item negativo';
@@ -628,7 +634,7 @@
                             <option value="medio" selected>Medio</option>
                             <option value="bajo">Bajo</option>
                         </select>
-                        <button class="btn" onclick="eliminarHallazgoNegativo('${id}')" 
+                        <button class="btn" onclick="eliminarHallazgoNegativo('${id}')"
                                 style="background: #dc3545; color: white; padding: 5px 15px;">
                             Eliminar
                         </button>
@@ -636,7 +642,7 @@
                 </div>
                 <div class="form-group" style="margin-top: 15px;">
                     <label>Descripción del hallazgo:</label>
-                    <textarea id="desc-${id}" placeholder="Describe el riesgo o condición insegura encontrada..."></textarea>
+                    <textarea id="desc-${id}" placeholder="Describe el riesgo o condición insegura encontrada...">${textoInicial}</textarea>
                 </div>
                 <div class="form-group">
                     <label>Área/Ubicación:</label>
@@ -666,7 +672,10 @@
             `;
             
             container.appendChild(item);
-            
+
+            // Limpiar el campo de entrada
+            document.getElementById('hallazgos-negativos-input').value = '';
+
             hallazgosNegativos.push({ id: id });
             actualizarResumen();
         }
@@ -696,26 +705,9 @@
         function guardarSupervision() {
             const datos = recopilarDatos();
             
-            // Validación básica
-            if (!datos.fecha) {
-                alert('❌ Por favor ingresa la fecha de supervisión');
-                return;
-            }
-            
-            if (datos.areas.length === 0) {
-                alert('⚠️ No has seleccionado ningún área inspeccionada');
-                if (!confirm('¿Deseas guardar de todos modos?')) return;
-            }
-            
             // Guardar en Firebase
             const supervisionId = 'supervision-' + Date.now();
             const supervisionRef = database.ref(`edificios/${EDIFICIO_ID}/supervisiones/${supervisionId}`);
-            
-            // Agregar metadata adicional
-            datos.mes = obtenerMes(datos.fecha);
-            datos.año = new Date(datos.fecha).getFullYear();
-            datos.edificio = 'Nepal 2';
-            datos.id = supervisionId;
             
             supervisionRef.set(datos)
                 .then(() => {
@@ -724,45 +716,27 @@
                     // También guardar como borrador (para backup local)
                     localStorage.setItem('supervision_borrador', JSON.stringify(datos));
                     
-                    alert(`✅ SUPERVISIÓN GUARDADA EXITOSAMENTE
-
-📋 ID: ${supervisionId}
-📅 Fecha: ${datos.fecha}
-👤 Responsable: ${datos.responsable}
-🏢 Áreas: ${datos.areas.length}
-📸 Fotos: ${datos.fotos.length}
-✅ Hallazgos Positivos: ${datos.hallazgosPositivos.length}
-⚠️ Hallazgos Negativos: ${datos.hallazgosNegativos.length}
-
-Los datos se guardaron en:
-Firebase → edificios/nepal-2/supervisiones/
-
-Puedes verlos en el Informe Consolidado.`);
+                    alert('✅ Supervisión guardada exitosamente en la nube!\n\nPuedes verla desde cualquier dispositivo en el Informe Consolidado.');
                     
                     if (confirm('¿Deseas ir al Generador de Informe Consolidado ahora?')) {
-                        window.location.href = 'Generador_Informe_Firebase.html';
-                    } else {
-                        // Limpiar formulario
-                        limpiarFormulario();
+                        window.location.href = 'Generador_Informe_Consolidado_Mejorado.html';
                     }
                 })
                 .catch((error) => {
                     console.error('❌ Error guardando supervisión:', error);
-                    alert('❌ Error guardando en Firebase:\n' + error.message + '\n\nDatos guardados localmente como respaldo.');
+                    alert('❌ Error guardando en la nube. Datos guardados localmente como respaldo.');
                     
                     // Fallback: guardar en localStorage si Firebase falla
-                    const supervisiones = JSON.parse(localStorage.getItem('supervisiones_nepal2') || '[]');
+                    const supervisiones = JSON.parse(localStorage.getItem('supervisiones_convivienda1') || '[]');
                     supervisiones.push(datos);
-                    localStorage.setItem('supervisiones_nepal2', JSON.stringify(supervisiones));
+                    localStorage.setItem('supervisiones_convivienda1', JSON.stringify(supervisiones));
                 });
-        }
-        
-        function obtenerMes(fecha) {
-            if (!fecha) return '';
-            const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-                           'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
-            const date = new Date(fecha);
-            return meses[date.getMonth()] + ' ' + date.getFullYear();
+            
+            alert('✅ Supervisión guardada exitosamente!\n\nPuedes verla en el Informe Consolidado.');
+            
+            if (confirm('¿Deseas ir al Generador de Informe Consolidado ahora?')) {
+                window.location.href = 'Generador_Informe_Consolidado_Mejorado.html';
+            }
         }
 
         function guardarBorrador() {
@@ -907,7 +881,7 @@ Puedes verlos en el Informe Consolidado.`);
         });
 
         // ============================================
-        // FIREBASE CONFIGURATION - Nepal 2
+        // FIREBASE CONFIGURATION - Convivienda 1
         // ============================================
         const firebaseConfig = {
           apiKey: "AIzaSyCb2pko11_UOP6V5VPQV_xARWrC5wybQ6w",
@@ -925,9 +899,9 @@ Puedes verlos en el Informe Consolidado.`);
         const storage = firebase.storage();
 
         // Edificio ID
-        const EDIFICIO_ID = 'nepal-2';
+        const EDIFICIO_ID = 'convivienda-1';
 
-        console.log('✅ Firebase inicializado - Módulo Supervisión Nepal 2');
+        console.log('✅ Firebase inicializado - Módulo Supervisión Convivienda 1');
         console.log('📊 Edificio:', EDIFICIO_ID);
     </script>
 </body>
