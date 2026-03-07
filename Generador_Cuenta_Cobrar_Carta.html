@@ -4,6 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Generador Cuenta por Cobrar - Compliance Pro</title>
+    <!-- Firebase Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+    <!-- Librerías para generar PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
@@ -269,7 +276,8 @@
         
         <div class="btn-container">
             <button class="btn" onclick="generarDocumento()">👁️ Ver Vista Previa</button>
-            <button class="btn" onclick="window.print()">🖨️ Imprimir PDF</button>
+            <button class="btn" id="btnGuardarCuenta" onclick="guardarCuentaNube()">☁️ Guardar en la Nube</button>
+            <button class="btn" onclick="imprimirCuenta()">🖨️ Imprimir / Descargar PDF</button>
         </div>
     </div>
     
@@ -398,6 +406,139 @@
             
             document.getElementById('documento').classList.add('visible');
             document.getElementById('documento').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function imprimirCuenta() {
+            window.print();
+        }
+
+        // ============================================
+        // FIREBASE — Inicialización
+        // ============================================
+        const _firebaseCCConfig = {
+            apiKey: "AIzaSyDvOSbIFNIVQNJIHBDmP0SgQ-YMYyakHFI",
+            authDomain: "compliancepro--o--sistemass.firebaseapp.com",
+            databaseURL: "https://compliancepro--o--sistemass-default-rtdb.firebaseio.com",
+            projectId: "compliancepro--o--sistemass",
+            storageBucket: "compliancepro--o--sistemass.firebasestorage.app",
+            messagingSenderId: "188559834704",
+            appId: "1:188559834704:web:73f1b088e9dcda16ab9b55"
+        };
+        let _dbCC, _storageCC;
+        try {
+            firebase.app('cc-app');
+            _dbCC      = firebase.app('cc-app').database();
+            _storageCC = firebase.app('cc-app').storage();
+        } catch(e) {
+            try {
+                const _appCC = firebase.initializeApp(_firebaseCCConfig, 'cc-app');
+                _dbCC        = _appCC.database();
+                _storageCC   = _appCC.storage();
+            } catch(e2) {
+                console.log('Firebase CC init:', e2);
+            }
+        }
+
+        // ============================================
+        // GUARDAR CUENTA EN FIREBASE STORAGE (nube)
+        // ============================================
+        async function guardarCuentaNube() {
+            const documento = document.getElementById('documento');
+            if (!documento || !documento.classList.contains('visible')) {
+                alert('⚠️ Primero genera la Vista Previa del documento con todos los datos.');
+                return;
+            }
+            if (!_storageCC || !_dbCC) {
+                alert('⚠️ Firebase no está inicializado. Recarga la página e intenta de nuevo.');
+                return;
+            }
+
+            const btn = document.getElementById('btnGuardarCuenta');
+            const textoOriginal = btn ? btn.innerHTML : '';
+            if (btn) { btn.disabled = true; btn.innerHTML = '⏳ Capturando documento...'; }
+
+            try {
+                // PASO 1: Capturar el documento como imagen
+                const canvas = await html2canvas(documento, {
+                    scale: 2,
+                    useCORS: true,
+                    logging: false,
+                    backgroundColor: '#ffffff',
+                    windowWidth: documento.scrollWidth,
+                    windowHeight: documento.scrollHeight
+                });
+
+                if (btn) btn.innerHTML = '📄 Creando PDF...';
+
+                // PASO 2: Crear PDF tamaño carta
+                const { jsPDF } = window.jspdf;
+                const pdf     = new jsPDF('p', 'mm', 'letter');
+                const pageW   = pdf.internal.pageSize.getWidth();
+                const imgW    = pageW;
+                const imgH    = (canvas.height * imgW) / canvas.width;
+                const imgData = canvas.toDataURL('image/jpeg', 0.95);
+                pdf.addImage(imgData, 'JPEG', 0, 0, imgW, imgH);
+
+                // PASO 3: Blob del PDF
+                const pdfBlob   = pdf.output('blob');
+                const ahora     = new Date();
+                const mesNum    = ahora.getMonth() + 1;
+                const año       = ahora.getFullYear();
+                const clave     = `${año}-${String(mesNum).padStart(2,'0')}`;
+                const nombreArchivo = `cuenta-cobrar-nepal2-${clave}.pdf`;
+                const descripcion   = document.getElementById('descripcion') ? document.getElementById('descripcion').value : '';
+                const valor         = document.getElementById('valor') ? document.getElementById('valor').value : '';
+
+                if (btn) btn.innerHTML = '☁️ Subiendo a Firebase...';
+
+                // PASO 4: Subir a Firebase Storage
+                const storageRef = _storageCC.ref(`nepal-2/cuentas/${clave}/${nombreArchivo}`);
+                await storageRef.put(pdfBlob, {
+                    contentType: 'application/pdf',
+                    customMetadata: { descripcion, valor, sistema: 'SG-SST Nepal 2' }
+                });
+
+                // PASO 5: URL pública
+                const downloadURL = await storageRef.getDownloadURL();
+
+                // PASO 6: Guardar en Realtime Database
+                await _dbCC.ref(`edificios/nepal-2/cuentas/${clave}`).set({
+                    generado:    true,
+                    fecha:       ahora.toISOString(),
+                    mes:         mesNum,
+                    año:         año,
+                    link:        downloadURL,
+                    archivo:     nombreArchivo,
+                    descripcion: descripcion,
+                    valor:       valor
+                });
+
+                // PASO 7: Descargar copia local
+                pdf.save(nombreArchivo);
+
+                if (btn) btn.innerHTML = '✅ ¡Guardada en la nube!';
+                setTimeout(() => {
+                    if (btn) { btn.disabled = false; btn.innerHTML = textoOriginal; }
+                }, 4000);
+
+                alert(`✅ Cuenta por Cobrar guardada exitosamente:\n\n` +
+                      `📄 Archivo: ${nombreArchivo}\n` +
+                      `☁️ Guardada en Firebase Storage\n` +
+                      `🔗 Link automático en el Dashboard\n\n` +
+                      `También se descargó una copia en tu computador.`);
+
+                console.log('✅ Cuenta subida:', downloadURL);
+
+            } catch (error) {
+                console.error('Error guardando cuenta:', error);
+                if (btn) { btn.disabled = false; btn.innerHTML = textoOriginal; }
+
+                if (error.code === 'storage/unauthorized') {
+                    alert('⚠️ Firebase Storage no tiene permisos.\nConfigura las reglas de Storage en la consola de Firebase.');
+                } else {
+                    alert('❌ Error al subir: ' + error.message);
+                }
+            }
         }
     </script>
 </body>

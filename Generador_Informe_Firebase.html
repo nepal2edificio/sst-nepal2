@@ -8,6 +8,10 @@
     <!-- Firebase Scripts -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+    <!-- Librerías para generar PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -498,11 +502,11 @@
             </div>
             
             <div class="modal-footer">
-                <button class="btn btn-success" onclick="generarPDF()">
-                    📄 Generar PDF Final
+                <button class="btn btn-success" id="btnGenerarPDF" onclick="generarPDF()">
+                    ☁️ Guardar PDF en la Nube
                 </button>
                 <button class="btn btn-primary" onclick="imprimirInforme()">
-                    🖨️ Imprimir Informe
+                    🖨️ Imprimir / Descargar PDF
                 </button>
                 <button class="btn btn-secondary" onclick="cerrarPreview()">
                     Cerrar Vista Previa
@@ -1085,18 +1089,138 @@ Durante este período, se ejecutaron ${datos.capacitaciones} ${datos.capacitacio
             document.getElementById('previewModal').classList.remove('active');
         }
         
+        // ─── Mapa de nombres de mes a número ───
+        const MES_A_NUMERO = {
+            'Enero':1,'Febrero':2,'Marzo':3,'Abril':4,
+            'Mayo':5,'Junio':6,'Julio':7,'Agosto':8,
+            'Septiembre':9,'Octubre':10,'Noviembre':11,'Diciembre':12
+        };
+
+        function obtenerClaveMes() {
+            const mesSelect = document.getElementById('mes');
+            const mesValor  = mesSelect ? mesSelect.value : '';
+            const mesNum    = MES_A_NUMERO[mesValor] || (new Date().getMonth() + 1);
+            const año       = 2026;
+            return {
+                clave:    `${año}-${String(mesNum).padStart(2,'0')}`,
+                mesNum:   mesNum,
+                mesNombre: mesValor || 'Sin mes',
+                año:      año
+            };
+        }
+
         function imprimirInforme() {
             window.print();
         }
-        
-        function generarPDF() {
-            alert('✅ Generando PDF del informe...\n\n' +
-                  'El archivo se descargará en formato PDF.\n' +
-                  '(Para implementación completa se necesita librería jsPDF o similar)');
-            
-            // Aquí iría la implementación con jsPDF
-            // Por ahora, se puede usar window.print() como alternativa
-            window.print();
+
+        // ─── GENERAR PDF Y GUARDAR EN FIREBASE STORAGE ───
+        async function generarPDF() {
+            const previewContent = document.getElementById('previewContent');
+            if (!previewContent || previewContent.innerHTML.trim() === '' ||
+                previewContent.innerHTML.includes('Cargando supervisiones')) {
+                alert('⚠️ Primero debes generar la Vista Previa del informe con todos los datos.');
+                return;
+            }
+
+            const btn = document.getElementById('btnGenerarPDF');
+            const textoOriginal = btn ? btn.innerHTML : '';
+            if (btn) { btn.disabled = true; btn.innerHTML = '⏳ Capturando informe...'; }
+
+            try {
+                // PASO 1: Capturar el contenido del informe como imagen
+                const canvas = await html2canvas(previewContent, {
+                    scale: 2,
+                    useCORS: true,
+                    allowTaint: true,
+                    logging: false,
+                    backgroundColor: '#ffffff',
+                    windowWidth: previewContent.scrollWidth,
+                    windowHeight: previewContent.scrollHeight
+                });
+
+                if (btn) btn.innerHTML = '📄 Creando PDF...';
+
+                // PASO 2: Crear PDF con jsPDF (tamaño carta o A4)
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF('p', 'mm', 'letter');
+                const pageW   = pdf.internal.pageSize.getWidth();
+                const pageH   = pdf.internal.pageSize.getHeight();
+                const imgW    = pageW;
+                const imgH    = (canvas.height * imgW) / canvas.width;
+                const imgData = canvas.toDataURL('image/jpeg', 0.95);
+
+                // Si el contenido es más largo que 1 página, agregar páginas
+                let posY = 0;
+                pdf.addImage(imgData, 'JPEG', 0, posY, imgW, imgH);
+                let restante = imgH - pageH;
+                while (restante > 0) {
+                    posY = -(imgH - restante);
+                    pdf.addPage();
+                    pdf.addImage(imgData, 'JPEG', 0, posY, imgW, imgH);
+                    restante -= pageH;
+                }
+
+                // PASO 3: Obtener blob del PDF
+                const pdfBlob = pdf.output('blob');
+                const { clave, mesNum, mesNombre, año } = obtenerClaveMes();
+                const nombreArchivo = `informe-sst-nepal2-${clave}.pdf`;
+
+                if (btn) btn.innerHTML = '☁️ Subiendo a Firebase...';
+
+                // PASO 4: Subir a Firebase Storage
+                const storageRef = storage.ref(`nepal-2/informes/${clave}/${nombreArchivo}`);
+                await storageRef.put(pdfBlob, {
+                    contentType: 'application/pdf',
+                    customMetadata: {
+                        mes: mesNombre,
+                        año: String(año),
+                        sistema: 'SG-SST Nepal 2 - Compliance Pro'
+                    }
+                });
+
+                // PASO 5: Obtener URL de descarga pública
+                const downloadURL = await storageRef.getDownloadURL();
+
+                // PASO 6: Guardar en Firebase Realtime Database
+                await database.ref(`edificios/nepal-2/informes/${clave}`).set({
+                    generado:   true,
+                    fecha:      new Date().toISOString(),
+                    mes:        mesNum,
+                    año:        año,
+                    nombreMes:  mesNombre,
+                    link:       downloadURL,
+                    archivo:    nombreArchivo
+                });
+
+                // PASO 7: Descargar copia local también
+                pdf.save(nombreArchivo);
+
+                if (btn) { btn.innerHTML = '✅ ¡Guardado en la nube!'; }
+                setTimeout(() => {
+                    if (btn) { btn.disabled = false; btn.innerHTML = textoOriginal; }
+                }, 4000);
+
+                alert(`✅ Informe ${mesNombre} 2026 guardado exitosamente:\n\n` +
+                      `📄 Archivo: ${nombreArchivo}\n` +
+                      `☁️ Guardado en Firebase Storage\n` +
+                      `🔗 Link automático en el Dashboard\n\n` +
+                      `También se descargó una copia en tu computador.`);
+
+                console.log('✅ PDF subido:', downloadURL);
+
+            } catch (error) {
+                console.error('Error generando/subiendo PDF:', error);
+                if (btn) { btn.disabled = false; btn.innerHTML = textoOriginal; }
+
+                if (error.code === 'storage/unauthorized') {
+                    alert('⚠️ Firebase Storage no está activado o las reglas no permiten escritura.\n\n' +
+                          'Ve a la consola de Firebase > Storage > Reglas y configúralas.\n\n' +
+                          'Error: ' + error.message);
+                } else {
+                    alert('❌ Error al subir el PDF:\n' + error.message +
+                          '\n\nRevisa la consola del navegador para más detalles.');
+                }
+            }
         }
 
         // ============================================
@@ -1112,12 +1236,13 @@ Durante este período, se ejecutaron ${datos.capacitaciones} ${datos.capacitacio
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
+        const storage  = firebase.storage();   // ← Firebase Storage para guardar PDFs
 
         // Edificio ID
         const EDIFICIO_ID = 'nepal-2';
 
         console.log('✅ Firebase inicializado - Generador Informe Nepal 2');
-        console.log('📊 Edificio:', EDIFICIO_ID);
+        console.log('☁️ Firebase Storage listo para guardar PDFs');
     </script>
 </body>
 </html>

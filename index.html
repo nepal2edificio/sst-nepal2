@@ -474,12 +474,319 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        /* ===== HEADER LOGOS ===== */
+        .header-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            gap: 20px;
+        }
+        .header-center-content {
+            flex: 1;
+            text-align: center;
+        }
+        .logo-nepal-box {
+            border: 2px solid rgba(255,255,255,0.9);
+            padding: 10px 16px;
+            display: inline-block;
+            background: rgba(255,255,255,0.95);
+            border-radius: 8px;
+            min-width: 140px;
+            text-align: center;
+        }
+        .logo-nepal-title {
+            font-size: 1.5rem;
+            font-weight: 900;
+            letter-spacing: 3px;
+            color: #1a1a1a;
+            line-height: 1;
+        }
+        .logo-nepal-mountain {
+            font-size: 1.4rem;
+            color: #7eb8d4;
+            margin: 3px 0;
+        }
+        .logo-nepal-sub {
+            font-size: 0.65rem;
+            letter-spacing: 5px;
+            color: #555;
+            text-transform: uppercase;
+        }
+        .logo-compliance-box {
+            background: #2c5f7c;
+            border-radius: 10px;
+            padding: 10px 14px;
+            text-align: center;
+            min-width: 135px;
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+        .logo-cp-laptop { font-size: 1.6rem; display: block; margin-bottom: 2px; }
+        .logo-cp-title { color: white; font-size: 0.82rem; font-weight: 900; letter-spacing: 1px; line-height: 1.3; }
+        .logo-cp-sub { color: #90c4d8; font-size: 0.68rem; }
+
+        /* ===== MONTHLY PAT GRID ===== */
+        .monthly-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .month-card {
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 10px;
+            text-align: center;
+            transition: all 0.2s;
+            background: white;
+        }
+        .month-card.completed { border-color: #10b981; background: #f0fdf4; }
+        .month-card.partial   { border-color: #f59e0b; background: #fffbeb; }
+        .month-card.overdue   { border-color: #ef4444; background: #fef2f2; }
+        .month-card.future    { background: #f8fafc; opacity: 0.55; }
+        .month-card.current   { border-color: #4a90e2; background: #eff6ff; }
+        .month-name { font-weight: 700; font-size: 0.9rem; color: var(--primary); }
+        .month-count { font-size: 1.3rem; font-weight: 900; margin: 4px 0; }
+        .month-activities { font-size: 0.72rem; color: var(--text-gray); line-height: 1.6; text-align: left; margin-top: 6px; }
+        .act-done { color: #10b981; }
+        .act-pend { color: #9ca3af; }
+        .act-over { color: #ef4444; }
+
+        /* ===== TABLA MENSUAL EJECUCIÓN ===== */
+        .exec-table-wrapper { overflow-x: auto; margin-bottom: 25px; }
+        .exec-monthly-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            font-size: 0.85rem;
+        }
+        .exec-monthly-table th {
+            background: var(--primary);
+            color: white;
+            padding: 10px 8px;
+            text-align: center;
+            font-weight: 600;
+        }
+        .exec-monthly-table td {
+            padding: 9px 8px;
+            text-align: center;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .exec-monthly-table tr.current-month td { background: #eff6ff; font-weight: 600; }
+        .exec-monthly-table tr:last-child td { border-bottom: none; }
+        .cell-done    { color: #10b981; font-weight: 700; }
+        .cell-pending { color: #9ca3af; }
+        .cell-overdue { color: #ef4444; font-weight: 700; }
+        .cell-future  { color: #cbd5e1; }
+
+        /* ===== ADMIN STATUS ===== */
+        .admin-status-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+        .admin-status-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .admin-status-card h3 {
+            font-size: 1rem;
+            color: var(--primary);
+            margin-bottom: 12px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        .report-month-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 7px 10px;
+            border-radius: 8px;
+            margin-bottom: 6px;
+            border: 1px solid #e2e8f0;
+            background: #f8fafc;
+            font-size: 0.85rem;
+        }
+        .report-month-item.done   { background: #f0fdf4; border-color: #86efac; }
+        .report-month-item.alert  { background: #fef2f2; border-color: #fca5a5; animation: pulseAlert 2s infinite; }
+        .report-month-item.warn   { background: #fffbeb; border-color: #fcd34d; }
+        @keyframes pulseAlert {
+            0%,100% { box-shadow: none; }
+            50% { box-shadow: 0 0 0 3px rgba(239,68,68,0.2); }
+        }
+
+        /* ===== MAPAS EMERGENCIA ===== */
+        .emergency-section { margin-top: 30px; }
+        .emergency-section-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.3rem;
+            color: var(--primary);
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        .emergency-maps-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 15px;
+        }
+        .emergency-map-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+            border: 2px solid #e2e8f0;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .emergency-map-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        .emergency-map-card img { width: 100%; height: auto; display: block; }
+        .emergency-map-caption {
+            padding: 12px 15px;
+            background: #f8fafc;
+            font-weight: 600;
+            color: var(--primary);
+            text-align: center;
+            font-size: 0.85rem;
+            border-top: 1px solid #e2e8f0;
+        }
+        .map-fullscreen-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.92);
+            z-index: 3000;
+            align-items: center;
+            justify-content: center;
+            cursor: zoom-out;
+        }
+        .map-fullscreen-overlay.active { display: flex; }
+        .map-fullscreen-overlay img {
+            max-width: 96vw;
+            max-height: 96vh;
+            object-fit: contain;
+            border-radius: 6px;
+        }
+
+        /* ===== BOTONES ARCHIVO ===== */
+        .btn-arch-open {
+            background: var(--success);
+            color: white;
+            border: none;
+            padding: 5px 12px;
+            border-radius: 7px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .btn-arch-open:hover { background: #059669; transform: translateY(-1px); }
+        .btn-arch-add {
+            background: transparent;
+            color: var(--accent);
+            border: 1.5px dashed var(--accent);
+            padding: 4px 10px;
+            border-radius: 7px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .btn-arch-add:hover { background: #eff6ff; }
+        .btn-arch-edit {
+            background: transparent;
+            color: var(--text-gray);
+            border: none;
+            padding: 3px 7px;
+            border-radius: 5px;
+            font-size: 0.75rem;
+            cursor: pointer;
+        }
+        .btn-arch-edit:hover { color: var(--primary); background: #f1f5f9; }
+        .arch-cell { display: flex; align-items: center; gap: 5px; justify-content: center; flex-wrap: wrap; }
+
+        @media (max-width: 768px) {
+            .header-container { flex-direction: column; gap: 15px; }
+            .admin-status-grid { grid-template-columns: 1fr; }
+            .emergency-maps-grid { grid-template-columns: 1fr; }
+            .monthly-grid { grid-template-columns: repeat(3, 1fr); }
+        }
     </style>
 </head>
 <body>
     <div class="main-header">
-        <h1>🏛️ Sistema SG-SST Nepal 2</h1>
-        <p class="subtitle">Propiedad Horizontal Nepal 2 | NIT: 830142380-4</p>
+        <div class="header-container">
+            <!-- Logo Nepal II Edificio (SVG) -->
+            <div style="flex-shrink:0;">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 172 92" style="height:82px;width:auto;display:block;">
+                    <!-- Fondo blanco con borde negro -->
+                    <rect x="2" y="2" width="168" height="88" rx="3" fill="white" stroke="#111" stroke-width="2.5"/>
+                    <!-- Esquinas decorativas (estilo marco de cuadro) -->
+                    <line x1="2" y1="18" x2="18" y2="2" stroke="#111" stroke-width="2"/>
+                    <line x1="154" y1="2" x2="170" y2="18" stroke="#111" stroke-width="2"/>
+                    <line x1="2" y1="74" x2="18" y2="90" stroke="#111" stroke-width="2"/>
+                    <line x1="154" y1="90" x2="170" y2="74" stroke="#111" stroke-width="2"/>
+                    <!-- Montaña con silueta azul claro -->
+                    <path d="M 20 74 L 50 32 L 68 52 L 86 16 L 106 46 L 124 28 L 152 74 Z" fill="#b2ddf0" opacity="0.7"/>
+                    <!-- Ola debajo de la montaña -->
+                    <path d="M 16 74 Q 55 64 86 74 Q 117 84 156 74" fill="none" stroke="#7eb8d4" stroke-width="2.5" stroke-linecap="round"/>
+                    <!-- Texto NEPAL II -->
+                    <text x="86" y="55" font-family="'Arial Black',Arial,sans-serif" font-size="23" font-weight="900" text-anchor="middle" fill="#111" letter-spacing="3">NEPAL II</text>
+                    <!-- Texto EDIFICIO -->
+                    <text x="86" y="84" font-family="Arial,sans-serif" font-size="9" font-weight="400" text-anchor="middle" fill="#444" letter-spacing="6">EDIFICIO</text>
+                </svg>
+            </div>
+
+            <!-- Título central -->
+            <div class="header-center-content">
+                <h1 style="font-size:1.8rem;">Sistema SG-SST Nepal 2</h1>
+                <p class="subtitle">Propiedad Horizontal Nepal 2 | NIT: 830142380-4</p>
+            </div>
+
+            <!-- Logo Compliance Pro (SVG) -->
+            <div style="flex-shrink:0;">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 162 92" style="height:82px;width:auto;display:block;">
+                    <!-- Fondo azul oscuro -->
+                    <rect width="162" height="92" rx="10" fill="#3a5f72"/>
+                    <!-- Base del laptop -->
+                    <rect x="28" y="52" width="70" height="7" rx="2" fill="#4a90c8"/>
+                    <rect x="26" y="59" width="74" height="3" rx="1" fill="#3a7dae"/>
+                    <!-- Pantalla del laptop -->
+                    <rect x="32" y="22" width="62" height="32" rx="3" fill="#4a90c8"/>
+                    <!-- Interior de pantalla -->
+                    <rect x="35" y="25" width="56" height="26" rx="2" fill="#2d6b98"/>
+                    <!-- Líneas en pantalla (efecto de contenido) -->
+                    <line x1="39" y1="31" x2="87" y2="31" stroke="#4a8fbe" stroke-width="1.5" opacity="0.8"/>
+                    <line x1="39" y1="36" x2="82" y2="36" stroke="#4a8fbe" stroke-width="1.5" opacity="0.8"/>
+                    <line x1="39" y1="41" x2="76" y2="41" stroke="#4a8fbe" stroke-width="1.5" opacity="0.8"/>
+                    <!-- Cuadros flotantes (arriba a la derecha) -->
+                    <rect x="100" y="10" width="17" height="17" rx="3" fill="#4ecdc4" opacity="0.95"/>
+                    <rect x="116" y="26" width="13" height="13" rx="2" fill="#45b099" opacity="0.9"/>
+                    <rect x="107" y="40" width="10" height="10" rx="2" fill="#5a6e4a" opacity="0.85"/>
+                    <rect x="95" y="7" width="9" height="9" rx="2" fill="#2a8c78" opacity="0.8"/>
+                    <!-- Texto COMPLIANCE PRO -->
+                    <text x="81" y="74" font-family="'Arial Black',Arial,sans-serif" font-size="11" font-weight="900" text-anchor="middle" fill="white" letter-spacing="0.5">COMPLIANCE PRO</text>
+                    <!-- Texto Sistema SG-SST -->
+                    <text x="81" y="86" font-family="Arial,sans-serif" font-size="8.5" text-anchor="middle" fill="#90c4d8" letter-spacing="1">Sistema SG-SST</text>
+                </svg>
+            </div>
+        </div>
         <div id="adminBadge" style="display: none;" class="admin-badge">
             👤 Sesión Administrador: Carla Castellano
         </div>
@@ -558,41 +865,61 @@
                 </div>
             </div>
 
-            <!-- Progress Bars -->
+            <!-- Progreso General PAT (solo barras — vista pública) -->
             <div class="record-form">
-                <h3 style="margin-bottom: 20px;">📈 Progreso Plan Anual de Trabajo 2026</h3>
-                
-                <div class="progress-container">
-                    <div class="progress-label">
-                        <span>Enero - Actividades Ejecutadas</span>
-                        <span id="labelEnero"><strong>0/4</strong> (0%)</span>
-                    </div>
-                    <div class="progress-bar">
-                        <div class="progress-fill" id="progressEnero" style="width: 0%"></div>
-                    </div>
-                </div>
+                <h3 style="margin-bottom:5px;">📈 Progreso Plan Anual de Trabajo 2026</h3>
+                <p style="color:var(--text-gray);font-size:0.88rem;margin-bottom:18px;">
+                    Avance de la implementación del Sistema de Gestión de Seguridad y Salud en el Trabajo
+                </p>
 
                 <div class="progress-container">
                     <div class="progress-label">
-                        <span>Total PAT 2026</span>
+                        <span><strong>Total PAT 2026</strong> — Supervisiones, Inspecciones e Inducciones</span>
                         <span id="labelPAT"><strong>0/48</strong> (0%)</span>
                     </div>
-                    <div class="progress-bar">
+                    <div class="progress-bar" style="height:14px;">
                         <div class="progress-fill" id="progressPAT" style="width: 0%"></div>
                     </div>
                 </div>
 
                 <div class="progress-container">
                     <div class="progress-label">
-                        <span>Programa Mantenimiento 2026</span>
+                        <span><strong>Programa de Mantenimiento 2026</strong></span>
                         <span id="labelMantenimiento"><strong>0/12</strong> (0%)</span>
                     </div>
-                    <div class="progress-bar">
+                    <div class="progress-bar" style="height:14px;">
                         <div class="progress-fill" id="progressMantenimiento" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <p style="margin-top:15px;font-size:0.82rem;color:var(--text-gray);font-style:italic;">
+                    📌 El detalle mensual de actividades está disponible en la sección <strong>Ejecución Constante 2026</strong> (acceso administrador).
+                </p>
+            </div>
+
+            <!-- Mapas de Evacuación -->
+            <div class="record-form emergency-section">
+                <div class="emergency-section-title">
+                    🗺️ Plan de Evacuación de Emergencia — Edificio Nepal II
+                </div>
+                <p style="color:var(--text-gray);font-size:0.88rem;margin-bottom:5px;">Haz clic en cada mapa para verlo en pantalla completa</p>
+                <div class="emergency-maps-grid">
+                    <div class="emergency-map-card" onclick="verMapaCompleto('1.png','Planta 1 — Recepción y Zona de Acceso')">
+                        <img src="1.png" alt="Mapa de Evacuación Planta 1 - Edificio Nepal II" loading="lazy">
+                        <div class="emergency-map-caption">🏢 Planta 1 — Recepción y Zona de Acceso</div>
+                    </div>
+                    <div class="emergency-map-card" onclick="verMapaCompleto('2.png','Planta Sótano — Garajes y Zonas de Parqueo')">
+                        <img src="2.png" alt="Mapa de Evacuación Planta Sótano - Edificio Nepal II" loading="lazy">
+                        <div class="emergency-map-caption">🅿️ Planta Sótano — Garajes y Zonas de Parqueo</div>
                     </div>
                 </div>
             </div>
         </section>
+
+        <!-- Fullscreen Map Overlay -->
+        <div class="map-fullscreen-overlay" id="mapOverlay" onclick="cerrarMapa()">
+            <img id="mapOverlayImg" src="" alt="Mapa de Evacuación">
+        </div>
 
         <!-- SECTION: Documentos 2025 (Histórico) -->
         <section id="historico" class="section">
@@ -881,6 +1208,34 @@
                 <p class="section-subtitle">Registros operacionales en tiempo real - Solo Administrador</p>
             </div>
 
+            <!-- Tabla mensual de actividades realizadas vs pendientes -->
+            <div class="record-form" style="margin-bottom:25px;">
+                <h3 style="margin-bottom:5px;">📅 ¿Qué hice y qué me falta por mes?</h3>
+                <p style="font-size:0.85rem;color:var(--text-gray);margin-bottom:15px;">Estado de actividades mensuales — datos en tiempo real desde Firebase</p>
+                <div class="exec-table-wrapper">
+                    <table class="exec-monthly-table" id="execMonthlyTable">
+                        <thead>
+                            <tr>
+                                <th>Mes</th>
+                                <th>📋 Supervisión</th>
+                                <th>🔍 Inspección</th>
+                                <th>🎓 Inducción</th>
+                                <th>🔧 Mantenimiento</th>
+                                <th>Total</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody id="execMonthlyBody">
+                            <tr>
+                                <td colspan="7" style="text-align:center;padding:20px;color:var(--text-gray);">
+                                    ⏳ Cargando datos de Firebase...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
             <div class="tools-grid">
                 <div class="tool-card" onclick="openTool('supervision')" style="border-left: 4px solid #10b981;">
                     <div class="tool-header">
@@ -980,6 +1335,40 @@
                     </div>
                 </div>
             </div>
+
+            <!-- ═══ ARCHIVO DE DOCUMENTOS MENSUALES ═══ -->
+            <div class="record-form" style="margin-top:25px;">
+                <h3 style="margin-bottom:5px;">📁 Mis Informes y Cuentas por Cobrar 2026</h3>
+                <p style="font-size:0.85rem;color:var(--text-gray);margin-bottom:15px;">
+                    Vincula tus documentos ya guardados desde Google Drive — haz clic en <strong>🔗 Agregar</strong> para pegar el enlace de Drive del mes.
+                </p>
+                <div class="exec-table-wrapper">
+                    <table class="exec-monthly-table">
+                        <thead>
+                            <tr>
+                                <th style="text-align:left;padding-left:14px;">Mes</th>
+                                <th>📊 Informe Mensual SST</th>
+                                <th>💰 Cuenta por Cobrar</th>
+                            </tr>
+                        </thead>
+                        <tbody id="archivoDocBodyEjec">
+                            <tr>
+                                <td colspan="3" style="text-align:center;padding:20px;color:var(--text-gray);">
+                                    ⏳ Cargando archivos...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap;">
+                    <button class="btn btn-primary" style="padding:9px 18px;font-size:0.85rem;" onclick="openGenerador('informe-consolidado')">
+                        📊 Generar Nuevo Informe
+                    </button>
+                    <button class="btn btn-primary" style="padding:9px 18px;font-size:0.85rem;" onclick="openGenerador('cuenta-cobrar')">
+                        💰 Generar Nueva Cuenta
+                    </button>
+                </div>
+            </div>
         </section>
 
         <!-- SECTION: Herramientas Admin (PRIVADA) -->
@@ -987,6 +1376,44 @@
             <div class="section-header">
                 <h2 class="section-title">🔧 Herramientas Administrativas</h2>
                 <p class="section-subtitle">Generadores y herramientas exclusivas - Solo Administrador</p>
+            </div>
+
+            <!-- ═══ ARCHIVO MENSUAL: INFORMES Y CUENTAS ═══ -->
+            <div class="admin-status-card" style="margin-bottom:25px;grid-column:1/-1;">
+                <h3>📁 Archivo Mensual — Informes SST y Cuentas por Cobrar 2026</h3>
+                <p style="font-size:0.85rem;color:var(--text-gray);margin-bottom:15px;">
+                    Aquí puedes ver, cargar y acceder a todos tus documentos guardados. Haz clic en <strong>🔗 Agregar enlace</strong> para vincular los que ya tienes guardados en Google Drive, o en <strong>📄 Ver</strong> para abrirlos.
+                </p>
+                <div class="exec-table-wrapper">
+                    <table class="exec-monthly-table">
+                        <thead>
+                            <tr>
+                                <th style="text-align:left;padding-left:14px;">Mes</th>
+                                <th>📊 Informe Mensual SST</th>
+                                <th>💰 Cuenta por Cobrar</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody id="archivoDocBodyAdmin">
+                            <tr>
+                                <td colspan="4" style="text-align:center;padding:20px;color:var(--text-gray);">
+                                    ⏳ Cargando archivos...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div style="margin-top:15px;display:flex;gap:10px;flex-wrap:wrap;">
+                    <button class="btn btn-primary" style="padding:9px 18px;font-size:0.85rem;" onclick="openGenerador('informe-consolidado')">
+                        📊 Generar Nuevo Informe
+                    </button>
+                    <button class="btn btn-primary" style="padding:9px 18px;font-size:0.85rem;" onclick="openGenerador('cuenta-cobrar')">
+                        💰 Generar Nueva Cuenta
+                    </button>
+                </div>
+                <!-- Indicadores ocultos que siguen existiendo para compatibilidad -->
+                <div id="adminInformesStatus" style="display:none;"></div>
+                <div id="adminCuentasStatus" style="display:none;"></div>
             </div>
 
             <div class="tools-grid">
@@ -1355,6 +1782,16 @@
                 return;
             }
             showSection(sectionId);
+            // Actualizar datos dinámicos según la sección
+            if (sectionId === 'ejecucion') {
+                actualizarTablaEjecucion();
+                actualizarBadgesEjecucion();
+                actualizarArchivoDocumentos();
+            }
+            if (sectionId === 'herramientas') {
+                actualizarPanelAdmin();
+                actualizarArchivoDocumentos();
+            }
         }
 
         function openTool(url) {
@@ -1851,8 +2288,419 @@
         function actualizarDashboardManual() {
             actualizarDashboard2026();
             actualizarBadgesEjecucion();
+            actualizarGrillaMonthly();
+            actualizarTablaEjecucion();
+            actualizarPanelAdmin();
             alert('✅ Dashboard y badges actualizados con datos de Firebase');
         }
+
+        // ═══════════════════════════════════════════════════════════════
+        // MAPA DE EMERGENCIA - FULLSCREEN
+        // ═══════════════════════════════════════════════════════════════
+        function verMapaCompleto(src, titulo) {
+            const overlay = document.getElementById('mapOverlay');
+            const img = document.getElementById('mapOverlayImg');
+            if (overlay && img) {
+                img.src = src;
+                img.alt = titulo;
+                overlay.classList.add('active');
+            }
+        }
+        function cerrarMapa() {
+            const overlay = document.getElementById('mapOverlay');
+            if (overlay) overlay.classList.remove('active');
+        }
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') cerrarMapa();
+        });
+
+        // ═══════════════════════════════════════════════════════════════
+        // GRILLA MENSUAL PAT — DASHBOARD
+        // ═══════════════════════════════════════════════════════════════
+        const MESES_NOMBRES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio',
+                               'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+
+        function filtrarPorMes(items, mes, año) {
+            return (items || []).filter(item => {
+                if (!item || !item.fecha) return false;
+                try {
+                    const f = new Date(item.fecha);
+                    return f.getMonth() === mes && f.getFullYear() === año;
+                } catch(e) { return false; }
+            });
+        }
+
+        function actualizarGrillaMonthly() {
+            const db = firebase.database();
+            db.ref('edificios/nepal-2').once('value').then(snapshot => {
+                const data = snapshot.val() || {};
+                const supervisiones = data.supervisiones ? Object.values(data.supervisiones) : [];
+                const inspecciones  = data.inspecciones  ? Object.values(data.inspecciones)  : [];
+                const inducciones   = data.inducciones   ? Object.values(data.inducciones)   : [];
+                const mantenimientos= data.mantenimientos? Object.values(data.mantenimientos): [];
+
+                const ahora = new Date();
+                const mesActual = ahora.getMonth();
+                const año = 2026;
+                const grid = document.getElementById('monthlyGrid');
+                if (!grid) return;
+
+                let html = '';
+                for (let m = 0; m < 12; m++) {
+                    const sup = filtrarPorMes(supervisiones, m, año).length;
+                    const ins = filtrarPorMes(inspecciones,  m, año).length;
+                    const ind = filtrarPorMes(inducciones,   m, año).length;
+                    const mant= filtrarPorMes(mantenimientos,m, año).length;
+                    const total = sup + ins + ind;
+                    // meta: 4 actividades por mes (sup + ins + ind + 1 actividad PAT extra)
+                    const meta = 4;
+
+                    let clase = 'future';
+                    let icono = '⬜';
+                    if (m < mesActual) {
+                        if (total >= meta)       { clase = 'completed'; icono = '✅'; }
+                        else if (total > 0)      { clase = 'partial';   icono = '🟡'; }
+                        else                     { clase = 'overdue';   icono = '🔴'; }
+                    } else if (m === mesActual) {
+                        if (total >= meta)       { clase = 'completed'; icono = '✅'; }
+                        else if (total > 0)      { clase = 'current partial'; icono = '🟡'; }
+                        else                     { clase = 'current';   icono = '📌'; }
+                    }
+
+                    const actSup  = sup  > 0 ? `<span class="act-done">✓ Supervisión</span>`  : (m <= mesActual ? `<span class="act-over">✗ Supervisión</span>` : `<span class="act-pend">— Supervisión</span>`);
+                    const actIns  = ins  > 0 ? `<span class="act-done">✓ Inspección</span>`   : (m <= mesActual ? `<span class="act-over">✗ Inspección</span>`  : `<span class="act-pend">— Inspección</span>`);
+                    const actInd  = ind  > 0 ? `<span class="act-done">✓ Inducción</span>`    : (m <= mesActual ? `<span class="act-over">✗ Inducción</span>`   : `<span class="act-pend">— Inducción</span>`);
+                    const actMant = mant > 0 ? `<span class="act-done">✓ Mantenim.</span>`    : (m <= mesActual ? `<span class="act-over">✗ Mantenim.</span>`   : `<span class="act-pend">— Mantenim.</span>`);
+
+                    const colorCount = clase.includes('completed') ? '#10b981' : (clase.includes('partial') || clase.includes('current') && total > 0) ? '#f59e0b' : (clase.includes('overdue') ? '#ef4444' : '#94a3b8');
+
+                    html += `
+                    <div class="month-card ${clase}">
+                        <div class="month-name">${icono} ${MESES_NOMBRES[m]}</div>
+                        <div class="month-count" style="color:${colorCount}">${total}/${meta}</div>
+                        <div class="month-activities">
+                            ${actSup}<br>${actIns}<br>${actInd}<br>${actMant}
+                        </div>
+                    </div>`;
+                }
+                grid.innerHTML = html;
+            }).catch(err => {
+                console.error('Error grilla monthly:', err);
+            });
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // TABLA MENSUAL — SECCIÓN EJECUCIÓN CONSTANTE
+        // ═══════════════════════════════════════════════════════════════
+        function actualizarTablaEjecucion() {
+            const db = firebase.database();
+            db.ref('edificios/nepal-2').once('value').then(snapshot => {
+                const data = snapshot.val() || {};
+                const supervisiones = data.supervisiones ? Object.values(data.supervisiones) : [];
+                const inspecciones  = data.inspecciones  ? Object.values(data.inspecciones)  : [];
+                const inducciones   = data.inducciones   ? Object.values(data.inducciones)   : [];
+                const mantenimientos= data.mantenimientos? Object.values(data.mantenimientos): [];
+
+                const ahora = new Date();
+                const mesActual = ahora.getMonth();
+                const año = 2026;
+                const tbody = document.getElementById('execMonthlyBody');
+                if (!tbody) return;
+
+                let html = '';
+                for (let m = 0; m < 12; m++) {
+                    const sup  = filtrarPorMes(supervisiones, m, año).length;
+                    const ins  = filtrarPorMes(inspecciones,  m, año).length;
+                    const ind  = filtrarPorMes(inducciones,   m, año).length;
+                    const mant = filtrarPorMes(mantenimientos,m, año).length;
+                    const total= sup + ins + ind + mant;
+                    const esFuturo  = m > mesActual;
+                    const esActual  = m === mesActual;
+                    const esPasado  = m < mesActual;
+
+                    const cellClass = (val) => {
+                        if (esFuturo)         return 'cell-future';
+                        if (val > 0)          return 'cell-done';
+                        if (esPasado)         return 'cell-overdue';
+                        return 'cell-pending';
+                    };
+                    const cellText = (val, label) => {
+                        if (esFuturo) return `<span class="${cellClass(val)}">—</span>`;
+                        if (val > 0)  return `<span class="${cellClass(val)}">✓ ${val}</span>`;
+                        if (esPasado) return `<span class="${cellClass(val)}">✗ 0</span>`;
+                        return `<span class="${cellClass(val)}">Pendiente</span>`;
+                    };
+
+                    let estadoBadge = '';
+                    if (esFuturo) {
+                        estadoBadge = `<span style="color:#94a3b8;font-size:0.8rem;">Próximo</span>`;
+                    } else if (total >= 4) {
+                        estadoBadge = `<span style="background:#d1fae5;color:#065f46;padding:3px 8px;border-radius:8px;font-size:0.78rem;font-weight:700;">Completo ✅</span>`;
+                    } else if (total > 0) {
+                        estadoBadge = `<span style="background:#fef3c7;color:#92400e;padding:3px 8px;border-radius:8px;font-size:0.78rem;font-weight:700;">Parcial 🟡</span>`;
+                    } else if (esPasado) {
+                        estadoBadge = `<span style="background:#fee2e2;color:#991b1b;padding:3px 8px;border-radius:8px;font-size:0.78rem;font-weight:700;">Sin registro ⚠️</span>`;
+                    } else {
+                        estadoBadge = `<span style="background:#dbeafe;color:#1e40af;padding:3px 8px;border-radius:8px;font-size:0.78rem;font-weight:700;">Mes actual 📌</span>`;
+                    }
+
+                    html += `
+                    <tr class="${esActual ? 'current-month' : ''}">
+                        <td style="font-weight:600;text-align:left;padding-left:12px;">${esActual ? '👉 ' : ''}${MESES_NOMBRES[m]}</td>
+                        <td>${cellText(sup)}</td>
+                        <td>${cellText(ins)}</td>
+                        <td>${cellText(ind)}</td>
+                        <td>${cellText(mant)}</td>
+                        <td style="font-weight:700;">${esFuturo ? '—' : total}</td>
+                        <td>${estadoBadge}</td>
+                    </tr>`;
+                }
+                tbody.innerHTML = html;
+            }).catch(err => {
+                console.error('Error tabla ejecución:', err);
+                const tbody = document.getElementById('execMonthlyBody');
+                if (tbody) tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#ef4444;">Error cargando datos</td></tr>';
+            });
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // ARCHIVO DE DOCUMENTOS — INFORMES Y CUENTAS (Firebase)
+        // ═══════════════════════════════════════════════════════════════
+
+        // Construye las celdas de la tabla para un mes dado
+        function buildArchivoCells(tipo, clave, data, esFuturo, esMesActual, esPasado) {
+            const d = data[clave] || {};
+            const link = d.link || '';
+            const tiene = !!link || d.generado;
+            const iconBtn = tipo === 'informe' ? '📄 Ver Informe' : '💰 Ver Cuenta';
+            const iconAdd = tipo === 'informe' ? '🔗 Agregar informe' : '🔗 Agregar cuenta';
+
+            if (esFuturo) {
+                return `<span style="color:#cbd5e1;font-size:0.8rem;">—</span>`;
+            }
+            let html = '<div class="arch-cell">';
+            if (link) {
+                html += `<button class="btn-arch-open" onclick="window.open('${link.replace(/'/g,"\\'")}','_blank')">${iconBtn}</button>`;
+                html += `<button class="btn-arch-edit" onclick="editarLink('${tipo}','${clave}')" title="Cambiar enlace">✏️</button>`;
+            } else {
+                html += `<button class="btn-arch-add" onclick="agregarLink('${tipo}','${clave}')">${iconAdd}</button>`;
+            }
+            html += '</div>';
+            return html;
+        }
+
+        // Actualiza AMBAS tablas (Ejecución Constante + Herramientas Admin)
+        function actualizarArchivoDocumentos() {
+            const db = firebase.database();
+            const año = 2026;
+            const mesActual = new Date().getMonth();
+
+            Promise.all([
+                db.ref('edificios/nepal-2/informes').once('value'),
+                db.ref('edificios/nepal-2/cuentas').once('value')
+            ]).then(([snapInf, snapCue]) => {
+                const informes = snapInf.val() || {};
+                const cuentas  = snapCue.val() || {};
+
+                // ─── Tabla de Ejecución Constante ───
+                const tbodyEjec = document.getElementById('archivoDocBodyEjec');
+                // ─── Tabla de Herramientas Admin ───
+                const tbodyAdmin = document.getElementById('archivoDocBodyAdmin');
+
+                let htmlEjec = '';
+                let htmlAdmin = '';
+
+                for (let m = 0; m < 12; m++) {
+                    const clave = `${año}-${String(m+1).padStart(2,'0')}`;
+                    const esFuturo   = m > mesActual;
+                    const esMesActual= m === mesActual;
+                    const esPasado   = m < mesActual;
+
+                    const infCell = buildArchivoCells('informe', clave, informes, esFuturo, esMesActual, esPasado);
+                    const cueCell = buildArchivoCells('cuenta',  clave, cuentas,  esFuturo, esMesActual, esPasado);
+
+                    // Estado para tabla Admin (columna extra)
+                    const infTiene = informes[clave] && (informes[clave].link || informes[clave].generado);
+                    const cueTiene = cuentas[clave]  && (cuentas[clave].link  || cuentas[clave].generado);
+                    let estadoAdmin = '';
+                    if (esFuturo) {
+                        estadoAdmin = `<span style="color:#94a3b8;font-size:0.78rem;">Próximo</span>`;
+                    } else if (infTiene && cueTiene) {
+                        estadoAdmin = `<span style="background:#d1fae5;color:#065f46;padding:3px 8px;border-radius:8px;font-size:0.78rem;font-weight:700;">Completo ✅</span>`;
+                    } else if (infTiene || cueTiene) {
+                        estadoAdmin = `<span style="background:#fef3c7;color:#92400e;padding:3px 8px;border-radius:8px;font-size:0.78rem;font-weight:700;">Parcial 🟡</span>`;
+                    } else if (esPasado) {
+                        estadoAdmin = `<span style="background:#fee2e2;color:#991b1b;padding:3px 8px;border-radius:8px;font-size:0.78rem;font-weight:700;">Sin doc ⚠️</span>`;
+                    } else {
+                        estadoAdmin = `<span style="background:#dbeafe;color:#1e40af;padding:3px 8px;border-radius:8px;font-size:0.78rem;font-weight:700;">Mes actual 📌</span>`;
+                    }
+
+                    const rowClass = esMesActual ? 'current-month' : '';
+                    const mesLabel = (esMesActual ? '👉 ' : '') + MESES_NOMBRES[m];
+
+                    htmlEjec += `
+                    <tr class="${rowClass}">
+                        <td style="font-weight:600;text-align:left;padding-left:12px;">${mesLabel}</td>
+                        <td>${infCell}</td>
+                        <td>${cueCell}</td>
+                    </tr>`;
+
+                    htmlAdmin += `
+                    <tr class="${rowClass}">
+                        <td style="font-weight:600;text-align:left;padding-left:12px;">${mesLabel}</td>
+                        <td>${infCell}</td>
+                        <td>${cueCell}</td>
+                        <td>${estadoAdmin}</td>
+                    </tr>`;
+                }
+
+                if (tbodyEjec)  tbodyEjec.innerHTML  = htmlEjec;
+                if (tbodyAdmin) tbodyAdmin.innerHTML = htmlAdmin;
+
+            }).catch(err => {
+                console.error('Error archivo docs:', err);
+            });
+        }
+
+        // Agregar/editar enlace de Google Drive
+        function agregarLink(tipo, clave) {
+            const etiqueta = tipo === 'informe' ? 'Informe Mensual SST' : 'Cuenta por Cobrar';
+            const mesNombre = MESES_NOMBRES[parseInt(clave.split('-')[1]) - 1];
+            const url = prompt(
+                `📂 Enlace de Google Drive — ${etiqueta}\nMes: ${mesNombre} 2026\n\n` +
+                `Pega el enlace de Google Drive del documento:\n` +
+                `(Ej: https://drive.google.com/file/d/.../view)`
+            );
+            if (!url || !url.trim()) return;
+            guardarLinkFirebase(tipo, clave, url.trim());
+        }
+
+        function editarLink(tipo, clave) {
+            const etiqueta = tipo === 'informe' ? 'Informe' : 'Cuenta';
+            const mesNombre = MESES_NOMBRES[parseInt(clave.split('-')[1]) - 1];
+            const nuevoUrl = prompt(
+                `✏️ Editar enlace — ${etiqueta} de ${mesNombre}\n\nPega el nuevo enlace de Google Drive:`
+            );
+            if (nuevoUrl === null) return; // canceló
+            if (!nuevoUrl.trim()) {
+                if (confirm('¿Deseas eliminar el enlace guardado?')) {
+                    guardarLinkFirebase(tipo, clave, '');
+                }
+                return;
+            }
+            guardarLinkFirebase(tipo, clave, nuevoUrl.trim());
+        }
+
+        function guardarLinkFirebase(tipo, clave, url) {
+            const db = firebase.database();
+            const ruta = tipo === 'informe' ? 'informes' : 'cuentas';
+            const mes = parseInt(clave.split('-')[1]);
+            const año = parseInt(clave.split('-')[0]);
+            db.ref(`edificios/nepal-2/${ruta}/${clave}`).update({
+                link: url,
+                generado: url ? true : false,
+                fecha: new Date().toISOString(),
+                mes: mes,
+                año: año
+            }).then(() => {
+                console.log(`✅ Link ${tipo} ${clave} guardado`);
+                actualizarArchivoDocumentos();
+            }).catch(err => console.error('Error guardando link:', err));
+        }
+
+        // Mantener compatibilidad con actualizarPanelAdmin (llamado desde showPrivateSection)
+        function actualizarPanelAdmin() {
+            actualizarArchivoDocumentos();
+            const db = firebase.database();
+            const ahora = new Date();
+            const mesActual = ahora.getMonth();
+            const año = 2026;
+
+            Promise.all([
+                db.ref('edificios/nepal-2/informes').once('value'),
+                db.ref('edificios/nepal-2/cuentas').once('value')
+            ]).then(([snapInformes, snapCuentas]) => {
+                const informesData = snapInformes.val() || {};
+                const cuentasData  = snapCuentas.val()  || {};
+
+                // ---- INFORMES ----
+                const contInformes = document.getElementById('adminInformesStatus');
+                if (contInformes) {
+                    let htmlInf = '';
+                    for (let m = 0; m <= mesActual; m++) {
+                        const clave = `${año}-${String(m+1).padStart(2,'0')}`;
+                        const tiene = informesData[clave] && informesData[clave].generado;
+                        const esMesActual = m === mesActual;
+                        let clase = 'done';
+                        let texto = `✅ Informe generado`;
+                        let fecha  = '';
+                        if (tiene && informesData[clave].fecha) {
+                            fecha = ` — ${new Date(informesData[clave].fecha).toLocaleDateString('es-CO')}`;
+                        }
+                        if (!tiene && esMesActual) { clase = 'warn'; texto = '⏳ Pendiente (mes en curso)'; }
+                        if (!tiene && !esMesActual){ clase = 'alert'; texto = '⚠️ ¡FALTA INFORME!'; }
+                        htmlInf += `
+                        <div class="report-month-item ${clase}">
+                            <span><strong>${MESES_NOMBRES[m]}</strong></span>
+                            <span>${texto}${fecha}</span>
+                        </div>`;
+                    }
+                    // Meses futuros (próximo)
+                    if (mesActual < 11) {
+                        htmlInf += `<div style="font-size:0.78rem;color:var(--text-gray);margin-top:8px;padding:6px 10px;">
+                            📋 Pendientes: ${MESES_NOMBRES.slice(mesActual+1).join(', ')}
+                        </div>`;
+                    }
+                    contInformes.innerHTML = htmlInf || '<p style="color:var(--text-gray);font-size:0.85rem;">No hay meses pasados con datos</p>';
+                }
+
+                // ---- CUENTAS POR COBRAR ----
+                const contCuentas = document.getElementById('adminCuentasStatus');
+                if (contCuentas) {
+                    let htmlCue = '';
+                    for (let m = 0; m <= mesActual; m++) {
+                        const clave = `${año}-${String(m+1).padStart(2,'0')}`;
+                        const tiene = cuentasData[clave] && cuentasData[clave].generado;
+                        const esMesActual = m === mesActual;
+                        let clase = 'done';
+                        let texto = `✅ Cuenta generada`;
+                        let fecha  = '';
+                        if (tiene && cuentasData[clave].fecha) {
+                            fecha = ` — ${new Date(cuentasData[clave].fecha).toLocaleDateString('es-CO')}`;
+                        }
+                        if (!tiene && esMesActual) { clase = 'warn'; texto = '⏳ Pendiente (mes en curso)'; }
+                        if (!tiene && !esMesActual){ clase = 'alert'; texto = '⚠️ ¡FALTA CUENTA!'; }
+                        htmlCue += `
+                        <div class="report-month-item ${clase}">
+                            <span><strong>${MESES_NOMBRES[m]}</strong></span>
+                            <span>${texto}${fecha}</span>
+                        </div>`;
+                    }
+                    if (mesActual < 11) {
+                        htmlCue += `<div style="font-size:0.78rem;color:var(--text-gray);margin-top:8px;padding:6px 10px;">
+                            📋 Pendientes: ${MESES_NOMBRES.slice(mesActual+1).join(', ')}
+                        </div>`;
+                    }
+                    contCuentas.innerHTML = htmlCue || '<p style="color:var(--text-gray);font-size:0.85rem;">No hay meses pasados con datos</p>';
+                }
+            }).catch(err => {
+                console.error('Error panel admin:', err);
+            });
+        }
+
+        // Llamar funciones al cargar la página
+        document.addEventListener('DOMContentLoaded', function() {
+            // La grilla mensual en el dashboard público ya fue eliminada,
+            // pero la función existe con guardia if(!grid)return para no romper nada
+            actualizarGrillaMonthly();
+        });
+        setInterval(function() {
+            actualizarGrillaMonthly();
+        }, 30000);
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden) actualizarGrillaMonthly();
+        });
+
     </script>
 </body>
 </html>
