@@ -942,6 +942,12 @@
                 🔧 Herramientas Admin
             </button>
             <button class="nav-btn" onclick="window.location.href='habeas-data-nepal2.html'">📋 Habeas Data</button>
+            <button class="nav-btn" id="btnLogin" onclick="openLogin()" style="border-color: #10b981; color: #10b981;">
+                🔐 Iniciar Sesión
+            </button>
+            <button class="nav-btn private" id="btnLogout" onclick="logout()" style="display:none; border-color: #ef4444; color: #ef4444;">
+                🚪 Cerrar Sesión
+            </button>
         </nav>
 
         <!-- SECTION: Dashboard -->
@@ -1910,6 +1916,10 @@
         
         let isLoggedIn = false;
 
+        function openLogin() {
+            document.getElementById('loginModal').classList.add('active');
+        }
+
         function attemptLogin() {
             const username = document.getElementById('loginUser').value;
             const password = document.getElementById('loginPass').value;
@@ -1917,7 +1927,14 @@
             if (username === 'admin' && password === 'Nepal2_SST2026') {
                 isLoggedIn = true;
                 document.getElementById('loginModal').classList.remove('active');
+                
+                // Mostrar elementos privados
                 document.querySelectorAll('.private').forEach(el => el.style.display = 'inline-block');
+                
+                // Ocultar botón de login, mostrar botón de logout
+                document.getElementById('btnLogin').style.display = 'none';
+                document.getElementById('btnLogout').style.display = 'inline-block';
+                
                 actualizarDashboard2026();
             } else {
                 alert('❌ Credenciales incorrectas');
@@ -1930,8 +1947,16 @@
 
         function logout() {
             isLoggedIn = false;
+            
+            // Ocultar elementos privados
             document.querySelectorAll('.private').forEach(el => el.style.display = 'none');
-            location.reload();
+            
+            // Mostrar botón de login, ocultar botón de logout
+            document.getElementById('btnLogin').style.display = 'inline-block';
+            document.getElementById('btnLogout').style.display = 'none';
+            
+            // Volver al dashboard
+            showSection('dashboard');
         }
 
         function showSection(sectionId) {
