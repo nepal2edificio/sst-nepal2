@@ -8,6 +8,7 @@
     <!-- Firebase Scripts (v9 compat) -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
     
     <style>
         * {
@@ -1691,6 +1692,7 @@
 
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
+        const storage = firebase.storage();
         const EDIFICIO_ID = 'nepal-2';
         
         console.log('✅ Firebase inicializado - Dashboard Nepal 2');
@@ -2789,36 +2791,103 @@
             });
         }
 
-        // Agregar/editar enlace de Google Drive
+        // Modal de subida de archivos
         function agregarLink(tipo, clave) {
-            const etiqueta = tipo === 'informe' ? 'Informe Mensual SST' : 'Cuenta por Cobrar';
-            const mesNombre = MESES_NOMBRES[parseInt(clave.split('-')[1]) - 1];
-            const url = prompt(
-                `📂 Enlace de Google Drive — ${etiqueta}\nMes: ${mesNombre} 2026\n\n` +
-                `Pega el enlace de Google Drive del documento:\n` +
-                `(Ej: https://drive.google.com/file/d/.../view)`
-            );
-            if (!url || !url.trim()) return;
-            guardarLinkFirebase(tipo, clave, url.trim());
+            abrirModalSubida(tipo, clave);
         }
 
         function editarLink(tipo, clave) {
-            const etiqueta = tipo === 'informe' ? 'Informe' : 'Cuenta';
-            const mesNombre = MESES_NOMBRES[parseInt(clave.split('-')[1]) - 1];
-            const nuevoUrl = prompt(
-                `✏️ Editar enlace — ${etiqueta} de ${mesNombre}\n\nPega el nuevo enlace de Google Drive:`
-            );
-            if (nuevoUrl === null) return; // canceló
-            if (!nuevoUrl.trim()) {
-                if (confirm('¿Deseas eliminar el enlace guardado?')) {
-                    guardarLinkFirebase(tipo, clave, '');
-                }
-                return;
-            }
-            guardarLinkFirebase(tipo, clave, nuevoUrl.trim());
+            abrirModalSubida(tipo, clave);
         }
 
-        function guardarLinkFirebase(tipo, clave, url) {
+        function abrirModalSubida(tipo, clave) {
+            const etiqueta = tipo === 'informe' ? 'Informe Mensual SST' : 'Cuenta por Cobrar';
+            const mesNum = parseInt(clave.split('-')[1]);
+            const mesNombre = MESES_NOMBRES[mesNum - 1];
+
+            // Crear modal si no existe
+            let modal = document.getElementById('modalSubidaDoc');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'modalSubidaDoc';
+                modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:center;';
+                document.body.appendChild(modal);
+            }
+
+            modal.innerHTML = `
+                <div style="background:white;border-radius:14px;padding:28px;width:460px;max-width:95vw;box-shadow:0 20px 60px rgba(0,0,0,0.3);">
+                    <h3 style="margin:0 0 6px;color:#1e3a5f;">📄 ${etiqueta}</h3>
+                    <p style="margin:0 0 18px;color:#64748b;font-size:0.9rem;">Mes: <strong>${mesNombre} 2026</strong></p>
+
+                    <label style="display:block;margin-bottom:8px;font-weight:600;color:#374151;">Selecciona el archivo PDF:</label>
+                    <input type="file" id="inputArchivoDoc" accept=".pdf,.xlsx,.docx"
+                        style="width:100%;padding:10px;border:2px dashed #cbd5e1;border-radius:8px;font-size:0.9rem;cursor:pointer;box-sizing:border-box;">
+
+                    <div id="progresoSubida" style="display:none;margin-top:14px;">
+                        <div style="background:#e2e8f0;border-radius:6px;height:10px;overflow:hidden;">
+                            <div id="barraProgreso" style="height:100%;width:0%;background:#3b82f6;transition:width 0.3s;"></div>
+                        </div>
+                        <p id="textoProgreso" style="font-size:0.82rem;color:#64748b;margin-top:6px;text-align:center;">Subiendo...</p>
+                    </div>
+
+                    <div style="display:flex;gap:10px;margin-top:20px;">
+                        <button onclick="subirArchivoStorage('${tipo}','${clave}')"
+                            style="flex:1;background:#1e3a5f;color:white;border:none;border-radius:8px;padding:11px;font-size:0.95rem;font-weight:600;cursor:pointer;">
+                            ☁️ Subir a Firebase
+                        </button>
+                        <button onclick="document.getElementById('modalSubidaDoc').style.display='none'"
+                            style="background:#f1f5f9;color:#374151;border:none;border-radius:8px;padding:11px 18px;cursor:pointer;font-weight:600;">
+                            Cancelar
+                        </button>
+                    </div>
+                </div>
+            `;
+            modal.style.display = 'flex';
+        }
+
+        async function subirArchivoStorage(tipo, clave) {
+            const input = document.getElementById('inputArchivoDoc');
+            if (!input.files || !input.files[0]) {
+                alert('Selecciona un archivo primero.');
+                return;
+            }
+            const archivo = input.files[0];
+            const mesNum = parseInt(clave.split('-')[1]);
+            const mesNombre = MESES_NOMBRES[mesNum - 1].replace(' ', '_');
+            const ruta = `edificios/nepal-2/${tipo === 'informe' ? 'informes' : 'cuentas'}/${clave}_${archivo.name}`;
+
+            document.getElementById('progresoSubida').style.display = 'block';
+
+            try {
+                const ref = storage.ref(ruta);
+                const tarea = ref.put(archivo);
+
+                tarea.on('state_changed',
+                    (snap) => {
+                        const pct = Math.round((snap.bytesTransferred / snap.totalBytes) * 100);
+                        document.getElementById('barraProgreso').style.width = pct + '%';
+                        document.getElementById('textoProgreso').textContent = `Subiendo... ${pct}%`;
+                    },
+                    (err) => {
+                        alert('❌ Error al subir: ' + err.message);
+                        document.getElementById('progresoSubida').style.display = 'none';
+                    },
+                    async () => {
+                        const downloadURL = await tarea.snapshot.ref.getDownloadURL();
+                        guardarLinkFirebase(tipo, clave, downloadURL, archivo.name);
+                        document.getElementById('textoProgreso').textContent = '✅ ¡Subido exitosamente!';
+                        setTimeout(() => {
+                            document.getElementById('modalSubidaDoc').style.display = 'none';
+                        }, 1200);
+                    }
+                );
+            } catch(err) {
+                alert('❌ Error: ' + err.message);
+                document.getElementById('progresoSubida').style.display = 'none';
+            }
+        }
+
+        function guardarLinkFirebase(tipo, clave, url, nombreArchivo) {
             const db = firebase.database();
             const ruta = tipo === 'informe' ? 'informes' : 'cuentas';
             const mes = parseInt(clave.split('-')[1]);
@@ -2828,7 +2897,8 @@
                 generado: url ? true : false,
                 fecha: new Date().toISOString(),
                 mes: mes,
-                año: año
+                año: año,
+                ...(nombreArchivo ? { nombre: nombreArchivo } : {})
             }).then(() => {
                 console.log(`✅ Link ${tipo} ${clave} guardado`);
                 actualizarArchivoDocumentos();
