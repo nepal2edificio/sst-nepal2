@@ -1127,47 +1127,64 @@ Durante este período, se ejecutaron ${datos.capacitaciones} ${datos.capacitacio
             if (btn) { btn.disabled = true; btn.innerHTML = '⏳ Capturando informe...'; }
 
             try {
-                // PASO 1: Capturar el contenido del informe como imagen
+                // PASO 1: Asegurar que el contenido esté completamente visible
+                const originalHeight = previewContent.style.height;
+                const originalOverflow = previewContent.style.overflow;
+                previewContent.style.height = 'auto';
+                previewContent.style.overflow = 'visible';
+
+                // PASO 2: Capturar el contenido completo del informe como imagen
                 const canvas = await html2canvas(previewContent, {
                     scale: 2,
                     useCORS: true,
                     allowTaint: true,
                     logging: false,
                     backgroundColor: '#ffffff',
-                    windowWidth: previewContent.scrollWidth,
-                    windowHeight: previewContent.scrollHeight
+                    windowWidth: 1200,
+                    windowHeight: previewContent.scrollHeight,
+                    height: previewContent.scrollHeight,
+                    y: 0
                 });
+
+                // Restaurar estilos originales
+                previewContent.style.height = originalHeight;
+                previewContent.style.overflow = originalOverflow;
 
                 if (btn) btn.innerHTML = '📄 Creando PDF...';
 
-                // PASO 2: Crear PDF con jsPDF (tamaño carta o A4)
+                // PASO 3: Crear PDF con jsPDF (tamaño carta)
                 const { jsPDF } = window.jspdf;
                 const pdf = new jsPDF('p', 'mm', 'letter');
                 const pageW   = pdf.internal.pageSize.getWidth();
                 const pageH   = pdf.internal.pageSize.getHeight();
-                const imgW    = pageW;
+                const imgW    = pageW - 20; // Márgenes de 10mm a cada lado
                 const imgH    = (canvas.height * imgW) / canvas.width;
                 const imgData = canvas.toDataURL('image/jpeg', 0.95);
 
-                // Si el contenido es más largo que 1 página, agregar páginas
-                let posY = 0;
-                pdf.addImage(imgData, 'JPEG', 0, posY, imgW, imgH);
-                let restante = imgH - pageH;
-                while (restante > 0) {
-                    posY = -(imgH - restante);
+                // PASO 4: Agregar páginas según sea necesario
+                let heightLeft = imgH;
+                let position = 10; // Margen superior
+
+                // Primera página
+                pdf.addImage(imgData, 'JPEG', 10, position, imgW, imgH);
+                heightLeft -= (pageH - 20); // Restar altura usada (menos márgenes)
+
+                // Páginas adicionales
+                while (heightLeft > 0) {
+                    position = heightLeft - imgH + 10; // Ajustar posición para siguiente página
                     pdf.addPage();
-                    pdf.addImage(imgData, 'JPEG', 0, posY, imgW, imgH);
-                    restante -= pageH;
+                    pdf.addImage(imgData, 'JPEG', 10, position, imgW, imgH);
+                    heightLeft -= pageH;
                 }
 
-                // PASO 3: Obtener blob del PDF
+                // PASO 5: Obtener blob del PDF
                 const pdfBlob = pdf.output('blob');
                 const { clave, mesNum, mesNombre, año } = obtenerClaveMes();
                 const nombreArchivo = `informe-sst-nepal2-${clave}.pdf`;
 
                 if (btn) btn.innerHTML = '☁️ Subiendo a Firebase...';
 
-                // PASO 4: Subir a Firebase Storage
+                // PASO 6: Subir a Firebase Storage
                 const storageRef = storage.ref(`nepal-2/informes/${clave}/${nombreArchivo}`);
                 await storageRef.put(pdfBlob, {
                     contentType: 'application/pdf',
