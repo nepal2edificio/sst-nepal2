@@ -1009,18 +1009,11 @@
                 </div>
             </div>
 
-            <!-- NUEVO: Semáforo de Cumplimiento -->
-            <div class="semaforo-cumplimiento" id="semaforoCumplimiento">
-                <h3 style="color: var(--primary); margin-bottom: 10px;">🚦 Estado de Cumplimiento</h3>
-                <div class="semaforo-light verde" id="semaforoLight">
-                    ⏳
-                </div>
-                <div class="semaforo-message" id="semaforoMessage">
-                    Cargando estado...
-                </div>
-                <div class="semaforo-details" id="semaforoDetails">
-                    
-                </div>
+            <!-- Semáforo oculto — solo para admin (ver campana en sección privada) -->
+            <div id="semaforoCumplimiento" style="display:none;">
+                <div id="semaforoLight"></div>
+                <div id="semaforoMessage"></div>
+                <div id="semaforoDetails"></div>
             </div>
 
             <!-- Progreso General PAT (solo barras — vista pública) -->
@@ -1361,15 +1354,32 @@
 
         <!-- SECTION: Ejecución Constante 2026 (PRIVADA) -->
         <section id="ejecucion" class="section">
-            <div class="section-header">
-                <h2 class="section-title">🔒 Ejecución Constante 2026</h2>
-                <p class="section-subtitle">Registros operacionales en tiempo real - Solo Administrador</p>
+            <div class="section-header" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+                <div>
+                    <h2 class="section-title">🔒 Ejecución Constante 2026</h2>
+                    <p class="section-subtitle">Registros operacionales en tiempo real - Solo Administrador</p>
+                </div>
+                <!-- Campana de notificaciones -->
+                <div style="position:relative;display:inline-block;">
+                    <button id="btnCampana" onclick="toggleNotificaciones()"
+                        style="background:none;border:none;cursor:pointer;font-size:1.8rem;position:relative;padding:4px 8px;"
+                        title="Notificaciones pendientes">
+                        🔔
+                        <span id="badgeCampana" style="display:none;position:absolute;top:0;right:0;background:#ef4444;color:white;font-size:0.65rem;font-weight:700;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;line-height:1;">0</span>
+                    </button>
+                    <div id="panelNotificaciones" style="display:none;position:absolute;right:0;top:48px;width:300px;background:white;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,0.18);z-index:999;overflow:hidden;">
+                        <div style="background:#1e3a5f;color:white;padding:12px 16px;font-weight:700;font-size:0.9rem;">
+                            🔔 Pendientes del mes
+                        </div>
+                        <div id="listaNotiPendientes" style="padding:12px 16px;font-size:0.88rem;color:#374151;max-height:260px;overflow-y:auto;">
+                            <p style="color:#94a3b8;text-align:center;margin:8px 0;">Cargando...</p>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <!-- NUEVO: Alerta Inteligente de Pendientes -->
-            <div id="alertaPendientes" class="alert-pendientes">
-                <!-- Se llena dinámicamente con JavaScript -->
-            </div>
+            <!-- alertaPendientes oculto (mantener para compatibilidad JS) -->
+            <div id="alertaPendientes" style="display:none;"></div>
 
             <!-- NUEVO: Botón Resumen WhatsApp -->
             <div style="text-align: center; margin-bottom: 25px;">
@@ -1987,6 +1997,7 @@
                 actualizarTablaEjecucion();
                 actualizarBadgesEjecucion();
                 actualizarArchivoDocumentos();
+                actualizarBadgeCampana();
             }
             if (sectionId === 'herramientas') {
                 actualizarPanelAdmin();
@@ -2778,7 +2789,7 @@
                     const cueCell = buildArchivoCells('cuenta',  clave, cuentas,        esFuturo, esMesActual, esPasado, {}, rutasLocales);
 
                     // Estado para tabla Admin (columna extra)
-                    const infTiene = informes[clave] && (informes[clave].link || informes[clave].generado);
+                    const infTiene = (informesLinks2[clave] && (informesLinks2[clave].link || informesLinks2[clave].generado)) || !!Object.values(informesGenerados).find(v => v.mesNumero === (m+1) && v.anio === año);
                     const cueTiene = cuentas[clave]  && (cuentas[clave].link  || cuentas[clave].generado);
                     let estadoAdmin = '';
                     if (esFuturo) {
@@ -2829,59 +2840,51 @@
             abrirModalSubida(tipo, clave);
         }
 
-        // ── Subida directa a GitHub Pages (gratis, sin Drive) ──
-        const GH_OWNER = 'nepal2edificio';
-        const GH_REPO  = 'sst-nepal2';
-        const GH_BRANCH = 'main';
-
         function abrirModalSubida(tipo, clave) {
-            const etiqueta = tipo === 'informe' ? 'Informe Mensual SST' : 'Cuenta por Cobrar';
-            const mesNum   = parseInt(clave.split('-')[1]);
+            const etiqueta  = tipo === 'informe' ? 'Informe Mensual SST' : 'Cuenta por Cobrar';
+            const icono     = tipo === 'informe' ? '📊' : '💰';
+            const mesNum    = parseInt(clave.split('-')[1]);
             const mesNombre = MESES_NOMBRES[mesNum - 1];
 
             let modal = document.getElementById('modalSubidaDoc');
             if (!modal) {
                 modal = document.createElement('div');
                 modal.id = 'modalSubidaDoc';
-                modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:center;';
+                modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.55);z-index:9999;display:flex;align-items:center;justify-content:center;';
                 document.body.appendChild(modal);
             }
 
             modal.innerHTML = `
-                <div style="background:white;border-radius:14px;padding:28px;width:500px;max-width:95vw;box-shadow:0 20px 60px rgba(0,0,0,0.3);">
-                    <h3 style="margin:0 0 4px;color:#1e3a5f;">📄 ${etiqueta}</h3>
-                    <p style="margin:0 0 18px;color:#64748b;font-size:0.9rem;">Mes: <strong>${mesNombre} 2026</strong></p>
+                <div style="background:white;border-radius:16px;padding:30px;width:460px;max-width:95vw;box-shadow:0 24px 60px rgba(0,0,0,0.25);">
+                    <h3 style="margin:0 0 4px;color:#1e3a5f;font-size:1.1rem;">${icono} ${etiqueta}</h3>
+                    <p style="margin:0 0 22px;color:#64748b;font-size:0.88rem;">Mes: <strong>${mesNombre} 2026</strong></p>
 
-                    <!-- OPCIÓN 1: Ruta local C:\ -->
-                    <div style="border:2px solid #059669;border-radius:10px;padding:14px;margin-bottom:14px;">
-                        <p style="margin:0 0 8px;font-weight:700;color:#065f46;font-size:0.92rem;">📂 Ruta local en tu computador</p>
-                        <p style="margin:0 0 8px;font-size:0.8rem;color:#6b7280;">Funciona cuando abres el sistema desde tu PC (no desde el navegador web). Pega la ruta completa del archivo:</p>
-                        <input type="text" id="inputRutaLocal" placeholder="C:\\Users\\C3MADRIZ\\Documents\\informe-enero.pdf"
-                            style="width:100%;padding:8px 10px;border:1px solid #a7f3d0;border-radius:6px;font-size:0.85rem;box-sizing:border-box;font-family:monospace;">
-                        <button onclick="guardarRutaLocal('${tipo}','${clave}')"
-                            style="width:100%;margin-top:8px;background:#059669;color:white;border:none;border-radius:7px;padding:9px;font-weight:600;cursor:pointer;font-size:0.88rem;">
-                            💾 Guardar ruta local
-                        </button>
-                    </div>
+                    <p style="margin:0 0 10px;font-size:0.85rem;color:#374151;line-height:1.5;">
+                        <strong>Cómo obtener el enlace de Google Drive:</strong><br>
+                        1. Abre <strong>drive.google.com</strong> y sube el PDF<br>
+                        2. Clic derecho en el archivo → <strong>Compartir</strong><br>
+                        3. Cambia a <strong>"Cualquier persona con el enlace"</strong><br>
+                        4. Clic en <strong>Copiar enlace</strong> y pégalo aquí:
+                    </p>
 
-                    <!-- OPCIÓN 2: Enlace web (Drive, OneDrive, etc.) -->
-                    <div style="border:2px solid #3b82f6;border-radius:10px;padding:14px;margin-bottom:14px;">
-                        <p style="margin:0 0 8px;font-weight:700;color:#1e40af;font-size:0.92rem;">🔗 Enlace web (Google Drive, OneDrive...)</p>
-                        <input type="text" id="inputEnlaceDoc" placeholder="https://drive.google.com/file/d/..."
-                            style="width:100%;padding:8px 10px;border:1px solid #bfdbfe;border-radius:6px;font-size:0.85rem;box-sizing:border-box;">
-                        <button onclick="guardarEnlaceManual('${tipo}','${clave}')"
-                            style="width:100%;margin-top:8px;background:#3b82f6;color:white;border:none;border-radius:7px;padding:9px;font-weight:600;cursor:pointer;font-size:0.88rem;">
-                            💾 Guardar enlace web
-                        </button>
-                    </div>
+                    <input type="text" id="inputEnlaceDoc"
+                        placeholder="https://drive.google.com/file/d/..."
+                        style="width:100%;padding:10px 12px;border:2px solid #3b82f6;border-radius:8px;font-size:0.9rem;box-sizing:border-box;margin-bottom:12px;"
+                        autofocus>
 
+                    <button onclick="guardarEnlaceManual('${tipo}','${clave}')"
+                        style="width:100%;background:#1e3a5f;color:white;border:none;border-radius:9px;padding:12px;font-size:1rem;font-weight:700;cursor:pointer;margin-bottom:8px;">
+                        🔗 Guardar enlace
+                    </button>
                     <button onclick="document.getElementById('modalSubidaDoc').style.display='none'"
-                        style="width:100%;background:#f1f5f9;color:#374151;border:none;border-radius:8px;padding:10px;cursor:pointer;font-weight:600;">
+                        style="width:100%;background:#f1f5f9;color:#64748b;border:none;border-radius:9px;padding:10px;font-size:0.9rem;cursor:pointer;">
                         Cancelar
                     </button>
                 </div>
             `;
             modal.style.display = 'flex';
+            // Foco automático en el input
+            setTimeout(() => { const inp = document.getElementById('inputEnlaceDoc'); if(inp) inp.focus(); }, 100);
         }
 
         async function subirArchivoGitHub(tipo, clave) {
@@ -3077,6 +3080,108 @@
             }).catch(err => {
                 console.error('Error panel admin:', err);
             });
+        }
+
+        // ── Campana de notificaciones (solo vista privada) ──
+        function toggleNotificaciones() {
+            const panel = document.getElementById('panelNotificaciones');
+            if (!panel) return;
+            const visible = panel.style.display !== 'none';
+            panel.style.display = visible ? 'none' : 'block';
+            if (!visible) cargarNotificaciones();
+        }
+
+        // Cerrar panel al hacer clic fuera
+        document.addEventListener('click', function(e) {
+            const btn   = document.getElementById('btnCampana');
+            const panel = document.getElementById('panelNotificaciones');
+            if (panel && btn && !btn.contains(e.target) && !panel.contains(e.target)) {
+                panel.style.display = 'none';
+            }
+        });
+
+        function cargarNotificaciones() {
+            const lista = document.getElementById('listaNotiPendientes');
+            const badge = document.getElementById('badgeCampana');
+            if (!lista) return;
+
+            const db = firebase.database();
+            const ahora = new Date();
+            const mesActual = ahora.getMonth(); // 0-based
+            const año = 2026;
+
+            cargarDatosUnificados().then(datos => {
+                return Promise.all([
+                    db.ref('edificios/nepal-2/informes').once('value'),
+                    db.ref('edificios/nepal-2/cuentas').once('value')
+                ]).then(([snapInf, snapCue]) => {
+                    const informes = snapInf.val() || {};
+                    const cuentas  = snapCue.val() || {};
+                    const pendientes = [];
+
+                    // Revisar meses pasados y actual
+                    for (let m = 0; m <= mesActual; m++) {
+                        const clave    = `${año}-${String(m+1).padStart(2,'0')}`;
+                        const mesNom   = MESES_NOMBRES[m];
+                        const esActual = m === mesActual;
+                        const label    = esActual ? `${mesNom} (mes actual)` : mesNom;
+
+                        // Supervisiones
+                        const tieneSup = datos.supervisiones.some(s => {
+                            const fs = String(s.fecha||'').length===10 ? s.fecha+'T12:00:00' : s.fecha||'';
+                            const f = new Date(fs);
+                            return f.getFullYear()===año && f.getMonth()===m;
+                        });
+                        if (!tieneSup) pendientes.push({ label, tipo: '📋 Supervisión mensual' });
+
+                        // Inducciones
+                        const tieneInd = datos.inducciones.some(i => {
+                            const mesNomI = (i.mes||'').toLowerCase();
+                            return mesNomI.includes(mesNom.toLowerCase().split(' ')[0]);
+                        });
+                        if (!tieneInd) pendientes.push({ label, tipo: '🎓 Inducción mensual' });
+
+                        // Informe
+                        const tieneInf = informes[clave] && (informes[clave].link || informes[clave].generado);
+                        if (!tieneInf) pendientes.push({ label, tipo: '📊 Informe SST' });
+
+                        // Cuenta
+                        const tieneCue = cuentas[clave] && (cuentas[clave].link || cuentas[clave].generado);
+                        if (!tieneCue) pendientes.push({ label, tipo: '💰 Cuenta por cobrar' });
+                    }
+
+                    // Actualizar badge
+                    if (badge) {
+                        badge.textContent = pendientes.length;
+                        badge.style.display = pendientes.length > 0 ? 'flex' : 'none';
+                    }
+
+                    // Actualizar lista
+                    if (pendientes.length === 0) {
+                        lista.innerHTML = '<p style="color:#16a34a;text-align:center;margin:10px 0;">✅ ¡Todo al día!</p>';
+                    } else {
+                        // Agrupar por mes
+                        const porMes = {};
+                        pendientes.forEach(p => {
+                            if (!porMes[p.label]) porMes[p.label] = [];
+                            porMes[p.label].push(p.tipo);
+                        });
+                        lista.innerHTML = Object.entries(porMes).map(([mes, items]) => `
+                            <div style="margin-bottom:10px;">
+                                <div style="font-weight:700;color:#1e3a5f;margin-bottom:4px;">${mes}</div>
+                                ${items.map(i => `<div style="color:#ef4444;padding-left:8px;font-size:0.82rem;">• ${i}</div>`).join('')}
+                            </div>
+                        `).join('');
+                    }
+                });
+            }).catch(() => {
+                lista.innerHTML = '<p style="color:#ef4444;font-size:0.82rem;">Error cargando pendientes</p>';
+            });
+        }
+
+        // Cargar badge al entrar a sección privada
+        function actualizarBadgeCampana() {
+            cargarNotificaciones();
         }
 
         // Llamar funciones al cargar la página
