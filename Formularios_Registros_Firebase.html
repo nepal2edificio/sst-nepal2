@@ -568,6 +568,58 @@
 // FUNCIONES AUXILIARES
 // ═══════════════════════════════════════════════════════════════
 
+let editandoInduccionId = null;
+
+function editarInduccion(id, data) {
+    editandoInduccionId = id;
+
+    // Poblar formulario
+    const f = document.getElementById('formInduccion');
+    f.querySelector('[name="mes"]').value = data.mes || '';
+    f.querySelector('[name="fecha"]').value = data.fecha || '';
+    f.querySelector('[name="tipo"]').value = data.tipo || '';
+    f.querySelector('[name="tema"]').value = data.tema || '';
+    f.querySelector('[name="duracion"]').value = data.duracion || '';
+    f.querySelector('[name="responsable"]').value = data.responsable || '';
+    f.querySelector('[name="temasTratados"]').value = data.temasTratados || '';
+    document.getElementById('asistentesSerdan').value = data.asistentesSerdan || '';
+    document.getElementById('asistentesSosa').value = data.asistentesSosa || '';
+    document.getElementById('totalAsistentes').value = data.totalAsistentes || '';
+    f.querySelector('[name="observaciones"]').value = data.observaciones || '';
+
+    // Checkboxes
+    f.querySelector('[name="evaluacionRealizada"]').checked = !!data.evaluacionRealizada;
+    f.querySelector('[name="demostraronComprension"]').checked = !!data.demostraronComprension;
+    f.querySelector('[name="materialDidactico"]').checked = !!data.materialDidactico;
+    f.querySelector('[name="certificadosEmitidos"]').checked = !!data.certificadosEmitidos;
+
+    // Banner de edición
+    let banner = document.getElementById('banner-editar-induccion');
+    if (!banner) {
+        banner = document.createElement('div');
+        banner.id = 'banner-editar-induccion';
+        banner.style.cssText = 'background:#fef08a;border:2px solid #eab308;padding:10px 16px;border-radius:8px;margin-bottom:12px;font-weight:600;color:#854d0e;display:flex;justify-content:space-between;align-items:center;';
+        f.insertAdjacentElement('beforebegin', banner);
+    }
+    banner.innerHTML = `✏️ Editando registro de inducción — ${data.mes} <button onclick="cancelarEdicionInduccion()" style="background:#ef4444;color:white;border:none;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:13px;">✕ Cancelar</button>`;
+    banner.style.display = 'flex';
+
+    // Cambiar texto del botón
+    f.querySelector('button[type="submit"]').innerHTML = '💾 Actualizar Registro';
+
+    // Scroll al formulario
+    f.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function cancelarEdicionInduccion() {
+    editandoInduccionId = null;
+    document.getElementById('formInduccion').reset();
+    document.getElementById('totalAsistentes').value = '';
+    const banner = document.getElementById('banner-editar-induccion');
+    if (banner) banner.style.display = 'none';
+    document.querySelector('#formInduccion button[type="submit"]').innerHTML = '💾 Guardar Registro';
+}
+
 function calcularTotalAsistentes() {
     const serdan = parseInt(document.getElementById('asistentesSerdan').value) || 0;
     const sosa = parseInt(document.getElementById('asistentesSosa').value) || 0;
@@ -631,9 +683,9 @@ document.getElementById('formInduccion').addEventListener('submit', async functi
             edificio: 'Nepal 2'
         };
         
-        // 2. GENERAR ID ÚNICO
-        const induccionId = 'induccion-' + Date.now();
-        
+        // 2. ID: usar existente si editando, o nuevo
+        const induccionId = editandoInduccionId || ('induccion-' + Date.now());
+
         // 3. GUARDAR EN FIREBASE
         const ref = database.ref(`edificios/${EDIFICIO_ID}/inducciones/${induccionId}`);
         await ref.set(datos);
@@ -650,11 +702,15 @@ document.getElementById('formInduccion').addEventListener('submit', async functi
 Los datos se guardaron en:
 Firebase → edificios/nepal-2/inducciones/`);
         
-        // 5. LIMPIAR FORMULARIO
+        // 5. LIMPIAR FORMULARIO Y ESTADO DE EDICIÓN
+        editandoInduccionId = null;
+        const bannerInd = document.getElementById('banner-editar-induccion');
+        if (bannerInd) bannerInd.style.display = 'none';
         e.target.reset();
         document.getElementById('totalAsistentes').value = '';
         document.getElementById('filesInduccion').innerHTML = '';
-        
+        btn.innerHTML = '💾 Guardar Registro';
+
         // 6. RECARGAR TABLA DE REGISTROS
         cargarRegistrosInducciones();
         
@@ -688,6 +744,9 @@ async function cargarRegistrosInducciones() {
         let html = '';
         const mesesConRegistro = new Set();
 
+        // Guardar referencia global para el editor
+        window._inducciones_cargadas = registros;
+
         Object.entries(registros).forEach(([id, data]) => {
             // Contar meses únicos usando el campo "mes" (ej: "Enero 2026")
             if (data.mes) mesesConRegistro.add(data.mes);
@@ -701,6 +760,7 @@ async function cargarRegistrosInducciones() {
                     <td><span class="badge badge-success">${data.estado || 'Completado'}</span></td>
                     <td>
                         <button class="btn-icon" onclick="verDetalle('${id}')" title="Ver detalles">👁️</button>
+                        <button class="btn-icon" onclick="editarInduccion('${id}', window._inducciones_cargadas['${id}'])" title="Editar">✏️</button>
                         <button class="btn-icon" onclick="eliminarRegistro('${id}')" title="Eliminar">🗑️</button>
                     </td>
                 </tr>
