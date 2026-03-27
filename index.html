@@ -2697,23 +2697,42 @@
         // ═══════════════════════════════════════════════════════════════
 
         // Construye las celdas de la tabla para un mes dado
-        function buildArchivoCells(tipo, clave, data, esFuturo, esMesActual, esPasado) {
+        function buildArchivoCells(tipo, clave, data, esFuturo, esMesActual, esPasado, informesGenerados, rutasLocales) {
             const d = data[clave] || {};
             const link = d.link || '';
-            const tiene = !!link || d.generado;
-            const iconBtn = tipo === 'informe' ? '📄 Ver Informe' : '💰 Ver Cuenta';
-            const iconAdd = tipo === 'informe' ? '🔗 Agregar informe' : '🔗 Agregar cuenta';
+            const rutaLocal = (rutasLocales[clave] || {})[tipo] || '';
 
-            if (esFuturo) {
-                return `<span style="color:#cbd5e1;font-size:0.8rem;">—</span>`;
-            }
-            let html = '<div class="arch-cell">';
+            // ¿Hay informe generado en Firebase para este mes?
+            const mesNum = parseInt(clave.split('-')[1]);
+            const anio   = parseInt(clave.split('-')[0]);
+            const informeGenerado = tipo === 'informe'
+                ? Object.values(informesGenerados).find(v => v.mesNumero === mesNum && v.anio === anio)
+                : null;
+
+            if (esFuturo) return `<span style="color:#cbd5e1;font-size:0.8rem;">—</span>`;
+
+            let html = '<div class="arch-cell" style="display:flex;flex-wrap:wrap;gap:4px;align-items:center;">';
+
+            // Botón principal: Ver enlace guardado
             if (link) {
-                html += `<button class="btn-arch-open" onclick="window.open('${link.replace(/'/g,"\\'")}','_blank')">${iconBtn}</button>`;
-                html += `<button class="btn-arch-edit" onclick="editarLink('${tipo}','${clave}')" title="Cambiar enlace">✏️</button>`;
-            } else {
-                html += `<button class="btn-arch-add" onclick="agregarLink('${tipo}','${clave}')">${iconAdd}</button>`;
+                html += `<button class="btn-arch-open" onclick="window.open('${link.replace(/'/g,"\\'")}','_blank')">📄 Ver</button>`;
             }
+
+            // Botón ruta local (file:///)
+            if (rutaLocal) {
+                const fileUrl = 'file:///' + rutaLocal.replace(/\\/g, '/');
+                html += `<button class="btn-arch-open" style="background:#059669;" onclick="window.open('${fileUrl}','_blank')">📂 Local</button>`;
+            }
+
+            // Botón regenerar PDF (solo para informes con datos en Firebase)
+            if (tipo === 'informe' && informeGenerado) {
+                html += `<button class="btn-arch-open" style="background:#7c3aed;" onclick="window.open('Generador_Informe_Firebase.html?mes=${mesNum}&anio=${anio}','_blank')">🔄 Regenerar</button>`;
+            }
+
+            // Botón agregar/editar
+            const labelAdd = tipo === 'informe' ? '+ Informe' : '+ Cuenta';
+            html += `<button class="btn-arch-${link || rutaLocal ? 'edit' : 'add'}" onclick="agregarLink('${tipo}','${clave}')" title="Agregar/editar">${link || rutaLocal ? '✏️' : labelAdd}</button>`;
+
             html += '</div>';
             return html;
         }
@@ -2726,10 +2745,20 @@
 
             Promise.all([
                 db.ref('edificios/nepal-2/informes').once('value'),
-                db.ref('edificios/nepal-2/cuentas').once('value')
-            ]).then(([snapInf, snapCue]) => {
-                const informes = snapInf.val() || {};
-                const cuentas  = snapCue.val() || {};
+                db.ref('edificios/nepal-2/cuentas').once('value'),
+                db.ref('edificios/nepal-2/rutasLocales').once('value')
+            ]).then(([snapInf, snapCue, snapRutas]) => {
+                const informesLinks = snapInf.val() || {};
+                const cuentas       = snapCue.val() || {};
+                const rutasLocales  = snapRutas.val() || {};
+
+                // Separar informes-link (clave 2026-01) de informes-generados (clave informe-enero-...)
+                const informesLinks2 = {};
+                const informesGenerados = {};
+                Object.entries(informesLinks).forEach(([k, v]) => {
+                    if (k.match(/^\d{4}-\d{2}$/)) informesLinks2[k] = v;
+                    else informesGenerados[k] = v;
+                });
 
                 // ─── Tabla de Ejecución Constante ───
                 const tbodyEjec = document.getElementById('archivoDocBodyEjec');
@@ -2745,8 +2774,8 @@
                     const esMesActual= m === mesActual;
                     const esPasado   = m < mesActual;
 
-                    const infCell = buildArchivoCells('informe', clave, informes, esFuturo, esMesActual, esPasado);
-                    const cueCell = buildArchivoCells('cuenta',  clave, cuentas,  esFuturo, esMesActual, esPasado);
+                    const infCell = buildArchivoCells('informe', clave, informesLinks2, esFuturo, esMesActual, esPasado, informesGenerados, rutasLocales);
+                    const cueCell = buildArchivoCells('cuenta',  clave, cuentas,        esFuturo, esMesActual, esPasado, {}, rutasLocales);
 
                     // Estado para tabla Admin (columna extra)
                     const infTiene = informes[clave] && (informes[clave].link || informes[clave].generado);
@@ -2800,12 +2829,16 @@
             abrirModalSubida(tipo, clave);
         }
 
+        // ── Subida directa a GitHub Pages (gratis, sin Drive) ──
+        const GH_OWNER = 'nepal2edificio';
+        const GH_REPO  = 'sst-nepal2';
+        const GH_BRANCH = 'main';
+
         function abrirModalSubida(tipo, clave) {
             const etiqueta = tipo === 'informe' ? 'Informe Mensual SST' : 'Cuenta por Cobrar';
-            const mesNum = parseInt(clave.split('-')[1]);
+            const mesNum   = parseInt(clave.split('-')[1]);
             const mesNombre = MESES_NOMBRES[mesNum - 1];
 
-            // Crear modal si no existe
             let modal = document.getElementById('modalSubidaDoc');
             if (!modal) {
                 modal = document.createElement('div');
@@ -2815,76 +2848,137 @@
             }
 
             modal.innerHTML = `
-                <div style="background:white;border-radius:14px;padding:28px;width:460px;max-width:95vw;box-shadow:0 20px 60px rgba(0,0,0,0.3);">
-                    <h3 style="margin:0 0 6px;color:#1e3a5f;">📄 ${etiqueta}</h3>
+                <div style="background:white;border-radius:14px;padding:28px;width:500px;max-width:95vw;box-shadow:0 20px 60px rgba(0,0,0,0.3);">
+                    <h3 style="margin:0 0 4px;color:#1e3a5f;">📄 ${etiqueta}</h3>
                     <p style="margin:0 0 18px;color:#64748b;font-size:0.9rem;">Mes: <strong>${mesNombre} 2026</strong></p>
 
-                    <label style="display:block;margin-bottom:8px;font-weight:600;color:#374151;">Selecciona el archivo PDF:</label>
-                    <input type="file" id="inputArchivoDoc" accept=".pdf,.xlsx,.docx"
-                        style="width:100%;padding:10px;border:2px dashed #cbd5e1;border-radius:8px;font-size:0.9rem;cursor:pointer;box-sizing:border-box;">
-
-                    <div id="progresoSubida" style="display:none;margin-top:14px;">
-                        <div style="background:#e2e8f0;border-radius:6px;height:10px;overflow:hidden;">
-                            <div id="barraProgreso" style="height:100%;width:0%;background:#3b82f6;transition:width 0.3s;"></div>
-                        </div>
-                        <p id="textoProgreso" style="font-size:0.82rem;color:#64748b;margin-top:6px;text-align:center;">Subiendo...</p>
-                    </div>
-
-                    <div style="display:flex;gap:10px;margin-top:20px;">
-                        <button onclick="subirArchivoStorage('${tipo}','${clave}')"
-                            style="flex:1;background:#1e3a5f;color:white;border:none;border-radius:8px;padding:11px;font-size:0.95rem;font-weight:600;cursor:pointer;">
-                            ☁️ Subir a Firebase
-                        </button>
-                        <button onclick="document.getElementById('modalSubidaDoc').style.display='none'"
-                            style="background:#f1f5f9;color:#374151;border:none;border-radius:8px;padding:11px 18px;cursor:pointer;font-weight:600;">
-                            Cancelar
+                    <!-- OPCIÓN 1: Ruta local C:\ -->
+                    <div style="border:2px solid #059669;border-radius:10px;padding:14px;margin-bottom:14px;">
+                        <p style="margin:0 0 8px;font-weight:700;color:#065f46;font-size:0.92rem;">📂 Ruta local en tu computador</p>
+                        <p style="margin:0 0 8px;font-size:0.8rem;color:#6b7280;">Funciona cuando abres el sistema desde tu PC (no desde el navegador web). Pega la ruta completa del archivo:</p>
+                        <input type="text" id="inputRutaLocal" placeholder="C:\\Users\\C3MADRIZ\\Documents\\informe-enero.pdf"
+                            style="width:100%;padding:8px 10px;border:1px solid #a7f3d0;border-radius:6px;font-size:0.85rem;box-sizing:border-box;font-family:monospace;">
+                        <button onclick="guardarRutaLocal('${tipo}','${clave}')"
+                            style="width:100%;margin-top:8px;background:#059669;color:white;border:none;border-radius:7px;padding:9px;font-weight:600;cursor:pointer;font-size:0.88rem;">
+                            💾 Guardar ruta local
                         </button>
                     </div>
+
+                    <!-- OPCIÓN 2: Enlace web (Drive, OneDrive, etc.) -->
+                    <div style="border:2px solid #3b82f6;border-radius:10px;padding:14px;margin-bottom:14px;">
+                        <p style="margin:0 0 8px;font-weight:700;color:#1e40af;font-size:0.92rem;">🔗 Enlace web (Google Drive, OneDrive...)</p>
+                        <input type="text" id="inputEnlaceDoc" placeholder="https://drive.google.com/file/d/..."
+                            style="width:100%;padding:8px 10px;border:1px solid #bfdbfe;border-radius:6px;font-size:0.85rem;box-sizing:border-box;">
+                        <button onclick="guardarEnlaceManual('${tipo}','${clave}')"
+                            style="width:100%;margin-top:8px;background:#3b82f6;color:white;border:none;border-radius:7px;padding:9px;font-weight:600;cursor:pointer;font-size:0.88rem;">
+                            💾 Guardar enlace web
+                        </button>
+                    </div>
+
+                    <button onclick="document.getElementById('modalSubidaDoc').style.display='none'"
+                        style="width:100%;background:#f1f5f9;color:#374151;border:none;border-radius:8px;padding:10px;cursor:pointer;font-weight:600;">
+                        Cancelar
+                    </button>
                 </div>
             `;
             modal.style.display = 'flex';
         }
 
-        async function subirArchivoStorage(tipo, clave) {
+        async function subirArchivoGitHub(tipo, clave) {
+            const token = localStorage.getItem('gh_token_nepal2');
+            if (!token) { alert('Guarda el token de GitHub primero.'); return; }
+
             const input = document.getElementById('inputArchivoDoc');
-            if (!input.files || !input.files[0]) {
-                alert('Selecciona un archivo primero.');
-                return;
-            }
+            if (!input.files || !input.files[0]) { alert('Selecciona un archivo primero.'); return; }
+
             const archivo = input.files[0];
-            const mesNum = parseInt(clave.split('-')[1]);
-            const mesNombre = MESES_NOMBRES[mesNum - 1].replace(' ', '_');
-            const ruta = `edificios/nepal-2/${tipo === 'informe' ? 'informes' : 'cuentas'}/${clave}_${archivo.name}`;
+            const mesNum  = parseInt(clave.split('-')[1]);
+            const carpeta = tipo === 'informe' ? 'informes' : 'cuentas';
+            // Nombre limpio: informe-2026-01-nombre.pdf
+            const nombreLimpio = `${carpeta}-${clave}-${archivo.name.replace(/\s+/g, '_')}`;
+            const rutaRepo     = `archivos/2026/${carpeta}/${nombreLimpio}`;
+            const urlPublica   = `https://${GH_OWNER}.github.io/${GH_REPO}/${rutaRepo}`;
 
             document.getElementById('progresoSubida').style.display = 'block';
+            document.getElementById('barraProgreso').style.width = '30%';
+            document.getElementById('textoProgreso').textContent = 'Leyendo archivo...';
 
             try {
-                const ref = storage.ref(ruta);
-                const tarea = ref.put(archivo);
+                // Leer archivo como base64
+                const base64 = await new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = () => resolve(reader.result.split(',')[1]);
+                    reader.onerror = reject;
+                    reader.readAsDataURL(archivo);
+                });
 
-                tarea.on('state_changed',
-                    (snap) => {
-                        const pct = Math.round((snap.bytesTransferred / snap.totalBytes) * 100);
-                        document.getElementById('barraProgreso').style.width = pct + '%';
-                        document.getElementById('textoProgreso').textContent = `Subiendo... ${pct}%`;
+                document.getElementById('barraProgreso').style.width = '60%';
+                document.getElementById('textoProgreso').textContent = 'Subiendo a GitHub...';
+
+                // Verificar si el archivo ya existe (para obtener su sha)
+                let sha = undefined;
+                const checkRes = await fetch(`https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${rutaRepo}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (checkRes.ok) {
+                    const existing = await checkRes.json();
+                    sha = existing.sha;
+                }
+
+                // Subir archivo
+                const body = {
+                    message: `Subir ${carpeta} ${clave}`,
+                    content: base64,
+                    branch: GH_BRANCH,
+                    ...(sha ? { sha } : {})
+                };
+
+                const res = await fetch(`https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${rutaRepo}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
                     },
-                    (err) => {
-                        alert('❌ Error al subir: ' + err.message);
-                        document.getElementById('progresoSubida').style.display = 'none';
-                    },
-                    async () => {
-                        const downloadURL = await tarea.snapshot.ref.getDownloadURL();
-                        guardarLinkFirebase(tipo, clave, downloadURL, archivo.name);
-                        document.getElementById('textoProgreso').textContent = '✅ ¡Subido exitosamente!';
-                        setTimeout(() => {
-                            document.getElementById('modalSubidaDoc').style.display = 'none';
-                        }, 1200);
-                    }
-                );
+                    body: JSON.stringify(body)
+                });
+
+                if (!res.ok) {
+                    const err = await res.json();
+                    throw new Error(err.message || 'Error al subir a GitHub');
+                }
+
+                document.getElementById('barraProgreso').style.width = '100%';
+                document.getElementById('textoProgreso').textContent = '✅ ¡Subido! Guardando enlace...';
+
+                guardarLinkFirebase(tipo, clave, urlPublica, archivo.name);
+
+                setTimeout(() => {
+                    document.getElementById('modalSubidaDoc').style.display = 'none';
+                }, 1400);
+
             } catch(err) {
-                alert('❌ Error: ' + err.message);
-                document.getElementById('progresoSubida').style.display = 'none';
+                document.getElementById('textoProgreso').textContent = '❌ Error: ' + err.message;
+                document.getElementById('barraProgreso').style.background = '#ef4444';
             }
+        }
+
+        function guardarEnlaceManual(tipo, clave) {
+            const url = document.getElementById('inputEnlaceDoc').value.trim();
+            if (!url) { alert('Pega un enlace primero.'); return; }
+            guardarLinkFirebase(tipo, clave, url);
+            document.getElementById('modalSubidaDoc').style.display = 'none';
+        }
+
+        function guardarRutaLocal(tipo, clave) {
+            const ruta = document.getElementById('inputRutaLocal').value.trim();
+            if (!ruta) { alert('Ingresa la ruta del archivo.'); return; }
+            const db = firebase.database();
+            db.ref(`edificios/nepal-2/rutasLocales/${clave}`).update({ [tipo]: ruta })
+              .then(() => {
+                  document.getElementById('modalSubidaDoc').style.display = 'none';
+                  actualizarArchivoDocumentos();
+              })
+              .catch(err => alert('Error: ' + err.message));
         }
 
         function guardarLinkFirebase(tipo, clave, url, nombreArchivo) {
