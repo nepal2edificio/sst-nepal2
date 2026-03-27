@@ -2514,20 +2514,43 @@
             return (items || []).filter(item => {
                 if (!item || !item.fecha) return false;
                 try {
-                    const f = new Date(item.fecha);
+                    // Forzar mediodía local para evitar desfase de zona horaria UTC-5
+                    const fechaStr = String(item.fecha).length === 10
+                        ? item.fecha + 'T12:00:00'
+                        : item.fecha;
+                    const f = new Date(fechaStr);
                     return f.getMonth() === mes && f.getFullYear() === año;
                 } catch(e) { return false; }
             });
         }
 
-        function actualizarGrillaMonthly() {
+        // Combina datos de nepal-2 + convivienda-1 (migración de datos guardados con ruta anterior)
+        async function cargarDatosUnificados() {
             const db = firebase.database();
-            db.ref('edificios/nepal-2').once('value').then(snapshot => {
-                const data = snapshot.val() || {};
-                const supervisiones = data.supervisiones ? Object.values(data.supervisiones) : [];
-                const inspecciones  = data.inspecciones  ? Object.values(data.inspecciones)  : [];
-                const inducciones   = data.inducciones   ? Object.values(data.inducciones)   : [];
-                const mantenimientos= data.mantenimientos? Object.values(data.mantenimientos): [];
+            const [snapNepal, snapConvi] = await Promise.all([
+                db.ref('edificios/nepal-2').once('value'),
+                db.ref('edificios/convivienda-1').once('value'),
+            ]);
+            const n = snapNepal.val() || {};
+            const c = snapConvi.val() || {};
+            const merge = (campo) => [
+                ...(n[campo] ? Object.values(n[campo]) : []),
+                ...(c[campo] ? Object.values(c[campo]) : []),
+            ];
+            return {
+                supervisiones:  merge('supervisiones'),
+                inspecciones:   merge('inspecciones'),
+                inducciones:    merge('inducciones'),
+                mantenimientos: merge('mantenimientos'),
+            };
+        }
+
+        function actualizarGrillaMonthly() {
+            cargarDatosUnificados().then(datos => {
+                const supervisiones = datos.supervisiones;
+                const inspecciones  = datos.inspecciones;
+                const inducciones   = datos.inducciones;
+                const mantenimientos= datos.mantenimientos;
 
                 const ahora = new Date();
                 const mesActual = ahora.getMonth();
@@ -2579,17 +2602,16 @@
             });
         }
 
+
         // ═══════════════════════════════════════════════════════════════
         // TABLA MENSUAL — SECCIÓN EJECUCIÓN CONSTANTE
         // ═══════════════════════════════════════════════════════════════
         function actualizarTablaEjecucion() {
-            const db = firebase.database();
-            db.ref('edificios/nepal-2').once('value').then(snapshot => {
-                const data = snapshot.val() || {};
-                const supervisiones = data.supervisiones ? Object.values(data.supervisiones) : [];
-                const inspecciones  = data.inspecciones  ? Object.values(data.inspecciones)  : [];
-                const inducciones   = data.inducciones   ? Object.values(data.inducciones)   : [];
-                const mantenimientos= data.mantenimientos? Object.values(data.mantenimientos): [];
+            cargarDatosUnificados().then(datos => {
+                const supervisiones = datos.supervisiones;
+                const inspecciones  = datos.inspecciones;
+                const inducciones   = datos.inducciones;
+                const mantenimientos= datos.mantenimientos;
 
                 const ahora = new Date();
                 const mesActual = ahora.getMonth();

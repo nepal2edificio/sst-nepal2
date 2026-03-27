@@ -3,12 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Supervisión Mensual SST - Convivienda 1</title>
-    
+    <title>Supervisión Mensual SST - Nepal 2</title>
+
     <!-- Firebase Scripts (v9 compat) -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+    <!-- jsPDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
     
     <style>
         * {
@@ -330,6 +333,15 @@
             min-width: 200px;
         }
 
+        .sup-table { width:100%; border-collapse:collapse; font-size:.88rem; }
+        .sup-table th { background:#1e3c72; color:#fff; padding:10px 12px; text-align:left; }
+        .sup-table td { padding:10px 12px; border-bottom:1px solid #e9ecef; vertical-align:top; }
+        .sup-table tr:hover td { background:#f0f4ff; }
+        .badge { display:inline-block; padding:3px 10px; border-radius:12px; font-size:.78rem; font-weight:700; }
+        .badge-pos { background:#d1fae5; color:#065f46; }
+        .badge-neg { background:#fee2e2; color:#991b1b; }
+        .badge-area { background:#dbeafe; color:#1e40af; margin:2px; }
+
         @media (max-width: 768px) {
             .checkbox-group {
                 grid-template-columns: 1fr;
@@ -353,7 +365,7 @@
     <div class="container">
         <div class="header">
             <h1>📋 Supervisión Mensual SST</h1>
-            <p>Edificio Convivienda 1 | Sistema de registro con fotografías</p>
+            <p>Propiedad Horizontal Nepal 2 | Sistema de registro con fotografías</p>
         </div>
 
         <div class="nav-buttons">
@@ -489,10 +501,24 @@
 
             <!-- Botones de Acción -->
             <div class="action-buttons">
-                <button class="btn btn-primary" onclick="generarInforme()">📄 Generar Informe PDF</button>
-                <button class="btn btn-primary" onclick="guardarSupervision()">💾 Guardar Supervisión</button>
+                <button class="btn btn-primary" id="btnGuardar" onclick="guardarSupervision()">💾 Guardar Supervisión</button>
+                <button class="btn btn-primary" id="btnPDF" onclick="generarInformePDF()">📄 Generar Informe PDF</button>
                 <button class="btn btn-back" onclick="limpiarFormulario()">🗑️ Limpiar Todo</button>
             </div>
+
+            <!-- Panel de estado -->
+            <div id="statusMsg" style="display:none; margin-top:20px; padding:14px 18px; border-radius:8px; font-weight:600; font-size:.95rem;"></div>
+        </div>
+    </div>
+
+    <!-- MODAL: Ver Supervisiones Guardadas -->
+    <div id="modalSupervisiones" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:1000; overflow-y:auto; padding:20px;">
+        <div style="background:#fff; border-radius:14px; max-width:900px; margin:auto; padding:28px; box-shadow:0 20px 60px rgba(0,0,0,.3);">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                <h2 style="color:#1e3c72; font-size:1.3rem;">📋 Supervisiones Guardadas — Nepal 2</h2>
+                <button onclick="cerrarModal()" style="background:#dc3545; color:#fff; border:none; border-radius:8px; padding:8px 18px; font-weight:700; cursor:pointer; font-size:1rem;">✕ Cerrar</button>
+            </div>
+            <div id="listaSupervisiones"></div>
         </div>
     </div>
 
@@ -702,108 +728,117 @@
             document.getElementById('total-areas').textContent = checkboxes.length;
         }
 
-        function guardarSupervision() {
+        function setStatus(msg, tipo) {
+            const el = document.getElementById('statusMsg');
+            el.innerHTML = msg;
+            el.style.display = 'block';
+            if (tipo === 'success') { el.style.background='#d1fae5'; el.style.color='#065f46'; el.style.border='2px solid #10b981'; }
+            else if (tipo === 'error') { el.style.background='#fee2e2'; el.style.color='#991b1b'; el.style.border='2px solid #dc2626'; }
+            else { el.style.background='#dbeafe'; el.style.color='#1e40af'; el.style.border='2px solid #2563eb'; }
+        }
+
+        async function guardarSupervision() {
             const datos = recopilarDatos();
-            
-            // Guardar en Firebase
+            if (!datos.fecha) { setStatus('Por favor ingrese la fecha de supervision.', 'error'); return; }
+
+            const btn = document.getElementById('btnGuardar');
+            btn.disabled = true; btn.textContent = 'Guardando...';
+            setStatus('Guardando supervision en Firebase...', 'info');
+
             const supervisionId = 'supervision-' + Date.now();
-            const supervisionRef = database.ref(`edificios/${EDIFICIO_ID}/supervisiones/${supervisionId}`);
-            
-            supervisionRef.set(datos)
-                .then(() => {
-                    console.log('✅ Supervisión guardada en Firebase:', supervisionId);
-                    
-                    // También guardar como borrador (para backup local)
-                    localStorage.setItem('supervision_borrador', JSON.stringify(datos));
-                    
-                    alert('✅ Supervisión guardada exitosamente en la nube!\n\nPuedes verla desde cualquier dispositivo en el Informe Consolidado.');
-                    
-                    if (confirm('¿Deseas ir al Generador de Informe Consolidado ahora?')) {
-                        window.location.href = 'Generador_Informe_Consolidado_Mejorado.html';
-                    }
-                })
-                .catch((error) => {
-                    console.error('❌ Error guardando supervisión:', error);
-                    alert('❌ Error guardando en la nube. Datos guardados localmente como respaldo.');
-                    
-                    // Fallback: guardar en localStorage si Firebase falla
-                    const supervisiones = JSON.parse(localStorage.getItem('supervisiones_convivienda1') || '[]');
-                    supervisiones.push(datos);
-                    localStorage.setItem('supervisiones_convivienda1', JSON.stringify(supervisiones));
-                });
-            
-            alert('✅ Supervisión guardada exitosamente!\n\nPuedes verla en el Informe Consolidado.');
-            
-            if (confirm('¿Deseas ir al Generador de Informe Consolidado ahora?')) {
-                window.location.href = 'Generador_Informe_Consolidado_Mejorado.html';
+            try {
+                await database.ref(`edificios/${EDIFICIO_ID}/supervisiones/${supervisionId}`).set(datos);
+                localStorage.setItem('supervision_borrador_nepal2', JSON.stringify(datos));
+                console.log('Supervision guardada:', supervisionId);
+                setStatus('Supervision guardada correctamente en Firebase. ID: ' + supervisionId, 'success');
+            } catch(err) {
+                console.error('Error guardando:', err);
+                setStatus('Error al guardar en Firebase: ' + err.message, 'error');
+            } finally {
+                btn.disabled = false; btn.textContent = 'Guardar Supervision';
             }
+            return supervisionId;
         }
 
         function guardarBorrador() {
             const datos = recopilarDatos();
-            localStorage.setItem('supervision_borrador', JSON.stringify(datos));
-            alert('💾 Borrador guardado');
+            localStorage.setItem('supervision_borrador_nepal2', JSON.stringify(datos));
+            setStatus('Borrador guardado localmente.', 'info');
         }
 
         function cargarBorrador() {
-            const borrador = localStorage.getItem('supervision_borrador');
-            if (borrador && confirm('¿Cargar el borrador guardado?')) {
-                const datos = JSON.parse(borrador);
-                // Implementar carga de datos...
-                alert('Borrador cargado');
+            const borrador = localStorage.getItem('supervision_borrador_nepal2');
+            if (borrador) {
+                console.log('Borrador encontrado en localStorage (no se carga automaticamente).');
             }
         }
 
         // ============================================
-        // PASO 4: CARGAR SUPERVISIONES DESDE FIREBASE
+        // VER SUPERVISIONES GUARDADAS (panel visual)
         // ============================================
         function cargarSupervisiones() {
-            const supervisionesRef = database.ref(`edificios/${EDIFICIO_ID}/supervisiones`);
-            
-            supervisionesRef.once('value')
-                .then((snapshot) => {
-                    const supervisiones = [];
-                    
-                    snapshot.forEach((childSnapshot) => {
-                        supervisiones.push({
-                            id: childSnapshot.key,
-                            ...childSnapshot.val()
-                        });
-                    });
-                    
-                    console.log(`✅ ${supervisiones.length} supervisiones cargadas desde Firebase`);
-                    console.log('📋 Supervisiones:', supervisiones);
-                    
-                    if (supervisiones.length === 0) {
-                        alert('📭 No hay supervisiones guardadas aún');
-                    } else {
-                        // Mostrar lista de supervisiones
-                        mostrarListaSupervisiones(supervisiones);
+            const lista = document.getElementById('listaSupervisiones');
+            lista.innerHTML = '<p style="color:#64748b; padding:10px;">Cargando...</p>';
+            document.getElementById('modalSupervisiones').style.display = 'block';
+
+            database.ref(`edificios/${EDIFICIO_ID}/supervisiones`).once('value')
+                .then(snapshot => {
+                    if (!snapshot.exists()) {
+                        lista.innerHTML = '<p style="color:#64748b; padding:20px; text-align:center;">No hay supervisiones guardadas aun para Nepal 2.</p>';
+                        return;
                     }
+                    const sups = [];
+                    snapshot.forEach(child => sups.push({ id: child.key, ...child.val() }));
+                    sups.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+                    console.log('Supervisiones cargadas:', sups.length);
+                    mostrarListaSupervisiones(sups);
                 })
-                .catch((error) => {
-                    console.error('❌ Error cargando supervisiones:', error);
-                    alert('❌ Error cargando supervisiones desde Firebase');
+                .catch(err => {
+                    lista.innerHTML = '<p style="color:#dc2626; padding:20px;">Error al cargar: ' + err.message + '</p>';
+                    console.error(err);
                 });
         }
 
+        function cerrarModal() {
+            document.getElementById('modalSupervisiones').style.display = 'none';
+        }
+
         function mostrarListaSupervisiones(supervisiones) {
-            // Ordenar por fecha (más reciente primero)
-            supervisiones.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-            
-            let mensaje = '📋 SUPERVISIONES GUARDADAS:\n\n';
-            
-            supervisiones.forEach((sup, index) => {
-                const fecha = new Date(sup.timestamp);
-                const fechaStr = fecha.toLocaleDateString('es-CO');
-                const horaStr = fecha.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
-                
-                mensaje += `${index + 1}. ${sup.fecha || fechaStr} - ${sup.horaInicio || horaStr}\n`;
-                mensaje += `   Responsable: ${sup.responsable || 'N/A'}\n`;
-                mensaje += `   Áreas: ${sup.areas?.length || 0}\n\n`;
+            const lista = document.getElementById('listaSupervisiones');
+            let html = `<p style="color:#64748b; margin-bottom:14px; font-size:.88rem;">${supervisiones.length} supervision(es) encontrada(s) en Nepal 2</p>`;
+            html += '<table class="sup-table"><thead><tr><th>#</th><th>Fecha</th><th>Hora</th><th>Areas</th><th>Hall. Positivos</th><th>Hall. Negativos</th><th>Fotos</th></tr></thead><tbody>';
+
+            supervisiones.forEach((sup, i) => {
+                const fecha = sup.fecha || '—';
+                const hora  = sup.horaInicio ? (sup.horaInicio + (sup.horaFin ? ' - ' + sup.horaFin : '')) : '—';
+                const areas = Array.isArray(sup.areas) ? sup.areas.map(a => `<span class="badge badge-area">${a}</span>`).join(' ') : (sup.areas || '—');
+                const pos   = Array.isArray(sup.hallazgosPositivos) ? sup.hallazgosPositivos.length : 0;
+                const neg   = Array.isArray(sup.hallazgosNegativos) ? sup.hallazgosNegativos.length : 0;
+                const fotos = Array.isArray(sup.fotos) ? sup.fotos.length : 0;
+
+                html += `<tr>
+                    <td>${i+1}</td>
+                    <td><strong>${fecha}</strong></td>
+                    <td>${hora}</td>
+                    <td>${areas}</td>
+                    <td><span class="badge badge-pos">${pos} positivos</span></td>
+                    <td><span class="badge badge-neg">${neg} negativos</span></td>
+                    <td>${fotos}</td>
+                </tr>`;
+
+                // Detalle de hallazgos negativos
+                if (Array.isArray(sup.hallazgosNegativos) && sup.hallazgosNegativos.length > 0) {
+                    html += `<tr><td colspan="7" style="background:#fff8f8; padding:10px 14px;">`;
+                    html += `<strong style="color:#991b1b;">Hallazgos negativos:</strong><ul style="margin:6px 0 0 18px;">`;
+                    sup.hallazgosNegativos.forEach(h => {
+                        html += `<li style="font-size:.85rem; margin-bottom:4px;"><strong>[${h.nivel || 'medio'}]</strong> ${h.descripcion || '—'} ${h.ubicacion ? '— Ubicacion: '+h.ubicacion : ''} ${h.accion ? '<br><em>Accion: '+h.accion+'</em>' : ''}</li>`;
+                    });
+                    html += '</ul></td></tr>';
+                }
             });
-            
-            alert(mensaje);
+
+            html += '</tbody></table>';
+            lista.innerHTML = html;
         }
 
         function recopilarDatos() {
@@ -835,14 +870,166 @@
             };
         }
 
-        function generarInforme() {
+        async function generarInformePDF() {
             const datos = recopilarDatos();
-            
-            // Guardar y redirigir al generador
-            localStorage.setItem('ultima_supervision', JSON.stringify(datos));
-            guardarSupervision();
-            
-            window.open('Generador_Informe_Consolidado_Mejorado.html', '_blank');
+            if (!datos.fecha) { setStatus('Ingrese la fecha de supervision antes de generar el PDF.', 'error'); return; }
+
+            const btn = document.getElementById('btnPDF');
+            btn.disabled = true; btn.textContent = 'Generando PDF...';
+            setStatus('Generando PDF de supervision...', 'info');
+
+            try {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF({ orientation:'portrait', unit:'mm', format:'letter' });
+                const PW = doc.internal.pageSize.getWidth();
+                const PH = doc.internal.pageSize.getHeight();
+                const MRG = 20;
+                const CTW = PW - MRG*2;
+
+                const C_AZUL  = [30, 60, 114];
+                const C_MED   = [102, 126, 234];
+                const C_BLANC = [255, 255, 255];
+                const C_GRIS  = [248, 249, 250];
+                const C_TEXT  = [71, 85, 105];
+                const C_NEGRO = [30, 41, 59];
+
+                // Pies de pagina
+                function addFooters() {
+                    const total = doc.internal.getNumberOfPages();
+                    for (let i = 1; i <= total; i++) {
+                        doc.setPage(i);
+                        doc.setDrawColor(200,210,220); doc.setLineWidth(.3);
+                        doc.line(MRG, PH-14, PW-MRG, PH-14);
+                        doc.setFont('helvetica','normal'); doc.setFontSize(7.5); doc.setTextColor(...C_TEXT);
+                        doc.text('SG-SST - Propiedad Horizontal Nepal 2 - Bogota, Colombia', MRG, PH-9);
+                        doc.text('Pagina ' + i + ' de ' + total, PW-MRG, PH-9, { align:'right' });
+                    }
+                }
+
+                // PORTADA
+                doc.setFillColor(...C_AZUL);
+                doc.rect(0, 0, PW, 50, 'F');
+                doc.setFont('helvetica','bold'); doc.setFontSize(18); doc.setTextColor(...C_BLANC);
+                doc.text('SUPERVISION MENSUAL SST', PW/2, 22, { align:'center' });
+                doc.setFontSize(11);
+                doc.text('Propiedad Horizontal Nepal 2', PW/2, 33, { align:'center' });
+                doc.setFontSize(9); doc.setTextColor(186,230,253);
+                doc.text('Sistema de Gestion de Seguridad y Salud en el Trabajo', PW/2, 42, { align:'center' });
+
+                const fechaFmt = datos.fecha
+                    ? new Date(datos.fecha + 'T12:00:00').toLocaleDateString('es-CO', { day:'2-digit', month:'long', year:'numeric' })
+                    : 'Sin fecha';
+
+                doc.autoTable({
+                    startY: 60,
+                    margin: { left: MRG+25, right: MRG+25 },
+                    head: [['Campo','Informacion']],
+                    body: [
+                        ['Edificio',      'Propiedad Horizontal Nepal 2'],
+                        ['Fecha',         fechaFmt],
+                        ['Hora inicio',   datos.horaInicio || 'No registrada'],
+                        ['Hora fin',      datos.horaFin || 'No registrada'],
+                        ['Responsable',   datos.responsable || 'Carla Castellano Madriz'],
+                        ['Areas revisadas', Array.isArray(datos.areas) ? datos.areas.join(', ') : 'No especificadas'],
+                        ['Fotos adjuntas', String(datos.fotos ? datos.fotos.length : 0)],
+                        ['Hall. positivos', String(datos.hallazgosPositivos ? datos.hallazgosPositivos.length : 0)],
+                        ['Hall. negativos', String(datos.hallazgosNegativos ? datos.hallazgosNegativos.length : 0)],
+                    ],
+                    headStyles: { fillColor: C_AZUL, textColor: C_BLANC, fontStyle:'bold', halign:'center', fontSize:9.5 },
+                    columnStyles: { 0:{ fontStyle:'bold', textColor:C_AZUL, cellWidth:55 } },
+                    bodyStyles: { fontSize:9.5, cellPadding:5 },
+                    alternateRowStyles: { fillColor: C_GRIS },
+                    theme:'grid',
+                });
+
+                let y = doc.lastAutoTable.finalY + 14;
+
+                // Hallazgos Positivos
+                if (datos.hallazgosPositivos && datos.hallazgosPositivos.length > 0) {
+                    if (y > PH-60) { doc.addPage(); y = MRG+10; }
+                    doc.setFillColor(...C_AZUL);
+                    doc.roundedRect(MRG, y-5, CTW, 9, 1, 1, 'F');
+                    doc.setFont('helvetica','bold'); doc.setFontSize(10); doc.setTextColor(...C_BLANC);
+                    doc.text('HALLAZGOS POSITIVOS', MRG+5, y+1);
+                    y += 12;
+
+                    doc.autoTable({
+                        startY: y, margin:{ left:MRG, right:MRG },
+                        head: [['#','Hallazgo Positivo']],
+                        body: datos.hallazgosPositivos.map((h,i) => [String(i+1), h.texto || String(h)]),
+                        headStyles: { fillColor: [5,150,105], textColor: C_BLANC, fontStyle:'bold', fontSize:9 },
+                        bodyStyles: { fontSize:9, cellPadding:4 },
+                        columnStyles: { 0:{cellWidth:12, halign:'center'} },
+                        alternateRowStyles: { fillColor: [240,253,244] },
+                        theme:'grid',
+                    });
+                    y = doc.lastAutoTable.finalY + 10;
+                }
+
+                // Hallazgos Negativos
+                if (datos.hallazgosNegativos && datos.hallazgosNegativos.length > 0) {
+                    if (y > PH-60) { doc.addPage(); y = MRG+10; }
+                    doc.setFillColor(185, 28, 28);
+                    doc.roundedRect(MRG, y-5, CTW, 9, 1, 1, 'F');
+                    doc.setFont('helvetica','bold'); doc.setFontSize(10); doc.setTextColor(...C_BLANC);
+                    doc.text('HALLAZGOS NEGATIVOS / RIESGOS', MRG+5, y+1);
+                    y += 12;
+
+                    doc.autoTable({
+                        startY: y, margin:{ left:MRG, right:MRG },
+                        head: [['#','Nivel','Descripcion','Ubicacion','Accion Correctiva','Responsable','Plazo']],
+                        body: datos.hallazgosNegativos.map((h,i) => [
+                            String(i+1),
+                            (h.nivel || 'medio').toUpperCase(),
+                            h.descripcion || '—',
+                            h.ubicacion || '—',
+                            h.accion || '—',
+                            h.responsable || '—',
+                            h.plazo || '—',
+                        ]),
+                        headStyles: { fillColor: [185,28,28], textColor: C_BLANC, fontStyle:'bold', fontSize:8.5 },
+                        bodyStyles: { fontSize:8, cellPadding:3.5 },
+                        columnStyles: {
+                            0:{cellWidth:10, halign:'center'},
+                            1:{cellWidth:18, halign:'center'},
+                            2:{cellWidth:50},
+                            3:{cellWidth:28},
+                            4:{cellWidth:42},
+                            5:{cellWidth:24},
+                            6:{cellWidth:22},
+                        },
+                        alternateRowStyles: { fillColor: [254,242,242] },
+                        theme:'grid',
+                    });
+                    y = doc.lastAutoTable.finalY + 10;
+                }
+
+                // Firma
+                if (y > PH-55) { doc.addPage(); y = MRG+10; }
+                y += 10;
+                doc.setDrawColor(...C_AZUL); doc.setLineWidth(.8);
+                doc.line(MRG+10, y, MRG+100, y);
+                y += 7;
+                doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.setTextColor(...C_AZUL);
+                doc.text('Carla Castellano Madriz', MRG+10, y); y += 6;
+                doc.setFont('helvetica','normal'); doc.setFontSize(9.5); doc.setTextColor(...C_NEGRO);
+                doc.text('Coordinadora SG-SST', MRG+10, y); y += 5.5;
+                doc.text('C.E. 679955', MRG+10, y); y += 5.5;
+                doc.setFontSize(8.5); doc.setTextColor(...C_TEXT);
+                doc.text('Fecha de supervision: ' + fechaFmt, MRG+10, y);
+
+                addFooters();
+
+                const nombreArchivo = 'Supervision_SST_Nepal2_' + (datos.fecha || 'sin-fecha').replace(/-/g,'') + '.pdf';
+                doc.save(nombreArchivo);
+                setStatus('PDF generado y descargado: ' + nombreArchivo, 'success');
+                console.log('PDF guardado:', nombreArchivo);
+            } catch(err) {
+                console.error('Error PDF:', err);
+                setStatus('Error al generar PDF: ' + err.message, 'error');
+            } finally {
+                btn.disabled = false; btn.textContent = 'Generar Informe PDF';
+            }
         }
 
         function limpiarFormulario() {
@@ -884,7 +1071,7 @@
         // FIREBASE CONFIGURATION - Convivienda 1
         // ============================================
         const firebaseConfig = {
-          apiKey: "AIzaSyCb2pko11_UOP6V5VPQV_xARWrC5wybQ6w",
+          apiKey: "AIzaSyDvOSbIFNIVQNJIHBDmP0SgQ-YMYyakHFI",
           authDomain: "compliancepro--o--sistemass.firebaseapp.com",
           databaseURL: "https://compliancepro--o--sistemass-default-rtdb.firebaseio.com",
           projectId: "compliancepro--o--sistemass",
@@ -898,11 +1085,11 @@
         const database = firebase.database();
         const storage = firebase.storage();
 
-        // Edificio ID
-        const EDIFICIO_ID = 'convivienda-1';
+        // Edificio ID — Nepal 2
+        const EDIFICIO_ID = 'nepal-2';
 
-        console.log('✅ Firebase inicializado - Módulo Supervisión Convivienda 1');
-        console.log('📊 Edificio:', EDIFICIO_ID);
+        console.log('Firebase inicializado - Modulo Supervision Nepal 2');
+        console.log('Ruta Firebase: edificios/' + EDIFICIO_ID + '/supervisiones');
     </script>
 </body>
 </html>

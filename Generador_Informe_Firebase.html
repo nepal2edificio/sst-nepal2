@@ -1,1176 +1,1280 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Generador de Informes Consolidados SST - Nepal 2</title>
-    
-    <!-- Firebase Scripts -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
-    <!-- Librerías para generar PDF -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
-    
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        body {
-            font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #1f4e78 0%, #2e5c8a 100%);
-            padding: 20px;
-            min-height: 100vh;
-        }
-        
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            overflow: hidden;
-        }
-        
-        .header {
-            background: linear-gradient(135deg, #1f4e78 0%, #2e5c8a 100%);
-            color: white;
-            padding: 40px;
-            text-align: center;
-        }
-        
-        .header h1 {
-            font-size: 2.2em;
-            margin-bottom: 10px;
-        }
-        
-        .header p {
-            opacity: 0.9;
-            font-size: 1.1em;
-        }
-        
-        .form-section {
-            padding: 40px;
-            background: #f8f9fa;
-        }
-        
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 25px;
-            margin-bottom: 30px;
-        }
-        
-        .form-group label {
-            font-weight: 600;
-            color: #1f4e78;
-            display: block;
-            margin-bottom: 10px;
-            font-size: 1.05em;
-        }
-        
-        select, input, textarea {
-            width: 100%;
-            padding: 14px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            font-size: 1em;
-            transition: border-color 0.3s;
-        }
-        
-        select:focus, input:focus, textarea:focus {
-            outline: none;
-            border-color: #4a90e2;
-        }
-        
-        textarea {
-            resize: vertical;
-            min-height: 150px;
-            font-family: inherit;
-        }
-        
-        .observaciones-section {
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            margin-top: 30px;
-            border: 2px solid #e0e0e0;
-        }
-        
-        .observaciones-section h3 {
-            color: #1f4e78;
-            margin-bottom: 15px;
-            font-size: 1.4em;
-        }
-        
-        .observaciones-section p {
-            color: #666;
-            margin-bottom: 15px;
-            line-height: 1.6;
-        }
-        
-        .btn-container {
-            text-align: center;
-            padding: 30px;
-            background: #f8f9fa;
-        }
-        
-        .btn {
-            padding: 16px 40px;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-            margin: 10px;
-            min-width: 200px;
-        }
-        
-        .btn-primary {
-            background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
-            color: white;
-        }
-        
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(74, 144, 226, 0.4);
-        }
-        
-        .btn-success {
-            background: #10b981;
-            color: white;
-        }
-        
-        .btn-success:hover {
-            background: #059669;
-            transform: translateY(-2px);
-        }
-        
-        .btn-secondary {
-            background: #6b7280;
-            color: white;
-        }
-        
-        .btn-secondary:hover {
-            background: #4b5563;
-        }
-        
-        /* Preview Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.8);
-            z-index: 1000;
-            padding: 20px;
-            overflow-y: auto;
-        }
-        
-        .modal.active {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .modal-content {
-            background: white;
-            border-radius: 15px;
-            max-width: 1000px;
-            width: 100%;
-            max-height: 90vh;
-            overflow-y: auto;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-        }
-        
-        .modal-header {
-            background: #1f4e78;
-            color: white;
-            padding: 25px;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-        }
-        
-        .modal-body {
-            padding: 40px;
-        }
-        
-        .modal-footer {
-            padding: 25px;
-            background: #f8f9fa;
-            text-align: center;
-            position: sticky;
-            bottom: 0;
-        }
-        
-        /* Informe Preview */
-        .informe-preview {
-            background: white;
-            padding: 40px;
-            line-height: 1.8;
-        }
-        
-        .informe-header {
-            text-align: center;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 3px solid #1f4e78;
-        }
-        
-        .informe-header h2 {
-            color: #1f4e78;
-            font-size: 1.8em;
-            margin-bottom: 10px;
-        }
-        
-        .informe-info {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-            margin: 30px 0;
-            padding: 20px;
-            background: #f8f9fa;
-            border-radius: 8px;
-        }
-        
-        .informe-info-item {
-            padding: 10px;
-        }
-        
-        .informe-info-item strong {
-            color: #1f4e78;
-            display: block;
-            margin-bottom: 5px;
-        }
-        
-        .informe-section {
-            margin: 30px 0;
-        }
-        
-        .informe-section h3 {
-            color: #1f4e78;
-            font-size: 1.4em;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #e0e0e0;
-        }
-        
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin: 20px 0;
-        }
-        
-        .stat-card {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 8px;
-            text-align: center;
-            border-left: 4px solid #4a90e2;
-        }
-        
-        .stat-value {
-            font-size: 2.5em;
-            font-weight: 700;
-            color: #1f4e78;
-            margin-bottom: 5px;
-        }
-        
-        .stat-label {
-            color: #666;
-            font-size: 0.9em;
-        }
-        
-        .observaciones-preview {
-            background: #fffbeb;
-            border-left: 4px solid #f59e0b;
-            padding: 20px;
-            margin: 20px 0;
-            border-radius: 8px;
-        }
-        
-        .observaciones-preview h4 {
-            color: #92400e;
-            margin-bottom: 10px;
-        }
-        
-        .table-container {
-            overflow-x: auto;
-            margin: 20px 0;
-        }
-        
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background: white;
-        }
-        
-        table th {
-            background: #1f4e78;
-            color: white;
-            padding: 12px;
-            text-align: left;
-            font-weight: 600;
-        }
-        
-        table td {
-            padding: 12px;
-            border-bottom: 1px solid #e0e0e0;
-        }
-        
-        table tr:hover {
-            background: #f8f9fa;
-        }
-        
-        .alert {
-            padding: 15px 20px;
-            border-radius: 8px;
-            margin: 20px 0;
-        }
-        
-        .alert-info {
-            background: #dbeafe;
-            border-left: 4px solid #3b82f6;
-            color: #1e40af;
-        }
-        
-        @media print {
-            body {
-                background: white;
-                padding: 0;
-            }
-            
-            .modal-header, .modal-footer, .btn {
-                display: none;
-            }
-            
-            .modal-content {
-                box-shadow: none;
-                max-height: none;
-            }
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Generador de Informe Mensual SST — Nepal 2</title>
+
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f4f8;
+      color: #1e293b;
+      min-height: 100vh;
+      padding: 24px 16px;
+    }
+    .container { max-width: 900px; margin: 0 auto; }
+
+    /* HEADER */
+    .header {
+      background: linear-gradient(135deg, #1f4e78 0%, #2563eb 100%);
+      color: #fff;
+      border-radius: 12px;
+      padding: 28px 32px;
+      margin-bottom: 28px;
+      text-align: center;
+    }
+    .header h1 { font-size: 1.6rem; font-weight: 700; }
+    .header p  { margin-top: 6px; font-size: .92rem; opacity: .88; }
+
+    /* CARDS */
+    .card {
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,.08);
+      padding: 24px 28px;
+      margin-bottom: 24px;
+    }
+    .card h2 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #1f4e78;
+      margin-bottom: 18px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #e2e8f0;
+    }
+
+    /* FORM */
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+    }
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-group label { font-size: .83rem; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: .3px; }
+    .form-group select,
+    .form-group input[type="date"],
+    .form-group input[type="text"] {
+      padding: 10px 12px;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 7px;
+      font-size: .95rem;
+      background: #f8fafc;
+      transition: border-color .2s;
+    }
+    .form-group select:focus,
+    .form-group input:focus { outline: none; border-color: #2563eb; background: #fff; }
+
+    /* TEXTAREAS */
+    .textarea-section { display: flex; flex-direction: column; gap: 18px; }
+    .textarea-group { display: flex; flex-direction: column; gap: 6px; }
+    .textarea-group label { font-size: .88rem; font-weight: 700; color: #1f4e78; }
+    .textarea-group textarea {
+      width: 100%;
+      min-height: 155px;
+      padding: 12px 14px;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 7px;
+      font-size: .88rem;
+      line-height: 1.6;
+      resize: vertical;
+      background: #f8fafc;
+      font-family: Arial, sans-serif;
+      transition: border-color .2s;
+    }
+    .textarea-group textarea:focus { outline: none; border-color: #2563eb; background: #fff; }
+
+    /* BUTTONS */
+    .btn-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 20px;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 13px 22px;
+      border: none;
+      border-radius: 8px;
+      font-size: .96rem;
+      font-weight: 700;
+      cursor: pointer;
+      flex: 1;
+      justify-content: center;
+      min-width: 200px;
+      transition: opacity .2s, transform .1s;
+    }
+    .btn:active { transform: scale(.98); }
+    .btn:disabled { opacity: .55; cursor: not-allowed; }
+
+    .btn-ai  { background: linear-gradient(135deg, #059669, #10b981); color: #fff; }
+    .btn-ai:hover:not(:disabled) { background: linear-gradient(135deg, #047857, #059669); }
+
+    .btn-save { background: linear-gradient(135deg, #d97706, #f59e0b); color: #fff; }
+    .btn-save:hover:not(:disabled) { background: linear-gradient(135deg, #b45309, #d97706); }
+
+    .btn-pdf { background: linear-gradient(135deg, #1f4e78, #2563eb); color: #fff; }
+    .btn-pdf:hover:not(:disabled) { background: linear-gradient(135deg, #1e3a5f, #1d4ed8); }
+
+    .btn-all { background: linear-gradient(135deg, #7c3aed, #a855f7); color: #fff; }
+    .btn-all:hover:not(:disabled) { background: linear-gradient(135deg, #6d28d9, #7c3aed); }
+
+    /* STATUS */
+    #statusBar {
+      display: none;
+      padding: 12px 18px;
+      border-radius: 8px;
+      font-size: .88rem;
+      font-weight: 600;
+      margin-top: 16px;
+      border-left: 4px solid;
+      line-height: 1.5;
+    }
+    #statusBar.info    { background: #eff6ff; color: #1d4ed8; border-color: #2563eb; }
+    #statusBar.success { background: #f0fdf4; color: #166534; border-color: #16a34a; }
+    #statusBar.error   { background: #fef2f2; color: #991b1b; border-color: #dc2626; }
+    #statusBar.warning { background: #fffbeb; color: #92400e; border-color: #f59e0b; }
+
+    /* STATS */
+    #statsPreview { display: none; margin-top: 18px; }
+    #statsPreview h3 { font-size: .88rem; font-weight: 700; color: #1f4e78; margin-bottom: 10px; }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 10px;
+    }
+    .stat-box {
+      background: #f0f9ff;
+      border: 1.5px solid #bae6fd;
+      border-radius: 8px;
+      padding: 12px 8px;
+      text-align: center;
+    }
+    .stat-box .num { font-size: 1.5rem; font-weight: 800; color: #0369a1; }
+    .stat-box .lbl { font-size: .7rem; color: #475569; margin-top: 3px; font-weight: 700; text-transform: uppercase; letter-spacing: .3px; }
+
+    /* HALLAZGOS DETAIL */
+    #hallazgosDetalle { display: none; margin-top: 16px; }
+    #hallazgosDetalle h3 { font-size: .88rem; font-weight: 700; color: #92400e; margin-bottom: 10px; }
+    .hallazgo-tag {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: .78rem;
+      font-weight: 700;
+      margin: 3px 3px 3px 0;
+    }
+    .tag-critico  { background: #fee2e2; color: #991b1b; }
+    .tag-alto     { background: #ffedd5; color: #9a3412; }
+    .tag-medio    { background: #fef9c3; color: #854d0e; }
+    .tag-bajo     { background: #dcfce7; color: #166534; }
+    .tag-ok       { background: #dbeafe; color: #1d4ed8; }
+
+    .footer {
+      text-align: center;
+      font-size: .76rem;
+      color: #94a3b8;
+      margin-top: 32px;
+      padding-bottom: 16px;
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>📊 Generador de Informes Consolidados SST</h1>
-            <p>Edificio Nepal 2 - Sistema de Gestión 2026</p>
-        </div>
-        
-        <div class="form-section">
-            <h2 style="color: #1f4e78; margin-bottom: 25px; font-size: 1.6em;">Información del Informe</h2>
-            
-            <div class="form-grid">
-                <div class="form-group">
-                    <label for="mes">Mes del Informe *</label>
-                    <select id="mes" required>
-                        <option value="">Seleccionar mes...</option>
-                        <option value="Enero">Enero 2026</option>
-                        <option value="Febrero">Febrero 2026</option>
-                        <option value="Marzo">Marzo 2026</option>
-                        <option value="Abril">Abril 2026</option>
-                        <option value="Mayo">Mayo 2026</option>
-                        <option value="Junio">Junio 2026</option>
-                        <option value="Julio">Julio 2026</option>
-                        <option value="Agosto">Agosto 2026</option>
-                        <option value="Septiembre">Septiembre 2026</option>
-                        <option value="Octubre">Octubre 2026</option>
-                        <option value="Noviembre">Noviembre 2026</option>
-                        <option value="Diciembre">Diciembre 2026</option>
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label for="fechaElaboracion">Fecha de Elaboración *</label>
-                    <input type="date" id="fechaElaboracion" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="responsable">Responsable SG-SST *</label>
-                    <input type="text" id="responsable" value="Carla Castellano Madriz" required>
-                </div>
-            </div>
-            
-            <div class="observaciones-section">
-                <h3>💬 Observaciones y Novedades del Mes</h3>
-                <p><strong>Importante:</strong> Este espacio te permite agregar información específica del mes que no esté cubierta por los registros automáticos del sistema. Por ejemplo:</p>
-                <ul style="margin-left: 20px; color: #666; line-height: 1.8;">
-                    <li>Eventos especiales o situaciones atípicas</li>
-                    <li>Cambios en procedimientos o personal</li>
-                    <li>Recomendaciones específicas para el Consejo</li>
-                    <li>Seguimiento a temas pendientes</li>
-                    <li>Logros destacados del mes</li>
-                </ul>
-                
-                <div class="form-group" style="margin-top: 20px;">
-                    <label for="observaciones">Escribe tus observaciones aquí:</label>
-                    <textarea id="observaciones" placeholder="Ejemplo: Durante el mes de enero se realizó mantenimiento preventivo adicional a las luces de emergencia del segundo piso. Se recomienda programar capacitación sobre uso de extintores para el personal nuevo de SERDAN."></textarea>
-                </div>
-            </div>
+<div class="container">
 
-            <!-- SECCIÓN DE TEXTOS PROFESIONALES EDITABLES -->
-            <div class="observaciones-section" style="margin-top: 30px; border: 3px solid #4a90e2;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <h3>✍️ Textos Profesionales del Informe</h3>
-                    <button class="btn btn-primary" onclick="generarTextosAutomaticos()" type="button" style="padding: 12px 25px;">
-                        🤖 Generar Textos Automáticos
-                    </button>
-                </div>
-                
-                <p style="color: #666; margin-bottom: 20px;">
-                    <strong>💡 Cómo funciona:</strong> Click en "Generar Textos Automáticos" y el sistema creará textos profesionales basados en los datos de Firebase. Luego puedes editarlos a tu gusto antes de generar el informe.
-                </p>
+  <div class="header">
+    <h1>📋 Generador de Informe Mensual SST</h1>
+    <p>Propiedad Horizontal Nepal 2 · Sistema de Gestión de Seguridad y Salud en el Trabajo</p>
+  </div>
 
-                <!-- 1. INTRODUCCIÓN -->
-                <div class="form-group" style="margin-bottom: 25px;">
-                    <label for="textoIntroduccion">
-                        <strong>1. INTRODUCCIÓN</strong>
-                        <span style="color: #666; font-weight: normal; font-size: 0.9em;"> - Contexto del mes</span>
-                    </label>
-                    <textarea id="textoIntroduccion" rows="4" placeholder="Se generará automáticamente al hacer click en 'Generar Textos Automáticos'..."></textarea>
-                </div>
-
-                <!-- 2. ANÁLISIS DE ACTIVIDADES -->
-                <div class="form-group" style="margin-bottom: 25px;">
-                    <label for="textoAnalisis">
-                        <strong>2. ANÁLISIS DE ACTIVIDADES</strong>
-                        <span style="color: #666; font-weight: normal; font-size: 0.9em;"> - Descripción detallada</span>
-                    </label>
-                    <textarea id="textoAnalisis" rows="6" placeholder="Se generará automáticamente al hacer click en 'Generar Textos Automáticos'..."></textarea>
-                </div>
-
-                <!-- 3. HALLAZGOS Y OBSERVACIONES -->
-                <div class="form-group" style="margin-bottom: 25px;">
-                    <label for="textoHallazgos">
-                        <strong>3. HALLAZGOS Y OBSERVACIONES</strong>
-                        <span style="color: #666; font-weight: normal; font-size: 0.9em;"> - Aspectos importantes</span>
-                    </label>
-                    <textarea id="textoHallazgos" rows="5" placeholder="Se generará automáticamente al hacer click en 'Generar Textos Automáticos'..."></textarea>
-                </div>
-
-                <!-- 4. CONCLUSIONES -->
-                <div class="form-group" style="margin-bottom: 25px;">
-                    <label for="textoConclusiones">
-                        <strong>4. CONCLUSIONES</strong>
-                        <span style="color: #666; font-weight: normal; font-size: 0.9em;"> - Resumen ejecutivo</span>
-                    </label>
-                    <textarea id="textoConclusiones" rows="4" placeholder="Se generará automáticamente al hacer click en 'Generar Textos Automáticos'..."></textarea>
-                </div>
-
-                <!-- 5. RECOMENDACIONES -->
-                <div class="form-group" style="margin-bottom: 25px;">
-                    <label for="textoRecomendaciones">
-                        <strong>5. RECOMENDACIONES</strong>
-                        <span style="color: #666; font-weight: normal; font-size: 0.9em;"> - Acciones sugeridas</span>
-                    </label>
-                    <textarea id="textoRecomendaciones" rows="5" placeholder="Se generará automáticamente al hacer click en 'Generar Textos Automáticos'..."></textarea>
-                </div>
-
-                <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; margin-top: 20px;">
-                    <strong>✅ Importante:</strong> Estos textos aparecerán en el informe PDF final. Edítalos libremente para ajustarlos a tu estilo profesional.
-                </div>
-            </div>
-        </div>
-        
-        <div class="btn-container">
-            <button class="btn btn-primary" onclick="generarVistaPrevia()">
-                👁️ Vista Previa del Informe
-            </button>
-            <button class="btn btn-secondary" onclick="window.close()">
-                ← Volver al Sistema
-            </button>
-        </div>
+  <!-- CONFIGURACIÓN -->
+  <div class="card">
+    <h2>⚙️ Configuración del Informe</h2>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Mes del informe</label>
+        <select id="selMes">
+          <option value="">— Seleccione —</option>
+          <option value="0">Enero</option><option value="1">Febrero</option>
+          <option value="2">Marzo</option><option value="3">Abril</option>
+          <option value="4">Mayo</option><option value="5">Junio</option>
+          <option value="6">Julio</option><option value="7">Agosto</option>
+          <option value="8">Septiembre</option><option value="9">Octubre</option>
+          <option value="10">Noviembre</option><option value="11">Diciembre</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Año</label>
+        <select id="selAnio">
+          <option value="2025">2025</option>
+          <option value="2026" selected>2026</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Fecha de elaboración</label>
+        <input type="date" id="fechaElab" />
+      </div>
+      <div class="form-group">
+        <label>Responsable SST</label>
+        <input type="text" id="responsable" value="Carla Castellano Madriz" />
+      </div>
     </div>
-    
-    <!-- Modal de Vista Previa -->
-    <div id="previewModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Vista Previa del Informe Consolidado</h2>
-                <p style="opacity: 0.9; margin-top: 10px;">Revisa el informe antes de generar el PDF</p>
-            </div>
-            
-            <div class="modal-body" id="previewContent">
-                <!-- El contenido se generará dinámicamente -->
-            </div>
-            
-            <div class="modal-footer">
-                <button class="btn btn-success" id="btnGenerarPDF" onclick="generarPDF()">
-                    ☁️ Guardar PDF en la Nube
-                </button>
-                <button class="btn btn-primary" onclick="imprimirInforme()">
-                    🖨️ Imprimir / Descargar PDF
-                </button>
-                <button class="btn btn-secondary" onclick="cerrarPreview()">
-                    Cerrar Vista Previa
-                </button>
-            </div>
-        </div>
+
+    <div class="btn-row">
+      <button class="btn btn-ai" id="btnTextos" onclick="generarTextos()">
+        🤖 Generar Textos Automáticos
+      </button>
+      <button class="btn btn-all" id="btnTodo" onclick="guardarYGenerarPDF()">
+        💾📄 Guardar en Firebase y Generar PDF
+      </button>
     </div>
-    
-    <script>
-        // Establecer fecha actual por defecto
-        document.getElementById('fechaElaboracion').valueAsDate = new Date();
-        
-        // ═══════════════════════════════════════════════════════════════
-        // FUNCIÓN: GENERAR TEXTOS AUTOMÁTICOS PROFESIONALES
-        // ═══════════════════════════════════════════════════════════════
-        async function generarTextosAutomaticos() {
-            const mes = document.getElementById('mes').value;
-            
-            if (!mes) {
-                alert('⚠️ Por favor selecciona el mes primero');
-                return;
-            }
-            
-            // Mostrar loading
-            const btn = event.target;
-            const btnText = btn.innerHTML;
-            btn.disabled = true;
-            btn.innerHTML = '⏳ Analizando datos de Firebase...';
-            
-            try {
-                // Obtener datos de Firebase
-                const datos = await obtenerDatosDelSistema(mes);
-                
-                // GENERAR TEXTOS PROFESIONALES
-                const textos = generarTextosProfesionales(mes, datos);
-                
-                // RELLENAR LOS CAMPOS
-                document.getElementById('textoIntroduccion').value = textos.introduccion;
-                document.getElementById('textoAnalisis').value = textos.analisis;
-                document.getElementById('textoHallazgos').value = textos.hallazgos;
-                document.getElementById('textoConclusiones').value = textos.conclusiones;
-                document.getElementById('textoRecomendaciones').value = textos.recomendaciones;
-                
-                alert('✅ Textos generados exitosamente!\n\nAhora puedes editarlos antes de generar el informe.');
-                
-                // Scroll a la primera sección de texto
-                document.getElementById('textoIntroduccion').scrollIntoView({ behavior: 'smooth', block: 'center' });
-                
-            } catch (error) {
-                console.error('Error generando textos:', error);
-                alert('❌ Error generando textos: ' + error.message);
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = btnText;
-            }
+
+    <div style="display:flex; gap:12px; flex-wrap:wrap; margin-top:10px;">
+      <button class="btn btn-save" id="btnSolo" onclick="soloGuardarFirebase()" style="font-size:.88rem; padding:10px 18px; min-width:160px;">
+        ☁️ Solo Guardar en Firebase
+      </button>
+      <button class="btn btn-pdf" id="btnPDF" onclick="soloGenerarPDF()" style="font-size:.88rem; padding:10px 18px; min-width:160px;">
+        📄 Solo Generar PDF
+      </button>
+    </div>
+
+    <div id="statusBar"></div>
+
+    <!-- Estadísticas -->
+    <div id="statsPreview">
+      <h3>📊 Datos cargados — <span id="lblMesAnio"></span></h3>
+      <div class="stats-grid">
+        <div class="stat-box"><div class="num" id="stSuper">0</div><div class="lbl">Supervisiones</div></div>
+        <div class="stat-box"><div class="num" id="stInspec">0</div><div class="lbl">Inspecciones</div></div>
+        <div class="stat-box"><div class="num" id="stInduc">0</div><div class="lbl">Capacitaciones</div></div>
+        <div class="stat-box"><div class="num" id="stMant">0</div><div class="lbl">Mantenimientos</div></div>
+        <div class="stat-box"><div class="num" id="stCump">—</div><div class="lbl">Cumplimiento</div></div>
+        <div class="stat-box"><div class="num" id="stHallNeg">0</div><div class="lbl">Hall. negativos</div></div>
+      </div>
+    </div>
+
+    <!-- Detalle hallazgos -->
+    <div id="hallazgosDetalle">
+      <h3>⚠️ Hallazgos identificados en inspecciones:</h3>
+      <div id="hallazgosTags"></div>
+    </div>
+  </div>
+
+  <!-- TEXTOS EDITABLES -->
+  <div class="card">
+    <h2>✏️ Textos del Informe (editables antes de generar PDF)</h2>
+    <div class="textarea-section">
+      <div class="textarea-group">
+        <label>1. Introducción</label>
+        <textarea id="txtIntro" placeholder="Haga clic en 'Generar Textos Automáticos' o escriba aquí..."></textarea>
+      </div>
+      <div class="textarea-group">
+        <label>2. Análisis de Actividades</label>
+        <textarea id="txtAnalisis" placeholder="Descripción detallada de las actividades del período..."></textarea>
+      </div>
+      <div class="textarea-group">
+        <label>3. Hallazgos y Observaciones</label>
+        <textarea id="txtHallazgos" placeholder="Hallazgos e inspecciones del período..."></textarea>
+      </div>
+      <div class="textarea-group">
+        <label>4. Conclusiones</label>
+        <textarea id="txtConclusiones" placeholder="Conclusiones del período evaluado..."></textarea>
+      </div>
+      <div class="textarea-group">
+        <label>5. Recomendaciones</label>
+        <textarea id="txtRecomendaciones" placeholder="Recomendaciones para el siguiente período..."></textarea>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    Sistema SG-SST · Propiedad Horizontal Nepal 2 · Bogotá, Colombia
+  </div>
+
+</div>
+
+<script>
+// ─────────────────────────────────────────
+//  FIREBASE
+// ─────────────────────────────────────────
+const firebaseConfig = {
+  apiKey: "AIzaSyDvOSbIFNIVQNJIHBDmP0SgQ-YMYyakHFI",
+  authDomain: "compliancepro--o--sistemass.firebaseapp.com",
+  databaseURL: "https://compliancepro--o--sistemass-default-rtdb.firebaseio.com",
+  projectId: "compliancepro--o--sistemass"
+};
+
+let db;
+try {
+  firebase.initializeApp(firebaseConfig);
+  db = firebase.database();
+  console.log("[Firebase] OK");
+} catch(e) { console.error("[Firebase] Error:", e); }
+
+// ─────────────────────────────────────────
+//  CONSTANTES
+// ─────────────────────────────────────────
+const MESES = ["Enero","Febrero","Marzo","Abril","Mayo","Junio",
+               "Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+
+// Etiquetas de los ítems del checklist
+const CHECKLIST_LOCATIVA = {
+  escaleras:       "Escaleras en buen estado (peldaños, pasamanos)",
+  cintas:          "Cintas antideslizantes en escaleras",
+  iluminacion:     "Iluminación zonas comunes funcional",
+  lucesEmergencia: "Luces de emergencia operativas",
+  senalizacion:    "Señalización de evacuación visible",
+  puertasElectricas:"Puertas eléctricas funcionando correctamente",
+  pisos:           "Pisos libres de obstáculos",
+  rutasEvacuacion: "Rutas de evacuación despejadas",
+  tanques:         "Acceso a tanques seguro",
+  filtraciones:    "Sin filtraciones o humedades visibles"
+};
+const CHECKLIST_EQUIPOS = {
+  extintor1:    "Extintor 1 — Vigente y presurizado",
+  extintor2:    "Extintor 2 — Vigente y presurizado",
+  extintor3:    "Extintor 3 — Vigente y presurizado",
+  extintor4:    "Extintor 4 — Vigente y presurizado",
+  manguera:     "Gabinete contra incendio — Manguera en buen estado",
+  valvula:      "Gabinete — Válvula operativa",
+  senalizacion: "Señalización equipos visible",
+  acceso:       "Acceso a equipos despejado"
+};
+
+// ─────────────────────────────────────────
+//  UTILIDADES
+// ─────────────────────────────────────────
+document.addEventListener("DOMContentLoaded", () => {
+  const hoy = new Date();
+  document.getElementById("fechaElab").value =
+    `${hoy.getFullYear()}-${String(hoy.getMonth()+1).padStart(2,"0")}-${String(hoy.getDate()).padStart(2,"0")}`;
+  document.getElementById("selMes").value = String(hoy.getMonth());
+});
+
+function setStatus(msg, tipo = "info") {
+  const el = document.getElementById("statusBar");
+  el.innerHTML = msg;
+  el.className = tipo;
+  el.style.display = "block";
+}
+
+async function leerColeccion(ruta) {
+  try {
+    const snap = await db.ref(ruta).once("value");
+    if (!snap.exists()) return [];
+    return Object.values(snap.val());
+  } catch(e) {
+    console.warn("[Firebase] No se pudo leer", ruta, e.message);
+    return [];
+  }
+}
+
+function extraerFecha(obj) {
+  const c = obj.fecha || obj.fechaActividad || obj.date || "";
+  if (!c) return null;
+  try { const d = new Date(c + (c.length === 10 ? "T12:00:00" : "")); return isNaN(d) ? null : d; }
+  catch { return null; }
+}
+
+function filtrarPorMes(arr, mes, anio) {
+  return arr.filter(item => {
+    const f = extraerFecha(item);
+    if (!f) return false;
+    return f.getMonth() === mes && f.getFullYear() === anio;
+  });
+}
+
+// También filtra por campo "periodo" (ej. "Marzo 2026")
+function filtrarPorPeriodo(arr, mes, anio) {
+  const periodoStr = `${MESES[mes]} ${anio}`;
+  return arr.filter(item => {
+    // Primero intenta por fecha real
+    const f = extraerFecha(item);
+    if (f) return f.getMonth() === mes && f.getFullYear() === anio;
+    // Fallback por campo periodo
+    if (item.periodo) return item.periodo.includes(periodoStr) || item.periodo.includes(MESES[mes]);
+    return false;
+  });
+}
+
+function fmtFecha(obj) {
+  const f = extraerFecha(obj);
+  if (!f) return "Sin fecha";
+  return f.toLocaleDateString("es-CO", { day:"2-digit", month:"2-digit", year:"numeric" });
+}
+
+function calcProm(arr) {
+  const v = arr.map(i => parseFloat(i.cumplimiento || 0)).filter(v => v > 0);
+  if (!v.length) return null;
+  return Math.round(v.reduce((a,b)=>a+b,0)/v.length);
+}
+
+// ─────────────────────────────────────────
+//  ANÁLISIS DE INSPECCIONES (el núcleo)
+// ─────────────────────────────────────────
+function analizarInspecciones(inspecciones) {
+  const resultado = {
+    total: inspecciones.length,
+    locativas: [],
+    equipos: [],
+    especiales: [],
+    itemsFallidos: [],   // ítems del checklist que fallaron
+    itemsOK: [],         // ítems que pasaron
+    hallazgosTextos: [], // textos de hallazgos redactados
+    acciones: [],        // acciones correctivas
+    nivelesRiesgo: [],
+    estados: [],
+    cumplimientos: []
+  };
+
+  inspecciones.forEach(ins => {
+    const tipo = ins.tipoInspeccion || "mensual";
+    if (tipo === "mensual" || tipo === "especial") resultado.locativas.push(ins);
+    if (tipo === "trimestral" || tipo === "especial") resultado.equipos.push(ins);
+
+    // Cumplimiento
+    if (ins.cumplimiento) resultado.cumplimientos.push(ins.cumplimiento);
+
+    // Nivel de riesgo
+    if (ins.nivelRiesgo && ins.nivelRiesgo !== "Sin hallazgos")
+      resultado.nivelesRiesgo.push({ nivel: ins.nivelRiesgo, fecha: fmtFecha(ins) });
+
+    // Estado
+    if (ins.estado) resultado.estados.push(ins.estado);
+
+    // Hallazgos redactados
+    if (ins.hallazgos && ins.hallazgos.trim() && ins.hallazgos !== "Sin hallazgos")
+      resultado.hallazgosTextos.push({ texto: ins.hallazgos.trim(), fecha: fmtFecha(ins), nivel: ins.nivelRiesgo || "Sin nivel", tipo });
+
+    // Acciones correctivas
+    if (ins.accionesCorrectivas && ins.accionesCorrectivas.trim())
+      resultado.acciones.push(ins.accionesCorrectivas.trim());
+
+    // Analizar checklist locativa
+    if (ins.checklist_locativa) {
+      Object.entries(ins.checklist_locativa).forEach(([key, val]) => {
+        const label = CHECKLIST_LOCATIVA[key] || key;
+        if (val === true) {
+          if (!resultado.itemsOK.find(i => i.key === key))
+            resultado.itemsOK.push({ key, label });
+        } else {
+          if (!resultado.itemsFallidos.find(i => i.key === key))
+            resultado.itemsFallidos.push({ key, label });
         }
-        
-        // ═══════════════════════════════════════════════════════════════
-        // FUNCIÓN: CREAR TEXTOS PROFESIONALES BASADOS EN DATOS
-        // ═══════════════════════════════════════════════════════════════
-        function generarTextosProfesionales(mes, datos) {
-            const mesLower = mes.toLowerCase();
-            const añoActual = 2026;
-            
-            // 1. INTRODUCCIÓN
-            const introduccion = `El presente informe consolida las actividades desarrolladas en el marco del Sistema de Gestión de Seguridad y Salud en el Trabajo (SG-SST) de la Propiedad Horizontal Nepal 2 durante el mes de ${mes} de ${añoActual}. Este documento tiene como objetivo presentar al Consejo de Administración un panorama integral del cumplimiento normativo, las acciones preventivas implementadas y el estado general de la seguridad en las instalaciones del edificio.
+      });
+    }
 
-Durante este período, se ejecutaron ${datos.capacitaciones} ${datos.capacitaciones === 1 ? 'capacitación' : 'capacitaciones'}, se realizaron ${datos.inspecciones} ${datos.inspecciones === 1 ? 'inspección' : 'inspecciones'} de seguridad, y se registraron ${datos.accidentes} ${datos.accidentes === 1 ? 'incidente' : 'incidentes'} de seguridad. El cumplimiento global del sistema alcanzó un ${datos.cumplimiento}%, lo que refleja ${datos.cumplimiento >= 90 ? 'un desempeño sobresaliente' : datos.cumplimiento >= 75 ? 'un desempeño satisfactorio' : 'oportunidades de mejora'} en la gestión de la seguridad y salud en el trabajo.`;
-
-            // 2. ANÁLISIS DE ACTIVIDADES
-            let analisis = `Durante ${mes} de ${añoActual}, se desarrollaron las siguientes actividades en cumplimiento del cronograma establecido en el Plan Anual de Trabajo del SG-SST:\n\n`;
-            
-            if (datos.capacitaciones > 0) {
-                analisis += `**Capacitación y Entrenamiento**: Se ejecutaron ${datos.capacitaciones} ${datos.capacitaciones === 1 ? 'jornada de capacitación' : 'jornadas de capacitación'} dirigidas a los trabajadores de las empresas contratistas SERDAN y SOSA. Estas actividades fortalecieron las competencias del personal en materia de prevención de riesgos y respuesta ante emergencias, contribuyendo significativamente a la cultura de seguridad del edificio.\n\n`;
-            }
-            
-            if (datos.inspecciones > 0) {
-                analisis += `**Inspecciones de Seguridad**: Se completaron ${datos.inspecciones} ${datos.inspecciones === 1 ? 'inspección' : 'inspecciones'} tanto de condiciones locativas como de equipos de seguridad. ${datos.inspecciones >= 2 ? 'Estas inspecciones permitieron identificar oportunamente condiciones inseguras y verificar el correcto funcionamiento de los sistemas de protección contra incendios.' : 'Esta inspección permitió verificar las condiciones generales de seguridad de las instalaciones.'}\n\n`;
-            }
-            
-            if (datos.mantenimientos && datos.mantenimientos.length > 0) {
-                analisis += `**Mantenimientos Preventivos**: Se ejecutaron ${datos.mantenimientos.length} ${datos.mantenimientos.length === 1 ? 'actividad' : 'actividades'} de mantenimiento preventivo según lo programado, garantizando la operatividad de los sistemas críticos de seguridad y la infraestructura del edificio.\n\n`;
-            }
-            
-            analisis += `Todas estas actividades se desarrollaron cumpliendo los estándares establecidos en la normatividad colombiana vigente (Decreto 1072 de 2015 y Resolución 0312 de 2019), contribuyendo al bienestar de los trabajadores y residentes del edificio.`;
-
-            // 3. HALLAZGOS Y OBSERVACIONES
-            let hallazgos = '';
-            
-            if (datos.accidentes === 0) {
-                hallazgos = `Durante el mes de ${mes} no se registraron accidentes de trabajo ni incidentes de seguridad, lo cual constituye un indicador positivo de la efectividad de las medidas preventivas implementadas.\n\n`;
-            } else {
-                hallazgos = `Durante el mes se registraron ${datos.accidentes} ${datos.accidentes === 1 ? 'incidente' : 'incidentes'} de seguridad, los cuales fueron debidamente investigados y documentados conforme a los procedimientos establecidos. Se implementaron acciones correctivas para prevenir su recurrencia.\n\n`;
-            }
-            
-            if (datos.inspecciones > 0) {
-                hallazgos += `Las inspecciones de seguridad realizadas evidenciaron condiciones generales ${datos.cumplimiento >= 85 ? 'satisfactorias' : 'aceptables'} en las instalaciones del edificio. Se identificaron algunas oportunidades de mejora que han sido incluidas en el plan de acción correctivo.\n\n`;
-            }
-            
-            hallazgos += `El nivel de cumplimiento de ${datos.cumplimiento}% demuestra el compromiso de la administración con la seguridad y salud en el trabajo. ${datos.cumplimiento >= 90 ? 'Este resultado sobresaliente refleja la madurez del sistema de gestión.' : 'Se continuará trabajando en el fortalecimiento continuo del sistema.'}`;
-
-            // 4. CONCLUSIONES
-            let conclusiones = `Con base en las actividades ejecutadas durante ${mes} de ${añoActual}, se concluye que:\n\n`;
-            conclusiones += `• El Sistema de Gestión de Seguridad y Salud en el Trabajo de la Propiedad Horizontal Nepal 2 ${datos.cumplimiento >= 85 ? 'se encuentra operando adecuadamente' : 'continúa su proceso de fortalecimiento'}, cumpliendo con los requisitos legales aplicables.\n\n`;
-            conclusiones += `• Las actividades de capacitación, inspección y mantenimiento se ejecutaron según lo programado, ${datos.cumplimiento >= 90 ? 'superando' : 'alcanzando'} las metas establecidas.\n\n`;
-            conclusiones += `• ${datos.accidentes === 0 ? 'La ausencia de accidentes laborales durante el período refleja la efectividad de las medidas preventivas.' : 'Los incidentes registrados fueron gestionados apropiadamente mediante investigación y acciones correctivas.'}\n\n`;
-            conclusiones += `• El cumplimiento global del ${datos.cumplimiento}% ${datos.cumplimiento >= 90 ? 'posiciona al edificio como un referente en gestión de SST.' : 'evidencia oportunidades de mejora que serán abordadas en el siguiente período.'}`;
-
-            // 5. RECOMENDACIONES
-            let recomendaciones = `Con el fin de mantener y mejorar el desempeño del Sistema de Gestión de SST, se recomienda al Consejo de Administración:\n\n`;
-            
-            if (datos.cumplimiento < 90) {
-                recomendaciones += `• Fortalecer el cumplimiento de las actividades programadas en el cronograma del SG-SST para alcanzar niveles de excelencia superiores al 90%.\n\n`;
-            }
-            
-            recomendaciones += `• Mantener la inversión en capacitación del personal de las empresas contratistas, asegurando la actualización permanente en temas de seguridad.\n\n`;
-            recomendaciones += `• Dar continuidad al programa de inspecciones y mantenimientos preventivos, garantizando la operatividad de todos los sistemas de seguridad.\n\n`;
-            recomendaciones += `• Socializar con los residentes las actividades de seguridad realizadas, promoviendo una cultura preventiva en toda la comunidad.\n\n`;
-            
-            if (datos.accidentes > 0) {
-                recomendaciones += `• Realizar seguimiento a las acciones correctivas derivadas de la investigación de incidentes, verificando su efectividad.\n\n`;
-            }
-            
-            recomendaciones += `• Destinar los recursos necesarios para la ejecución de las actividades programadas para el próximo mes, asegurando el cumplimiento de los objetivos del sistema.`;
-
-            return {
-                introduccion,
-                analisis,
-                hallazgos,
-                conclusiones,
-                recomendaciones
-            };
+    // Analizar checklist equipos
+    if (ins.checklist_equipos) {
+      Object.entries(ins.checklist_equipos).forEach(([key, val]) => {
+        const label = CHECKLIST_EQUIPOS[key] || key;
+        if (val === true) {
+          if (!resultado.itemsOK.find(i => i.key === "eq_"+key))
+            resultado.itemsOK.push({ key: "eq_"+key, label });
+        } else {
+          if (!resultado.itemsFallidos.find(i => i.key === "eq_"+key))
+            resultado.itemsFallidos.push({ key: "eq_"+key, label });
         }
-        
-        async function generarVistaPrevia() {
-            const mes = document.getElementById('mes').value;
-            const fechaElaboracion = document.getElementById('fechaElaboracion').value;
-            const responsable = document.getElementById('responsable').value;
-            const observaciones = document.getElementById('observaciones').value;
-            
-            // CAPTURAR TEXTOS PROFESIONALES EDITABLES
-            const textoIntroduccion = document.getElementById('textoIntroduccion').value;
-            const textoAnalisis = document.getElementById('textoAnalisis').value;
-            const textoHallazgos = document.getElementById('textoHallazgos').value;
-            const textoConclusiones = document.getElementById('textoConclusiones').value;
-            const textoRecomendaciones = document.getElementById('textoRecomendaciones').value;
-            
-            if (!mes || !fechaElaboracion || !responsable) {
-                alert('⚠️ Por favor completa todos los campos obligatorios');
-                return;
-            }
-            
-            // Mostrar loading
-            const previewContent = document.getElementById('previewContent');
-            previewContent.innerHTML = '<p style="text-align:center; padding: 40px;">🔄 Cargando supervisiones desde Firebase...</p>';
-            document.getElementById('previewModal').classList.add('active');
-            
-            // Obtener datos desde Firebase (ahora es async)
-            const datos = await obtenerDatosDelSistema(mes);
-            
-            const previewHTML = `
-                <div class="informe-preview">
-                    <div class="informe-header">
-                        <h2>INFORME CONSOLIDADO MENSUAL</h2>
-                        <h2>SISTEMA DE GESTIÓN DE SEGURIDAD Y SALUD EN EL TRABAJO</h2>
-                        <p style="margin-top: 15px; color: #666;">Propiedad Horizontal Nepal 2</p>
-                    </div>
-                    
-                    <div class="informe-info">
-                        <div class="informe-info-item">
-                            <strong>Edificio:</strong>
-                            <p>Nepal 2</p>
-                        </div>
-                        <div class="informe-info-item">
-                            <strong>NIT:</strong>
-                            <p>830142380-4</p>
-                        </div>
-                        <div class="informe-info-item">
-                            <strong>Período:</strong>
-                            <p>${mes} 2026</p>
-                        </div>
-                        <div class="informe-info-item">
-                            <strong>Fecha de Elaboración:</strong>
-                            <p>${formatearFecha(fechaElaboracion)}</p>
-                        </div>
-                        <div class="informe-info-item">
-                            <strong>Responsable SG-SST:</strong>
-                            <p>${responsable}</p>
-                        </div>
-                        <div class="informe-info-item">
-                            <strong>Cédula:</strong>
-                            <p>C.E. 679955</p>
-                        </div>
-                    </div>
-                    
-                    <div class="informe-section">
-                        <h3>1. RESUMEN EJECUTIVO</h3>
-                        <div class="stats-grid">
-                            <div class="stat-card">
-                                <div class="stat-value">${datos.cumplimiento}%</div>
-                                <div class="stat-label">Cumplimiento Global</div>
-                            </div>
-                            <div class="stat-card">
-                                <div class="stat-value">${datos.capacitaciones}</div>
-                                <div class="stat-label">Capacitaciones</div>
-                            </div>
-                            <div class="stat-card">
-                                <div class="stat-value">${datos.inspecciones}</div>
-                                <div class="stat-label">Inspecciones</div>
-                            </div>
-                            <div class="stat-card">
-                                <div class="stat-value">${datos.accidentes}</div>
-                                <div class="stat-label">Accidentes</div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="informe-section">
-                        <h3>2. ACTIVIDADES EJECUTADAS EN ${mes.toUpperCase()} 2026</h3>
-                        
-                        <h4 style="color: #1f4e78; margin: 20px 0 10px;">2.1 Capacitaciones y Entrenamientos</h4>
-                        <div class="table-container">
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>Fecha</th>
-                                        <th>Tema</th>
-                                        <th>Asistentes</th>
-                                        <th>Duración</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="tablaCapacitaciones">
-                                    ${generarFilasCapacitaciones(datos.capacitacionesDetalle)}
-                                </tbody>
-                            </table>
-                        </div>
-                        
-                        <h4 style="color: #1f4e78; margin: 20px 0 10px;">2.2 Inspecciones de Seguridad</h4>
-                        <div class="table-container">
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>Fecha</th>
-                                        <th>Tipo</th>
-                                        <th>Hallazgos</th>
-                                        <th>Estado</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    ${generarFilasInspecciones(datos.inspeccionesDetalle)}
-                                </tbody>
-                            </table>
-                        </div>
-                        
-                        <h4 style="color: #1f4e78; margin: 20px 0 10px;">2.3 Mantenimientos Ejecutados</h4>
-                        <div class="table-container">
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>Fecha</th>
-                                        <th>Actividad</th>
-                                        <th>Responsable</th>
-                                        <th>Estado</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    ${generarFilasMantenimientos(datos.mantenimientos)}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                    
-                    <div class="informe-section">
-                        <h3>3. INDICADORES SST DEL MES</h3>
-                        <ul style="line-height: 2; margin-left: 20px;">
-                            <li><strong>Frecuencia de Accidentalidad:</strong> 0 (Meta: 0)</li>
-                            <li><strong>Cobertura de Capacitación:</strong> 100% (Meta: 100%)</li>
-                            <li><strong>Cumplimiento PAT:</strong> ${datos.cumplimientoPAT}% (Meta: ≥95%)</li>
-                            <li><strong>Cumplimiento Programa Mantenimiento:</strong> ${datos.cumplimientoMant}% (Meta: 100%)</li>
-                            <li><strong>Documentación Contratistas:</strong> ${datos.contratistas}% (Meta: 100%)</li>
-                        </ul>
-                    </div>
-                    
-                    ${observaciones ? `
-                    <div class="observaciones-preview">
-                        <h4>📝 OBSERVACIONES Y NOVEDADES DEL MES</h4>
-                        <p style="white-space: pre-wrap; color: #1f2937; line-height: 1.8;">${observaciones}</p>
-                    </div>
-                    ` : ''}
-                    
-                    ${textoIntroduccion ? `
-                    <div class="informe-section">
-                        <h3>3. INTRODUCCIÓN</h3>
-                        <p style="line-height: 1.8; text-align: justify; white-space: pre-wrap;">${textoIntroduccion}</p>
-                    </div>
-                    ` : ''}
-                    
-                    ${textoAnalisis ? `
-                    <div class="informe-section">
-                        <h3>4. ANÁLISIS DE ACTIVIDADES</h3>
-                        <p style="line-height: 1.8; text-align: justify; white-space: pre-wrap;">${textoAnalisis}</p>
-                    </div>
-                    ` : ''}
-                    
-                    ${textoHallazgos ? `
-                    <div class="informe-section">
-                        <h3>5. HALLAZGOS Y OBSERVACIONES</h3>
-                        <p style="line-height: 1.8; text-align: justify; white-space: pre-wrap;">${textoHallazgos}</p>
-                    </div>
-                    ` : ''}
-                    
-                    ${textoConclusiones ? `
-                    <div class="informe-section">
-                        <h3>6. CONCLUSIONES</h3>
-                        <p style="line-height: 1.8; text-align: justify; white-space: pre-wrap;">${textoConclusiones}</p>
-                    </div>
-                    ` : ''}
-                    
-                    ${textoRecomendaciones ? `
-                    <div class="informe-section">
-                        <h3>7. RECOMENDACIONES</h3>
-                        <p style="line-height: 1.8; text-align: justify; white-space: pre-wrap;">${textoRecomendaciones}</p>
-                    </div>
-                    ` : ''}
-                    
-                    <div style="margin-top: 50px; padding-top: 30px; border-top: 2px solid #e0e0e0;">
-                        <p style="text-align: center;">
-                            <strong>${responsable}</strong><br>
-                            Responsable SG-SST<br>
-                            C.E. 679955<br>
-                            Propiedad Horizontal Nepal 2
-                        </p>
-                    </div>
-                </div>
-            `;
-            
-            document.getElementById('previewContent').innerHTML = previewHTML;
-            document.getElementById('previewModal').classList.add('active');
-        }
-        
-        // ============================================
-        // PASO 2: OBTENER DATOS DESDE FIREBASE
-        // ============================================
-        // OBTENER TODOS LOS DATOS DESDE FIREBASE
-        // ============================================
-        async function obtenerDatosDelSistema(mes) {
-            try {
-                console.log('🔄 Cargando todos los datos desde Firebase...');
-                
-                // Leer TODOS los tipos de datos en paralelo
-                const [
-                    supervisionesSnap,
-                    induccionesSnap,
-                    inspeccionesSnap,
-                    mantenimientosSnap,
-                    contratistasSnap
-                ] = await Promise.all([
-                    database.ref(`edificios/${EDIFICIO_ID}/supervisiones`).once('value'),
-                    database.ref(`edificios/${EDIFICIO_ID}/inducciones`).once('value'),
-                    database.ref(`edificios/${EDIFICIO_ID}/inspecciones`).once('value'),
-                    database.ref(`edificios/${EDIFICIO_ID}/mantenimientos`).once('value'),
-                    database.ref(`edificios/${EDIFICIO_ID}/contratistas`).once('value')
-                ]);
-                
-                // Convertir snapshots a arrays
-                const supervisiones = snapshotToArray(supervisionesSnap);
-                const inducciones = snapshotToArray(induccionesSnap);
-                const inspecciones = snapshotToArray(inspeccionesSnap);
-                const mantenimientos = snapshotToArray(mantenimientosSnap);
-                const contratistas = snapshotToArray(contratistasSnap);
-                
-                console.log(`✅ Datos cargados:
-                    - ${supervisiones.length} supervisiones
-                    - ${inducciones.length} inducciones
-                    - ${inspecciones.length} inspecciones
-                    - ${mantenimientos.length} mantenimientos
-                    - ${contratistas.length} contratistas`);
-                
-                // Filtrar por mes
-                const supervisionesMes = filtrarPorMes(supervisiones, mes);
-                const induccionesMes = filtrarPorMes(inducciones, mes);
-                const inspeccionesMes = filtrarPorMes(inspecciones, mes);
-                const mantenimientosMes = filtrarPorMes(mantenimientos, mes);
-                const contratistasMes = filtrarPorMes(contratistas, mes);
-                
-                console.log(`📅 Datos del mes ${mes}:
-                    - ${supervisionesMes.length} supervisiones
-                    - ${induccionesMes.length} inducciones
-                    - ${inspeccionesMes.length} inspecciones
-                    - ${mantenimientosMes.length} mantenimientos
-                    - ${contratistasMes.length} contratistas`);
-                
-                // Procesar para el informe
-                const datosInforme = procesarTodosDatos({
-                    supervisiones: supervisionesMes,
-                    inducciones: induccionesMes,
-                    inspecciones: inspeccionesMes,
-                    mantenimientos: mantenimientosMes,
-                    contratistas: contratistasMes
-                });
-                
-                return datosInforme;
-                
-            } catch (error) {
-                console.error('❌ Error obteniendo datos:', error);
-                alert('❌ Error cargando datos desde Firebase. Usando datos de ejemplo.');
-                
-                return {
-                    cumplimiento: 0,
-                    capacitaciones: 0,
-                    inspecciones: 0,
-                    accidentes: 0,
-                    cumplimientoPAT: 0,
-                    cumplimientoMant: 0,
-                    contratistas: 0,
-                    capacitacionesDetalle: [],
-                    inspeccionesDetalle: [],
-                    mantenimientos: []
-                };
-            }
-        }
+      });
+    }
+  });
 
-        function snapshotToArray(snapshot) {
-            const array = [];
-            snapshot.forEach((childSnapshot) => {
-                array.push({
-                    id: childSnapshot.key,
-                    ...childSnapshot.val()
-                });
-            });
-            return array;
-        }
+  resultado.cumplimientoPromedio = resultado.cumplimientos.length
+    ? Math.round(resultado.cumplimientos.reduce((a,b)=>a+b,0)/resultado.cumplimientos.length) : null;
 
-        function filtrarPorMes(supervisiones, mesNombre) {
-            const meses = {
-                'Enero': 0, 'Febrero': 1, 'Marzo': 2, 'Abril': 3,
-                'Mayo': 4, 'Junio': 5, 'Julio': 6, 'Agosto': 7,
-                'Septiembre': 8, 'Octubre': 9, 'Noviembre': 10, 'Diciembre': 11
-            };
-            
-            const mesNumero = meses[mesNombre];
-            
-            return supervisiones.filter(sup => {
-                const fecha = new Date(sup.timestamp || sup.fecha);
-                return fecha.getMonth() === mesNumero;
-            });
-        }
+  // Nivel máximo de riesgo
+  const orden = { "Crítico":5, "Alto":4, "Medio":3, "Bajo":2, "Sin hallazgos":1 };
+  resultado.nivelMaximo = resultado.nivelesRiesgo.length
+    ? resultado.nivelesRiesgo.reduce((a,b) => (orden[a.nivel]||0) >= (orden[b.nivel]||0) ? a : b).nivel
+    : "Sin hallazgos";
 
-        function procesarTodosDatos(datos) {
-            const {supervisiones, inducciones, inspecciones, mantenimientos, contratistas} = datos;
-            
-            // Convertir supervisiones a inspecciones
-            const supervisionesDetalle = (supervisiones || []).map(sup => ({
-                fecha: sup.fecha || new Date(sup.timestamp).toLocaleDateString('es-CO'),
-                tipo: 'Supervisión Mensual',
-                hallazgos: `${sup.hallazgosNegativos?.length || 0} negativos, ${sup.hallazgosPositivos?.length || 0} positivos`,
-                estado: 'Cerrada'
-            }));
-            
-            // Convertir inducciones a capacitaciones
-            const capacitacionesDetalle = (inducciones || []).map(ind => ({
-                fecha: ind.fecha || new Date(ind.timestamp).toLocaleDateString('es-CO'),
-                tema: ind.tema || 'Inducción SST',
-                asistentes: ind.asistentes || 'N/A',
-                duracion: ind.duracion || 'N/A'
-            }));
-            
-            // Convertir inspecciones
-            const inspeccionesDetalle = (inspecciones || []).map(insp => ({
-                fecha: insp.fecha || new Date(insp.timestamp).toLocaleDateString('es-CO'),
-                tipo: insp.area || 'Inspección Locativa',
-                hallazgos: insp.hallazgos || 'Ninguno',
-                estado: insp.estado || 'Cerrada'
-            }));
-            
-            // Combinar supervisiones e inspecciones
-            const todasInspecciones = [...supervisionesDetalle, ...inspeccionesDetalle];
-            
-            // Convertir mantenimientos
-            const mantenimientosDetalle = (mantenimientos || []).map(mant => ({
-                fecha: mant.fecha || new Date(mant.timestamp).toLocaleDateString('es-CO'),
-                actividad: mant.actividad || 'Mantenimiento',
-                responsable: mant.responsable || 'N/A',
-                estado: mant.estado || 'Ejecutado'
-            }));
-            
-            // Calcular cumplimiento (básico)
-            const totalActividades = (supervisiones?.length || 0) + (inducciones?.length || 0) + 
-                                    (inspecciones?.length || 0) + (mantenimientos?.length || 0);
-            const cumplimiento = totalActividades > 0 ? Math.min(95, 70 + (totalActividades * 5)) : 0;
-            
-            return {
-                cumplimiento: cumplimiento,
-                capacitaciones: inducciones?.length || 0,
-                inspecciones: todasInspecciones.length,
-                accidentes: 0,
-                cumplimientoPAT: cumplimiento > 0 ? 90 : 0,
-                cumplimientoMant: mantenimientos?.length > 0 ? 90 : 0,
-                contratistas: contratistas?.length > 0 ? 100 : 0,
-                capacitacionesDetalle: capacitacionesDetalle,
-                inspeccionesDetalle: todasInspecciones,
-                mantenimientos: mantenimientosDetalle
-            };
-        }
-        
-        function generarFilasCapacitaciones(capacitaciones) {
-            if (!capacitaciones || capacitaciones.length === 0) {
-                return '<tr><td colspan="4" style="text-align: center; color: #666;">No hay capacitaciones registradas para este mes</td></tr>';
-            }
-            
-            return capacitaciones.map(cap => `
-                <tr>
-                    <td>${cap.fecha}</td>
-                    <td>${cap.tema}</td>
-                    <td>${cap.asistentes}</td>
-                    <td>${cap.duracion}</td>
-                </tr>
-            `).join('');
-        }
-        
-        function generarFilasInspecciones(inspecciones) {
-            if (!inspecciones || inspecciones.length === 0) {
-                return '<tr><td colspan="4" style="text-align: center; color: #666;">No hay inspecciones registradas para este mes</td></tr>';
-            }
-            
-            return inspecciones.map(insp => `
-                <tr>
-                    <td>${insp.fecha}</td>
-                    <td>${insp.tipo}</td>
-                    <td>${insp.hallazgos}</td>
-                    <td>${insp.estado}</td>
-                </tr>
-            `).join('');
-        }
-        
-        function generarFilasMantenimientos(mantenimientos) {
-            if (!mantenimientos || mantenimientos.length === 0) {
-                return '<tr><td colspan="4" style="text-align: center; color: #666;">No hay mantenimientos registrados para este mes</td></tr>';
-            }
-            
-            return mantenimientos.map(mant => `
-                <tr>
-                    <td>${mant.fecha}</td>
-                    <td>${mant.actividad}</td>
-                    <td>${mant.responsable}</td>
-                    <td>${mant.estado}</td>
-                </tr>
-            `).join('');
-        }
-        
-        function generarRecomendaciones(datos) {
-            const recomendaciones = [];
-            
-            if (datos.cumplimientoPAT < 95) {
-                recomendaciones.push('<li>Reforzar el cumplimiento del Plan Anual de Trabajo</li>');
-            }
-            
-            if (datos.cumplimientoMant < 100) {
-                recomendaciones.push('<li>Ejecutar los mantenimientos pendientes según cronograma</li>');
-            }
-            
-            if (datos.contratistas < 100) {
-                recomendaciones.push('<li>Actualizar documentación de contratistas</li>');
-            }
-            
-            if (recomendaciones.length === 0) {
-                recomendaciones.push('<li>Mantener los estándares de cumplimiento actuales</li>');
-                recomendaciones.push('<li>Continuar con el cronograma establecido para el próximo mes</li>');
-            }
-            
-            return recomendaciones.join('');
-        }
-        
-        function formatearFecha(fecha) {
-            const opciones = { year: 'numeric', month: 'long', day: 'numeric' };
-            return new Date(fecha + 'T00:00:00').toLocaleDateString('es-CO', opciones);
-        }
-        
-        function cerrarPreview() {
-            document.getElementById('previewModal').classList.remove('active');
-        }
-        
-        // ─── Mapa de nombres de mes a número ───
-        const MES_A_NUMERO = {
-            'Enero':1,'Febrero':2,'Marzo':3,'Abril':4,
-            'Mayo':5,'Junio':6,'Julio':7,'Agosto':8,
-            'Septiembre':9,'Octubre':10,'Noviembre':11,'Diciembre':12
-        };
+  return resultado;
+}
 
-        function obtenerClaveMes() {
-            const mesSelect = document.getElementById('mes');
-            const mesValor  = mesSelect ? mesSelect.value : '';
-            const mesNum    = MES_A_NUMERO[mesValor] || (new Date().getMonth() + 1);
-            const año       = 2026;
-            return {
-                clave:    `${año}-${String(mesNum).padStart(2,'0')}`,
-                mesNum:   mesNum,
-                mesNombre: mesValor || 'Sin mes',
-                año:      año
-            };
+// ─────────────────────────────────────────
+//  GENERAR TEXTOS AUTOMÁTICOS
+// ─────────────────────────────────────────
+async function generarTextos() {
+  const mesVal = document.getElementById("selMes").value;
+  const anio   = parseInt(document.getElementById("selAnio").value);
+  if (mesVal === "") { setStatus("⚠️ Seleccione el mes del informe.", "error"); return; }
+
+  const mes    = parseInt(mesVal);
+  const mesNom = MESES[mes];
+  const resp   = document.getElementById("responsable").value.trim() || "Carla Castellano Madriz";
+
+  const btn = document.getElementById("btnTextos");
+  btn.disabled = true; btn.innerHTML = "⏳ Cargando datos...";
+  setStatus("🔄 Leyendo datos de Firebase...", "info");
+
+  try {
+    const [supArr, insArr, indArr, mantArr] = await Promise.all([
+      leerColeccion("edificios/nepal-2/supervisiones"),
+      leerColeccion("edificios/nepal-2/inspecciones"),
+      leerColeccion("edificios/nepal-2/inducciones"),
+      leerColeccion("edificios/nepal-2/mantenimientos"),
+    ]);
+
+    const supMes  = filtrarPorMes(supArr, mes, anio);
+    const insMes  = filtrarPorPeriodo(insArr, mes, anio);
+    const indMes  = filtrarPorMes(indArr, mes, anio);
+    const mantMes = filtrarPorMes(mantArr, mes, anio);
+
+    console.log("[Datos mes]", mesNom, anio, "→ sup:", supMes.length,
+                "ins:", insMes.length, "ind:", indMes.length, "mant:", mantMes.length);
+
+    // Análisis profundo de inspecciones
+    const analInsp = analizarInspecciones(insMes);
+    const cumpSup  = calcProm(supMes);
+    const totalActs = supMes.length + insMes.length + indMes.length + mantMes.length;
+
+    // Cumplimiento combinado
+    const todosConCump = [...supMes, ...insMes].map(i => parseFloat(i.cumplimiento||0)).filter(v=>v>0);
+    const cumpTotal = todosConCump.length
+      ? Math.round(todosConCump.reduce((a,b)=>a+b,0)/todosConCump.length) : null;
+
+    // Actualizar estadísticas UI
+    document.getElementById("stSuper").textContent  = supMes.length;
+    document.getElementById("stInspec").textContent = insMes.length;
+    document.getElementById("stInduc").textContent  = indMes.length;
+    document.getElementById("stMant").textContent   = mantMes.length;
+    document.getElementById("stCump").textContent   = cumpTotal !== null ? cumpTotal+"%" : "N/A";
+    document.getElementById("stHallNeg").textContent = analInsp.hallazgosTextos.length;
+    document.getElementById("lblMesAnio").textContent = `${mesNom} ${anio}`;
+    document.getElementById("statsPreview").style.display = "block";
+
+    // Mostrar tags de hallazgos
+    const tagsDiv = document.getElementById("hallazgosTags");
+    tagsDiv.innerHTML = "";
+    if (analInsp.nivelesRiesgo.length > 0) {
+      document.getElementById("hallazgosDetalle").style.display = "block";
+      analInsp.nivelesRiesgo.forEach(h => {
+        const n = h.nivel.toLowerCase().replace("í","i");
+        const cls = n === "critico" ? "tag-critico" : n === "alto" ? "tag-alto"
+          : n === "medio" ? "tag-medio" : "tag-bajo";
+        tagsDiv.innerHTML += `<span class="hallazgo-tag ${cls}">${h.nivel} — ${h.fecha}</span>`;
+      });
+      analInsp.itemsFallidos.forEach(it => {
+        tagsDiv.innerHTML += `<span class="hallazgo-tag tag-medio">❌ ${it.label}</span>`;
+      });
+    } else if (insMes.length > 0) {
+      document.getElementById("hallazgosDetalle").style.display = "block";
+      tagsDiv.innerHTML = `<span class="hallazgo-tag tag-ok">✅ Sin hallazgos negativos en el período</span>`;
+    }
+
+    // ── Nivel descriptivo ──
+    const nivDesc = cumpTotal !== null
+      ? (cumpTotal >= 90 ? "satisfactorio" : cumpTotal >= 75 ? "aceptable" : "con oportunidades de mejora significativas")
+      : "en proceso de consolidación";
+
+    // ════════════════════════════════════
+    //  1. INTRODUCCIÓN
+    // ════════════════════════════════════
+    const intro = `El presente informe consolidado corresponde al período de ${mesNom} de ${anio} y ha sido elaborado en cumplimiento del Decreto 1072 de 2015 y la Resolución 0312 de 2019, normativas que regulan el Sistema de Gestión de Seguridad y Salud en el Trabajo (SG-SST) para la Propiedad Horizontal Nepal 2, ubicada en la ciudad de Bogotá, Colombia.
+
+El SG-SST de la Propiedad Horizontal Nepal 2 tiene como objetivo identificar, evaluar, prevenir y controlar los riesgos laborales que puedan afectar la seguridad y salud de los trabajadores, contratistas y visitantes del edificio, promoviendo condiciones de trabajo seguras en cumplimiento de la normatividad colombiana vigente.
+
+Durante ${mesNom} de ${anio} se ejecutaron un total de ${totalActs} actividades del SG-SST: ${supMes.length} supervisión(es) de seguridad, ${insMes.length} inspección(es) de instalaciones${insMes.length > 0 ? ` (${analInsp.locativas.length} locativa(s) y ${analInsp.equipos.length} de equipos contra incendio)` : ""}, ${indMes.length} capacitación(es) e inducción(es) al personal, y ${mantMes.length} actividad(es) de mantenimiento. El desempeño general del período se califica como ${nivDesc}.`;
+
+    document.getElementById("txtIntro").value = intro;
+
+    // ════════════════════════════════════
+    //  2. ANÁLISIS DE ACTIVIDADES (basado en datos reales)
+    // ════════════════════════════════════
+    let analisis = `ANÁLISIS DE ACTIVIDADES — ${mesNom.toUpperCase()} ${anio}\n\n`;
+
+    // Supervisiones
+    analisis += `1. SUPERVISIONES DE SEGURIDAD (${supMes.length} realizadas)\n`;
+    if (supMes.length > 0) {
+      supMes.forEach((s, i) => {
+        const areas  = Array.isArray(s.areas) ? s.areas.join(", ") : (s.areas || "áreas generales");
+        const hallPos = Array.isArray(s.hallazgosPositivos) ? s.hallazgosPositivos.map(h=>h.texto||h).join("; ") : "";
+        const hallNeg = Array.isArray(s.hallazgosNegativos) ? s.hallazgosNegativos.map(h=>h.descripcion||h.texto||h).join("; ") : "";
+        analisis += `  ${i+1}. Supervisión del ${fmtFecha(s)} — Áreas revisadas: ${areas}.\n`;
+        if (hallPos) analisis += `     Aspectos positivos: ${hallPos}.\n`;
+        if (hallNeg) analisis += `     Hallazgos de mejora: ${hallNeg}.\n`;
+        analisis += "\n";
+      });
+    } else analisis += `  No se registraron supervisiones en este período.\n\n`;
+
+    // Inspecciones (análisis profundo)
+    analisis += `2. INSPECCIONES DE INSTALACIONES (${insMes.length} realizadas)\n`;
+    if (insMes.length > 0) {
+      insMes.forEach((ins, i) => {
+        const tipoLabel = ins.tipoInspeccion === "mensual" ? "Locativa Mensual"
+          : ins.tipoInspeccion === "trimestral" ? "Equipos Contra Incendio (Trimestral)"
+          : ins.tipoInspeccion === "especial" ? "Especial" : ins.tipoInspeccion || "General";
+        analisis += `  ${i+1}. Inspección ${tipoLabel} — ${fmtFecha(ins)}\n`;
+        analisis += `     Cumplimiento checklist: ${ins.cumplimiento || "N/R"}%\n`;
+        analisis += `     Nivel de riesgo: ${ins.nivelRiesgo || "Sin hallazgos"}\n`;
+        analisis += `     Estado: ${ins.estado || "N/R"}\n`;
+
+        // Detallar checklist
+        if (ins.checklist_locativa) {
+          const ok  = Object.entries(ins.checklist_locativa).filter(([,v])=>v===true).map(([k])=>CHECKLIST_LOCATIVA[k]||k);
+          const nok = Object.entries(ins.checklist_locativa).filter(([,v])=>v!==true).map(([k])=>CHECKLIST_LOCATIVA[k]||k);
+          if (ok.length)  analisis += `     ✅ Conforme: ${ok.join(", ")}.\n`;
+          if (nok.length) analisis += `     ❌ No conforme: ${nok.join(", ")}.\n`;
         }
-
-        function imprimirInforme() {
-            window.print();
+        if (ins.checklist_equipos) {
+          const ok  = Object.entries(ins.checklist_equipos).filter(([,v])=>v===true).map(([k])=>CHECKLIST_EQUIPOS[k]||k);
+          const nok = Object.entries(ins.checklist_equipos).filter(([,v])=>v!==true).map(([k])=>CHECKLIST_EQUIPOS[k]||k);
+          if (ok.length)  analisis += `     ✅ Equipos conformes: ${ok.join(", ")}.\n`;
+          if (nok.length) analisis += `     ❌ Equipos no conformes: ${nok.join(", ")}.\n`;
         }
+        if (ins.hallazgos && ins.hallazgos !== "Sin hallazgos")
+          analisis += `     Hallazgos: ${ins.hallazgos}\n`;
+        if (ins.accionesCorrectivas)
+          analisis += `     Acciones correctivas: ${ins.accionesCorrectivas}\n`;
+        analisis += "\n";
+      });
+    } else analisis += `  No se registraron inspecciones en este período.\n\n`;
 
-        // ─── GENERAR PDF Y GUARDAR EN FIREBASE STORAGE ───
-        async function generarPDF() {
-            const previewContent = document.getElementById('previewContent');
-            if (!previewContent || previewContent.innerHTML.trim() === '' ||
-                previewContent.innerHTML.includes('Cargando supervisiones')) {
-                alert('⚠️ Primero debes generar la Vista Previa del informe con todos los datos.');
-                return;
-            }
+    // Capacitaciones
+    analisis += `3. CAPACITACIONES E INDUCCIONES (${indMes.length} realizadas)\n`;
+    if (indMes.length > 0) {
+      indMes.forEach((s, i) => {
+        const tema  = s.tema || s.temaCapacitacion || s.titulo || "Tema SST";
+        const asist = s.asistentes || s.numeroAsistentes || s.participantes || "N/R";
+        analisis += `  ${i+1}. ${fmtFecha(s)} — Tema: "${tema}". Asistentes: ${asist}.\n`;
+      });
+    } else analisis += `  No se registraron capacitaciones en este período.\n`;
 
-            const btn = document.getElementById('btnGenerarPDF');
-            const textoOriginal = btn ? btn.innerHTML : '';
-            
-            // MÉTODO CONFIABLE: Usar impresión del navegador
-            alert('📄 Se abrirá el diálogo de impresión.\n\n' +
-                  '1. Selecciona "Guardar como PDF"\n' +
-                  '2. Verifica que muestre TODAS las páginas\n' +
-                  '3. Guarda el archivo\n' +
-                  '4. Luego súbelo manualmente a Google Drive\n' +
-                  '5. Copia el enlace y agrégalo en "Ejecución Constante"');
-            
-            // Imprimir el contenido de la vista previa
-            window.print();
+    analisis += `\n4. MANTENIMIENTOS (${mantMes.length} realizados)\n`;
+    if (mantMes.length > 0) {
+      mantMes.forEach((s, i) => {
+        const desc = s.descripcion || s.actividad || s.tipo || "Mantenimiento general";
+        analisis += `  ${i+1}. ${fmtFecha(s)}: ${desc}.\n`;
+      });
+    } else analisis += `  No se registraron mantenimientos en este período.\n`;
+
+    document.getElementById("txtAnalisis").value = analisis;
+
+    // ════════════════════════════════════
+    //  3. HALLAZGOS (basado en datos reales de inspecciones)
+    // ════════════════════════════════════
+    let hallazgos = "";
+
+    if (insMes.length === 0) {
+      hallazgos = `Durante el mes de ${mesNom} de ${anio} no se registraron inspecciones formales en el sistema. Se recomienda verificar que los registros de inspección del período hayan sido cargados correctamente en el módulo correspondiente del SG-SST.`;
+    } else if (analInsp.hallazgosTextos.length === 0 && analInsp.itemsFallidos.length === 0) {
+      // Sin hallazgos negativos
+      hallazgos = `Durante el mes de ${mesNom} de ${anio}, las inspecciones realizadas reportaron un estado CONFORME en todos los ítems evaluados. No se identificaron hallazgos negativos, condiciones inseguras ni incumplimientos en las áreas inspeccionadas del edificio Nepal 2.\n\n`;
+      hallazgos += `ASPECTOS POSITIVOS IDENTIFICADOS:\n`;
+      if (analInsp.itemsOK.length > 0) {
+        analInsp.itemsOK.forEach(it => { hallazgos += `• ${it.label}: Conforme.\n`; });
+      } else {
+        hallazgos += `• Todas las áreas y equipos inspeccionados se encuentran en condiciones óptimas de seguridad.\n`;
+      }
+      hallazgos += `\nNo se reportaron accidentes de trabajo, incidentes ni enfermedades laborales durante el período evaluado, lo que refleja la efectividad de las medidas preventivas implementadas en el SG-SST de la Propiedad Horizontal Nepal 2.`;
+    } else {
+      // Con hallazgos — usar datos reales
+      const nivelMax = analInsp.nivelMaximo;
+      hallazgos = `Durante el mes de ${mesNom} de ${anio}, las inspecciones de instalaciones identificaron ${analInsp.hallazgosTextos.length > 0 ? "los siguientes hallazgos" : "condiciones de mejora"} con nivel de riesgo máximo: ${nivelMax}.\n\n`;
+
+      if (analInsp.hallazgosTextos.length > 0) {
+        hallazgos += `HALLAZGOS IDENTIFICADOS:\n`;
+        analInsp.hallazgosTextos.forEach((h, i) => {
+          hallazgos += `\n${i+1}. [${h.tipo === "mensual" ? "Inspección Locativa" : h.tipo === "trimestral" ? "Equipos Contra Incendio" : "Inspección Especial"} — ${h.fecha}]\n`;
+          hallazgos += `   Nivel de riesgo: ${h.nivel}\n`;
+          hallazgos += `   Descripción: ${h.texto}\n`;
+        });
+      }
+
+      if (analInsp.itemsFallidos.length > 0) {
+        hallazgos += `\nÍTEMS DE CHECKLIST NO CONFORMES:\n`;
+        analInsp.itemsFallidos.forEach(it => { hallazgos += `• ❌ ${it.label}\n`; });
+      }
+
+      if (analInsp.acciones.length > 0) {
+        hallazgos += `\nACCIONES CORRECTIVAS PROPUESTAS:\n`;
+        analInsp.acciones.forEach((ac, i) => { hallazgos += `${i+1}. ${ac}\n`; });
+      }
+
+      hallazgos += `\nNo se reportaron accidentes de trabajo ni enfermedades laborales durante el período. Se establece seguimiento a los hallazgos identificados para garantizar el cierre oportuno de las acciones correctivas.`;
+    }
+
+    document.getElementById("txtHallazgos").value = hallazgos;
+
+    // ════════════════════════════════════
+    //  4. CONCLUSIONES
+    // ════════════════════════════════════
+    const cumpTexto = cumpTotal !== null ? `${cumpTotal}%` : "en evaluación";
+    const conclusiones = `Con base en las actividades desarrolladas durante el mes de ${mesNom} de ${anio}, se presentan las siguientes conclusiones:\n\n• El SG-SST de la Propiedad Horizontal Nepal 2 registró un cumplimiento de ${cumpTexto} en el período, con un total de ${totalActs} actividades ejecutadas conforme al Plan Anual SST 2026.\n\n• Las ${insMes.length} inspección(es) de instalaciones realizadas permitieron verificar las condiciones de seguridad del edificio. ${analInsp.itemsFallidos.length > 0 ? `Se identificaron ${analInsp.itemsFallidos.length} ítem(s) no conforme(s) que requieren acciones correctivas: ${analInsp.itemsFallidos.map(i=>i.label).join(", ")}.` : "Todos los ítems del checklist se encontraron conformes."}\n\n• Las ${supMes.length} supervisión(es) de seguridad ejecutadas contribuyeron a la identificación temprana de condiciones de riesgo y al monitoreo continuo de las áreas de trabajo, promoviendo ambientes laborales seguros para todos los colaboradores del edificio.\n\n• Las ${indMes.length} capacitación(es) realizadas fortalecieron la cultura de prevención y el conocimiento del personal frente a los procedimientos de seguridad y emergencias establecidos en el SG-SST.`;
+
+    document.getElementById("txtConclusiones").value = conclusiones;
+
+    // ════════════════════════════════════
+    //  5. RECOMENDACIONES (basadas en hallazgos reales)
+    // ════════════════════════════════════
+    let recomendaciones = `Con el propósito de fortalecer el SG-SST de la Propiedad Horizontal Nepal 2, se presentan las siguientes recomendaciones para el período de ${MESES[(mes+1)%12]} de ${mes===11 ? anio+1 : anio}:\n\n`;
+
+    // Recomendaciones específicas según hallazgos
+    if (analInsp.itemsFallidos.length > 0) {
+      recomendaciones += `• Priorizar el cierre de las no conformidades identificadas en las inspecciones de ${mesNom}: ${analInsp.itemsFallidos.map(i=>i.label).join("; ")}. Establecer responsables y fechas límite para la implementación de medidas correctivas.\n\n`;
+    }
+    if (analInsp.nivelMaximo === "Crítico" || analInsp.nivelMaximo === "Alto") {
+      recomendaciones += `• Atender con carácter urgente los hallazgos de nivel "${analInsp.nivelMaximo}" identificados en el período. Estos riesgos requieren intervención inmediata para prevenir accidentes o incidentes de trabajo.\n\n`;
+    }
+    if (analInsp.acciones.length > 0) {
+      recomendaciones += `• Dar seguimiento y verificar el cumplimiento de las acciones correctivas propuestas en las inspecciones: ${analInsp.acciones.slice(0,2).join(". ")}.\n\n`;
+    }
+
+    recomendaciones += `• Mantener la frecuencia de inspecciones locativas mensuales y de equipos contra incendio de manera trimestral, garantizando el registro oportuno de cada actividad en el sistema de información del SG-SST.\n\n`;
+    recomendaciones += `• Reforzar el programa de capacitaciones con temáticas prioritarias identificadas en la matriz de riesgos, priorizando primeros auxilios básicos, uso de extintores y procedimientos de evacuación.\n\n`;
+    recomendaciones += `• Actualizar la Matriz de Identificación de Peligros, Evaluación y Valoración de Riesgos (IPEVR) incorporando las novedades identificadas en el presente período.\n\n`;
+    recomendaciones += `• Continuar con la ejecución del Plan Anual SST 2026, dando seguimiento mensual al cronograma y asegurando los recursos necesarios para el cumplimiento de los objetivos establecidos.`;
+
+    document.getElementById("txtRecomendaciones").value = recomendaciones;
+
+    setStatus(`✅ Textos generados para <strong>${mesNom} ${anio}</strong> — ${totalActs} actividades encontradas, ${insMes.length} inspección(es) analizada(s), ${analInsp.hallazgosTextos.length} hallazgo(s) identificado(s). Puede editar los textos antes de generar el PDF.`, "success");
+
+  } catch(err) {
+    console.error("[Error] generarTextos:", err);
+    setStatus("❌ Error al cargar datos: " + err.message, "error");
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = "🤖 Generar Textos Automáticos";
+  }
+}
+
+// ─────────────────────────────────────────
+//  GUARDAR INFORME EN FIREBASE
+// ─────────────────────────────────────────
+async function guardarEnFirebase() {
+  const mesVal = document.getElementById("selMes").value;
+  const anio   = parseInt(document.getElementById("selAnio").value);
+  const resp   = document.getElementById("responsable").value.trim();
+  const fechaEl = document.getElementById("fechaElab").value;
+
+  const textos = {
+    introduccion:     document.getElementById("txtIntro").value.trim(),
+    analisis:         document.getElementById("txtAnalisis").value.trim(),
+    hallazgos:        document.getElementById("txtHallazgos").value.trim(),
+    conclusiones:     document.getElementById("txtConclusiones").value.trim(),
+    recomendaciones:  document.getElementById("txtRecomendaciones").value.trim()
+  };
+
+  const mes    = parseInt(mesVal);
+  const mesNom = MESES[mes];
+  const informeId = `informe-${mesNom.toLowerCase()}-${anio}-${Date.now()}`;
+
+  const datos = {
+    id:              informeId,
+    mes:             mesNom,
+    mesNumero:       mes,
+    anio:            anio,
+    periodo:         `${mesNom} ${anio}`,
+    fechaElaboracion: fechaEl,
+    responsable:     resp,
+    textos:          textos,
+    edificio:        "Nepal 2",
+    estado:          "Generado",
+    timestamp:       Date.now(),
+    fechaCreacion:   new Date().toISOString()
+  };
+
+  console.log("[Firebase] Guardando informe:", informeId);
+  await db.ref(`edificios/nepal-2/informes/${informeId}`).set(datos);
+  console.log("[Firebase] Informe guardado OK:", informeId);
+  return informeId;
+}
+
+// ─────────────────────────────────────────
+//  VALIDACIONES
+// ─────────────────────────────────────────
+function validarFormulario() {
+  const mesVal = document.getElementById("selMes").value;
+  if (mesVal === "") { setStatus("⚠️ Seleccione el mes del informe.", "error"); return false; }
+
+  const campos = [
+    { id:"txtIntro",          label:"Introducción" },
+    { id:"txtAnalisis",       label:"Análisis de Actividades" },
+    { id:"txtHallazgos",      label:"Hallazgos y Observaciones" },
+    { id:"txtConclusiones",   label:"Conclusiones" },
+    { id:"txtRecomendaciones",label:"Recomendaciones" },
+  ];
+  for (const c of campos) {
+    if (!document.getElementById(c.id).value.trim()) {
+      setStatus(`⚠️ El campo "${c.label}" está vacío. Use "Generar Textos Automáticos" o complete manualmente.`, "error");
+      return false;
+    }
+  }
+  return true;
+}
+
+// ─────────────────────────────────────────
+//  SÓLO GUARDAR FIREBASE
+// ─────────────────────────────────────────
+async function soloGuardarFirebase() {
+  if (!validarFormulario()) return;
+  const btn = document.getElementById("btnSolo");
+  btn.disabled = true; btn.innerHTML = "⏳ Guardando...";
+  setStatus("🔄 Guardando informe en Firebase...", "info");
+  try {
+    const id = await guardarEnFirebase();
+    setStatus(`✅ Informe guardado en Firebase con ID: <strong>${id}</strong>`, "success");
+  } catch(err) {
+    console.error("[Error] guardar Firebase:", err);
+    setStatus("❌ Error al guardar en Firebase: " + err.message, "error");
+  } finally {
+    btn.disabled = false; btn.innerHTML = "☁️ Solo Guardar en Firebase";
+  }
+}
+
+// ─────────────────────────────────────────
+//  SÓLO GENERAR PDF
+// ─────────────────────────────────────────
+async function soloGenerarPDF() {
+  if (!validarFormulario()) return;
+  const btn = document.getElementById("btnPDF");
+  btn.disabled = true; btn.innerHTML = "⏳ Generando PDF...";
+  setStatus("🔄 Construyendo PDF nativo...", "info");
+  try {
+    await construirPDF();
+    setStatus("✅ PDF generado y descargado correctamente.", "success");
+  } catch(err) {
+    console.error("[Error] PDF:", err);
+    setStatus("❌ Error al generar PDF: " + err.message, "error");
+  } finally {
+    btn.disabled = false; btn.innerHTML = "📄 Solo Generar PDF";
+  }
+}
+
+// ─────────────────────────────────────────
+//  GUARDAR + PDF (botón principal)
+// ─────────────────────────────────────────
+async function guardarYGenerarPDF() {
+  if (!validarFormulario()) return;
+  const btn = document.getElementById("btnTodo");
+  btn.disabled = true; btn.innerHTML = "⏳ Procesando...";
+  setStatus("🔄 Guardando en Firebase y generando PDF...", "info");
+  try {
+    // 1) Guardar en Firebase
+    setStatus("🔄 Guardando informe en Firebase...", "info");
+    const id = await guardarEnFirebase();
+
+    // 2) Generar PDF
+    setStatus("🔄 Generando PDF completo...", "info");
+    const nombrePDF = await construirPDF();
+
+    setStatus(`✅ Informe guardado en Firebase (ID: <strong>${id}</strong>) y PDF descargado: <strong>${nombrePDF}</strong>`, "success");
+  } catch(err) {
+    console.error("[Error] guardarYGenerarPDF:", err);
+    setStatus("❌ Error: " + err.message, "error");
+  } finally {
+    btn.disabled = false; btn.innerHTML = "💾📄 Guardar en Firebase y Generar PDF";
+  }
+}
+
+// ─────────────────────────────────────────
+//  CONSTRUIR PDF (jsPDF nativo, sin html2canvas)
+// ─────────────────────────────────────────
+async function construirPDF() {
+  const mesVal  = document.getElementById("selMes").value;
+  const anio    = parseInt(document.getElementById("selAnio").value);
+  const fechaEl = document.getElementById("fechaElab").value;
+  const resp    = document.getElementById("responsable").value.trim() || "Carla Castellano Madriz";
+  const mes     = parseInt(mesVal);
+  const mesNom  = MESES[mes];
+
+  const intro  = document.getElementById("txtIntro").value.trim();
+  const analis = document.getElementById("txtAnalisis").value.trim();
+  const hall   = document.getElementById("txtHallazgos").value.trim();
+  const conc   = document.getElementById("txtConclusiones").value.trim();
+  const recom  = document.getElementById("txtRecomendaciones").value.trim();
+
+  let fechaTexto = "Sin fecha";
+  if (fechaEl) {
+    const fo = new Date(fechaEl + "T12:00:00");
+    fechaTexto = fo.toLocaleDateString("es-CO", { day:"2-digit", month:"long", year:"numeric" });
+  }
+
+  // Cargar datos para tablas
+  const [supArr, insArr, indArr, mantArr] = await Promise.all([
+    leerColeccion("edificios/nepal-2/supervisiones"),
+    leerColeccion("edificios/nepal-2/inspecciones"),
+    leerColeccion("edificios/nepal-2/inducciones"),
+    leerColeccion("edificios/nepal-2/mantenimientos"),
+  ]);
+  const supMes  = filtrarPorMes(supArr, mes, anio);
+  const insMes  = filtrarPorPeriodo(insArr, mes, anio);
+  const indMes  = filtrarPorMes(indArr, mes, anio);
+  const mantMes = filtrarPorMes(mantArr, mes, anio);
+  const analInsp = analizarInspecciones(insMes);
+  const totalActs = supMes.length + insMes.length + indMes.length + mantMes.length;
+  const todosConCump = [...supMes,...insMes].map(i=>parseFloat(i.cumplimiento||0)).filter(v=>v>0);
+  const cumpTotal = todosConCump.length
+    ? Math.round(todosConCump.reduce((a,b)=>a+b,0)/todosConCump.length) : null;
+
+  // ── jsPDF ──
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation:"portrait", unit:"mm", format:"letter" });
+
+  const PW   = doc.internal.pageSize.getWidth();
+  const PH   = doc.internal.pageSize.getHeight();
+  const MRG  = 20;
+  const CTW  = PW - MRG*2;
+
+  const C_AZUL  = [31, 78, 120];
+  const C_MED   = [37, 99, 235];
+  const C_GRIS  = [241, 245, 249];
+  const C_TEXT  = [71, 85, 105];
+  const C_NEGRO = [30, 41, 59];
+  const C_BLANC = [255, 255, 255];
+  const C_AMAR  = [254, 243, 199];
+  const C_ROJO  = [254, 226, 226];
+
+  // ── Pie de página ──
+  function addFooters() {
+    const total = doc.internal.getNumberOfPages();
+    for (let i = 1; i <= total; i++) {
+      doc.setPage(i);
+      doc.setDrawColor(200,210,220); doc.setLineWidth(.3);
+      doc.line(MRG, PH-14, PW-MRG, PH-14);
+      doc.setFont("helvetica","normal"); doc.setFontSize(7.5); doc.setTextColor(...C_TEXT);
+      doc.text("SG-SST · Propiedad Horizontal Nepal 2 · Bogotá, Colombia", MRG, PH-9);
+      doc.text(`Página ${i} de ${total}`, PW-MRG, PH-9, { align:"right" });
+    }
+  }
+
+  // ── Título de sección ──
+  function secTitulo(titulo, y) {
+    if (y > PH-50) { doc.addPage(); y = MRG+10; }
+    doc.setFillColor(...C_AZUL);
+    doc.roundedRect(MRG, y-5, CTW, 9, 1, 1, "F");
+    doc.setFont("helvetica","bold"); doc.setFontSize(10.5); doc.setTextColor(...C_BLANC);
+    doc.text(titulo, MRG+5, y+1);
+    doc.setTextColor(...C_NEGRO);
+    return y+12;
+  }
+
+  function subTitulo(titulo, y) {
+    if (y > PH-40) { doc.addPage(); y = MRG+10; }
+    doc.setFont("helvetica","bold"); doc.setFontSize(9.5); doc.setTextColor(...C_MED);
+    doc.text(titulo, MRG, y);
+    doc.setTextColor(...C_NEGRO);
+    return y+6;
+  }
+
+  // Añadir bloque de texto respetando \n y con salto automático de página
+  function addParrafos(texto, y, fontSize=9.5) {
+    doc.setFont("helvetica","normal"); doc.setFontSize(fontSize); doc.setTextColor(...C_NEGRO);
+    const parrafos = texto.split("\n");
+    for (const p of parrafos) {
+      if (!p.trim()) { y += 3.5; continue; }
+      const lines = doc.splitTextToSize(p, CTW);
+      for (const ln of lines) {
+        if (y > PH-22) { doc.addPage(); y = MRG+10; }
+        doc.text(ln, MRG, y); y += 5;
+      }
+    }
+    return y + 4;
+  }
+
+  // ════════════════════════════════════════
+  //  PÁGINA 1: PORTADA
+  // ════════════════════════════════════════
+  doc.setFillColor(...C_AZUL);
+  doc.rect(0, 0, PW, 60, "F");
+
+  doc.setFont("helvetica","bold"); doc.setFontSize(19); doc.setTextColor(...C_BLANC);
+  doc.text("INFORME CONSOLIDADO MENSUAL", PW/2, 22, { align:"center" });
+  doc.setFontSize(12);
+  doc.text("SISTEMA DE GESTIÓN DE SEGURIDAD Y SALUD EN EL TRABAJO", PW/2, 33, { align:"center" });
+  doc.setFontSize(11); doc.setTextColor(186,230,253);
+  doc.text("Propiedad Horizontal Nepal 2 · Bogotá, Colombia", PW/2, 44, { align:"center" });
+  doc.setFontSize(10); doc.setTextColor(...C_BLANC);
+  doc.text(`Período: ${mesNom} ${anio}`, PW/2, 54, { align:"center" });
+
+  doc.setFillColor(...C_MED);
+  doc.rect(0, PH-22, PW, 22, "F");
+  doc.setFont("helvetica","italic"); doc.setFontSize(8); doc.setTextColor(...C_BLANC);
+  doc.text("Documento de uso interno — Elaborado en cumplimiento del Decreto 1072/2015 y Resolución 0312/2019", PW/2, PH-9, { align:"center" });
+
+  doc.autoTable({
+    startY: 72,
+    margin: { left: MRG+25, right: MRG+25 },
+    head: [["Campo", "Información"]],
+    body: [
+      ["Edificio",              "Propiedad Horizontal Nepal 2"],
+      ["Período",               `${mesNom} de ${anio}`],
+      ["Fecha de Elaboración",  fechaTexto],
+      ["Responsable SST",       resp],
+      ["Cargo",                 "Coordinadora SG-SST"],
+      ["Cédula de Extranjería", "679955"],
+      ["Marco normativo",       "Decreto 1072/2015 · Res. 0312/2019"],
+      ["Total Actividades",     String(totalActs)],
+      ["Cumplimiento Promedio", cumpTotal !== null ? cumpTotal+"%" : "En evaluación"],
+      ["Accidentes de Trabajo", "0 (ninguno reportado)"],
+    ],
+    headStyles: { fillColor: C_AZUL, textColor: C_BLANC, fontStyle:"bold", fontSize:9.5, halign:"center" },
+    columnStyles: {
+      0: { fontStyle:"bold", textColor: C_AZUL, cellWidth:55 },
+      1: { textColor: C_NEGRO },
+    },
+    bodyStyles: { fontSize:9.5, cellPadding:5 },
+    alternateRowStyles: { fillColor: C_GRIS },
+    theme:"grid",
+  });
+
+  // ════════════════════════════════════════
+  //  PÁGINA 2: RESUMEN EJECUTIVO + INDICADORES
+  // ════════════════════════════════════════
+  doc.addPage();
+  let y = MRG+10;
+
+  y = secTitulo("1. RESUMEN EJECUTIVO", y);
+  const resumen = `El presente informe consolida las actividades del SG-SST de la Propiedad Horizontal Nepal 2 durante ${mesNom} de ${anio}. Se ejecutaron ${totalActs} actividades: ${supMes.length} supervisión(es), ${insMes.length} inspección(es) de instalaciones, ${indMes.length} capacitación(es) y ${mantMes.length} mantenimiento(s). ${cumpTotal !== null ? `El cumplimiento promedio fue del ${cumpTotal}%.` : ""} No se reportaron accidentes de trabajo ni enfermedades laborales. ${analInsp.hallazgosTextos.length > 0 ? `Se identificaron ${analInsp.hallazgosTextos.length} hallazgo(s) con nivel máximo de riesgo "${analInsp.nivelMaximo}".` : "Todas las inspecciones reportaron condiciones conformes."}`;
+  y = addParrafos(resumen, y);
+  y += 4;
+
+  y = secTitulo("2. INDICADORES DEL PERÍODO", y);
+  const filasInd = [
+    ["Supervisiones realizadas",          String(supMes.length),          supMes.length>0 ? "OK - Ejecutado":"Sin registro"],
+    ["Inspecciones realizadas",           String(insMes.length),          insMes.length>0 ? "OK - Ejecutado":"Sin registro"],
+    ["  - Locativas",                     String(analInsp.locativas.length), ""],
+    ["  - Equipos contra incendio",       String(analInsp.equipos.length), ""],
+    ["Capacitaciones e inducciones",      String(indMes.length),          indMes.length>0 ? "OK - Ejecutado":"Sin registro"],
+    ["Mantenimientos",                    String(mantMes.length),         mantMes.length>0 ? "OK - Ejecutado":"Sin registro"],
+    ["Items checklist NO conformes",      String(analInsp.itemsFallidos.length), analInsp.itemsFallidos.length===0 ? "OK - Sin hallazgos":"PENDIENTE - Requiere accion"],
+    ["Nivel maximo de riesgo detectado",  analInsp.nivelMaximo,           analInsp.nivelMaximo==="Sin hallazgos"?"OK - Sin riesgo":"Ver hallazgos"],
+    ["Accidentes de trabajo",             "0",                            "OK - Sin novedad"],
+    ["Incidentes reportados",             "0",                            "OK - Sin novedad"],
+    ["Cumplimiento promedio general",     cumpTotal!==null?cumpTotal+"%":"N/A", cumpTotal!==null?(cumpTotal>=90?"Satisfactorio":cumpTotal>=75?"Aceptable":"Requiere mejora"):"En evaluacion"],
+  ];
+  doc.autoTable({
+    startY: y,
+    margin: { left:MRG, right:MRG },
+    head: [["Indicador","Valor","Estado"]],
+    body: filasInd,
+    headStyles: { fillColor: C_AZUL, textColor: C_BLANC, fontStyle:"bold", halign:"center", fontSize:9.5 },
+    columnStyles: {
+      0: { fontStyle:"bold", textColor: C_AZUL },
+      1: { halign:"center" },
+      2: { halign:"center" },
+    },
+    bodyStyles: { fontSize:9, cellPadding:4.5 },
+    alternateRowStyles: { fillColor: C_GRIS },
+    theme:"grid",
+  });
+  y = doc.lastAutoTable.finalY + 10;
+
+  // ════════════════════════════════════════
+  //  ACTIVIDADES — SUPERVISIONES
+  // ════════════════════════════════════════
+  if (y > PH-60) { doc.addPage(); y = MRG+10; }
+  y = secTitulo("3. ACTIVIDADES REALIZADAS", y);
+  y = subTitulo("3.1 Supervisiones de Seguridad", y);
+
+  if (supMes.length > 0) {
+    doc.autoTable({
+      startY: y,
+      margin: { left:MRG, right:MRG },
+      head: [["Fecha","Áreas Inspeccionadas","Hallazgos Positivos","Hallazgos de Mejora"]],
+      body: supMes.map(s => [
+        fmtFecha(s),
+        Array.isArray(s.areas) ? s.areas.join(", ") : (s.areas || "General"),
+        Array.isArray(s.hallazgosPositivos) ? s.hallazgosPositivos.map(h=>h.texto||h).join("; ") : (s.hallazgosPositivos || "—"),
+        Array.isArray(s.hallazgosNegativos) ? s.hallazgosNegativos.map(h=>h.descripcion||h.texto||h).join("; ") : (s.hallazgosNegativos || "Sin hallazgos"),
+      ]),
+      headStyles: { fillColor: C_MED, textColor: C_BLANC, fontStyle:"bold", fontSize:8.5 },
+      bodyStyles: { fontSize:8.5, cellPadding:4 },
+      columnStyles: { 0:{cellWidth:24}, 1:{cellWidth:36}, 2:{cellWidth:60}, 3:{cellWidth:56} },
+      alternateRowStyles: { fillColor: C_GRIS },
+      theme:"grid",
+    });
+    y = doc.lastAutoTable.finalY + 8;
+  } else {
+    doc.setFont("helvetica","italic"); doc.setFontSize(9); doc.setTextColor(...C_TEXT);
+    doc.text("No se registraron supervisiones en este período.", MRG+4, y); y += 12;
+  }
+
+  // ── INSPECCIONES ──
+  if (y > PH-60) { doc.addPage(); y = MRG+10; }
+  y = subTitulo("3.2 Inspecciones de Instalaciones", y);
+
+  if (insMes.length > 0) {
+    doc.autoTable({
+      startY: y,
+      margin: { left:MRG, right:MRG },
+      head: [["Fecha","Tipo","Cumplimiento","Nivel Riesgo","Estado","Hallazgos"]],
+      body: insMes.map(ins => {
+        const tipoLabel = ins.tipoInspeccion==="mensual"?"Locativa":ins.tipoInspeccion==="trimestral"?"Equipos CI":ins.tipoInspeccion||"General";
+        return [
+          fmtFecha(ins),
+          tipoLabel,
+          (ins.cumplimiento||"N/R") + (ins.cumplimiento?"%":""),
+          ins.nivelRiesgo || "Sin hallazgos",
+          ins.estado || "N/R",
+          ins.hallazgos || "Sin hallazgos",
+        ];
+      }),
+      headStyles: { fillColor: C_MED, textColor: C_BLANC, fontStyle:"bold", fontSize:8.5 },
+      bodyStyles: { fontSize:8, cellPadding:3.5 },
+      columnStyles: {
+        0:{cellWidth:22}, 1:{cellWidth:22}, 2:{cellWidth:20,halign:"center"},
+        3:{cellWidth:24}, 4:{cellWidth:26}, 5:{cellWidth:62},
+      },
+      alternateRowStyles: { fillColor: C_GRIS },
+      theme:"grid",
+    });
+    y = doc.lastAutoTable.finalY + 8;
+  } else {
+    doc.setFont("helvetica","italic"); doc.setFontSize(9); doc.setTextColor(...C_TEXT);
+    doc.text("No se registraron inspecciones en este período.", MRG+4, y); y += 12;
+  }
+
+  // ── CHECKLIST DETALLE (si hay inspecciones) ──
+  if (insMes.length > 0) {
+    if (y > PH-60) { doc.addPage(); y = MRG+10; }
+    y = subTitulo("3.2.1 Detalle Checklist de Inspecciones", y);
+
+    const checkBody = [];
+    insMes.forEach(ins => {
+      const tipo = ins.tipoInspeccion || "mensual";
+      const checklist = tipo === "trimestral" ? (ins.checklist_equipos||{}) : (ins.checklist_locativa||{});
+      const map = tipo === "trimestral" ? CHECKLIST_EQUIPOS : CHECKLIST_LOCATIVA;
+      const fecha = fmtFecha(ins);
+      Object.entries(map).forEach(([key, label]) => {
+        const val = checklist[key];
+        checkBody.push([
+          fecha,
+          tipo === "trimestral" ? "Equipos CI" : "Locativa",
+          label,
+          val === true ? "Conforme" : val === false ? "No conforme" : "N/E"
+        ]);
+      });
+    });
+
+    doc.autoTable({
+      startY: y,
+      margin: { left:MRG, right:MRG },
+      head: [["Fecha","Tipo","Ítem Checklist","Resultado"]],
+      body: checkBody,
+      headStyles: { fillColor: C_MED, textColor: C_BLANC, fontStyle:"bold", fontSize:8 },
+      bodyStyles: { fontSize:7.5, cellPadding:3 },
+      columnStyles: { 0:{cellWidth:22}, 1:{cellWidth:18}, 2:{cellWidth:120}, 3:{cellWidth:16, halign:"center"} },
+      alternateRowStyles: { fillColor: C_GRIS },
+      didParseCell: function(data) {
+        if (data.column.index === 3 && data.section === "body") {
+          const v = String(data.cell.raw||"");
+          if (v.includes("No conforme")) { data.cell.styles.textColor = [185,28,28]; data.cell.styles.fontStyle = "bold"; }
+          else if (v.includes("Conforme")) { data.cell.styles.textColor = [22,101,52]; }
         }
+      },
+      theme:"grid",
+    });
+    y = doc.lastAutoTable.finalY + 8;
+  }
 
-                if (error.code === 'storage/unauthorized') {
-                    alert('⚠️ Firebase Storage no está activado o las reglas no permiten escritura.\n\n' +
-                          'Ve a la consola de Firebase > Storage > Reglas y configúralas.\n\n' +
-                          'Error: ' + error.message);
-                } else {
-                    alert('❌ Error al subir el PDF:\n' + error.message +
-                          '\n\nRevisa la consola del navegador para más detalles.');
-                }
-            }
-        }
+  // ── CAPACITACIONES ──
+  if (y > PH-60) { doc.addPage(); y = MRG+10; }
+  y = subTitulo("3.3 Capacitaciones e Inducciones", y);
+  if (indMes.length > 0) {
+    doc.autoTable({
+      startY: y, margin: { left:MRG, right:MRG },
+      head: [["Fecha","Tema","Asistentes","Duración"]],
+      body: indMes.map(s => [
+        fmtFecha(s),
+        s.tema || s.temaCapacitacion || s.titulo || "Tema SST",
+        String(s.asistentes || s.numeroAsistentes || s.participantes || "N/R"),
+        String(s.duracion || s.horas || "N/R"),
+      ]),
+      headStyles: { fillColor: C_MED, textColor: C_BLANC, fontStyle:"bold", fontSize:9 },
+      bodyStyles: { fontSize:9, cellPadding:4 },
+      columnStyles: { 0:{cellWidth:28}, 1:{cellWidth:100}, 2:{cellWidth:24,halign:"center"}, 3:{cellWidth:24,halign:"center"} },
+      alternateRowStyles: { fillColor: C_GRIS }, theme:"grid",
+    });
+    y = doc.lastAutoTable.finalY + 8;
+  } else {
+    doc.setFont("helvetica","italic"); doc.setFontSize(9); doc.setTextColor(...C_TEXT);
+    doc.text("No se registraron capacitaciones en este período.", MRG+4, y); y += 12;
+  }
 
-        // ============================================
-        // FIREBASE CONFIGURATION - Nepal 2
-        // ============================================
-        const firebaseConfig = {
-          apiKey: "AIzaSyDvOSbIFNIVQNJIHBDmP0SgQ-YMYyakHFI",
-          authDomain: "compliancepro--o--sistemass.firebaseapp.com",
-          databaseURL: "https://compliancepro--o--sistemass-default-rtdb.firebaseio.com",
-          projectId: "compliancepro--o--sistemass",
-          storageBucket: "compliancepro--o--sistemass.firebasestorage.app",
-          messagingSenderId: "188559834704",
-          appId: "1:188559834704:web:73f1b088e9dcda16ab9b55"
-        };
+  // ── MANTENIMIENTOS ──
+  if (y > PH-60) { doc.addPage(); y = MRG+10; }
+  y = subTitulo("3.4 Mantenimientos", y);
+  if (mantMes.length > 0) {
+    doc.autoTable({
+      startY: y, margin: { left:MRG, right:MRG },
+      head: [["Fecha","Tipo","Descripción","Responsable"]],
+      body: mantMes.map(s => [
+        fmtFecha(s),
+        s.tipo || s.tipoMantenimiento || "N/R",
+        s.descripcion || s.actividad || s.detalle || "Sin descripción",
+        s.responsable || s.tecnico || "N/R",
+      ]),
+      headStyles: { fillColor: C_MED, textColor: C_BLANC, fontStyle:"bold", fontSize:9 },
+      bodyStyles: { fontSize:9, cellPadding:4 },
+      columnStyles: { 0:{cellWidth:28}, 1:{cellWidth:30}, 2:{cellWidth:90}, 3:{cellWidth:28} },
+      alternateRowStyles: { fillColor: C_GRIS }, theme:"grid",
+    });
+    y = doc.lastAutoTable.finalY + 8;
+  } else {
+    doc.setFont("helvetica","italic"); doc.setFontSize(9); doc.setTextColor(...C_TEXT);
+    doc.text("No se registraron mantenimientos en este período.", MRG+4, y); y += 12;
+  }
 
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
-        const storage  = firebase.storage();   // ← Firebase Storage para guardar PDFs
+  // ════════════════════════════════════════
+  //  SECCIONES DE TEXTO
+  // ════════════════════════════════════════
+  const secciones = [
+    { num:"4", titulo:"INTRODUCCIÓN",               texto: intro  },
+    { num:"5", titulo:"ANÁLISIS DE ACTIVIDADES",    texto: analis },
+    { num:"6", titulo:"HALLAZGOS Y OBSERVACIONES",  texto: hall   },
+    { num:"7", titulo:"CONCLUSIONES",               texto: conc   },
+    { num:"8", titulo:"RECOMENDACIONES",            texto: recom  },
+  ];
 
-        // Edificio ID
-        const EDIFICIO_ID = 'nepal-2';
+  for (const sec of secciones) {
+    if (y > PH-60) { doc.addPage(); y = MRG+10; }
+    y = secTitulo(`${sec.num}. ${sec.titulo}`, y);
+    y = addParrafos(sec.texto, y);
+  }
 
-        console.log('✅ Firebase inicializado - Generador Informe Nepal 2');
-        console.log('☁️ Firebase Storage listo para guardar PDFs');
-    </script>
+  // ════════════════════════════════════════
+  //  FIRMA
+  // ════════════════════════════════════════
+  if (y > PH-70) { doc.addPage(); y = MRG+10; }
+  y = secTitulo("9. FIRMA Y APROBACIÓN", y);
+  y += 12;
+
+  doc.setDrawColor(...C_AZUL); doc.setLineWidth(0.8);
+  doc.line(MRG+15, y, MRG+115, y);
+  y += 7;
+  doc.setFont("helvetica","bold"); doc.setFontSize(11); doc.setTextColor(...C_AZUL);
+  doc.text(resp, MRG+15, y); y += 6;
+  doc.setFont("helvetica","normal"); doc.setFontSize(10); doc.setTextColor(...C_NEGRO);
+  doc.text("Coordinadora SG-SST", MRG+15, y); y += 6;
+  doc.text("C.E. 679955", MRG+15, y); y += 6;
+  doc.setFontSize(9); doc.setTextColor(...C_TEXT);
+  doc.text(`Elaborado en ${mesNom} de ${anio}`, MRG+15, y); y += 14;
+
+  // Nota legal
+  doc.setFont("helvetica","italic"); doc.setFontSize(7.5); doc.setTextColor(...C_TEXT);
+  const nota = "Este informe fue elaborado conforme al SG-SST de la Propiedad Horizontal Nepal 2, en cumplimiento del Decreto 1072 de 2015 y la Resolución 0312 de 2019. Documento de uso interno y confidencial. Su reproducción o distribución sin autorización escrita está prohibida.";
+  if (y + 15 > PH-20) { doc.addPage(); y = MRG+10; }
+  const notaLines = doc.splitTextToSize(nota, CTW);
+  doc.text(notaLines, MRG, y);
+
+  // Pies de página
+  addFooters();
+
+  // Guardar
+  const nombreArchivo = `Informe_SST_Nepal2_${mesNom}_${anio}.pdf`;
+  doc.save(nombreArchivo);
+  console.log("[PDF] Guardado:", nombreArchivo, "| páginas:", doc.internal.getNumberOfPages());
+  return nombreArchivo;
+}
+</script>
 </body>
 </html>
