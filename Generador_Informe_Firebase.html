@@ -10,8 +10,8 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
     <!-- Librerías para generar PDF -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
     
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -1124,110 +1124,18 @@ Durante este período, se ejecutaron ${datos.capacitaciones} ${datos.capacitacio
 
             const btn = document.getElementById('btnGenerarPDF');
             const textoOriginal = btn ? btn.innerHTML : '';
-            if (btn) { btn.disabled = true; btn.innerHTML = '⏳ Capturando informe...'; }
-
-            try {
-                // PASO 1: Asegurar que el contenido esté completamente visible
-                const originalHeight = previewContent.style.height;
-                const originalOverflow = previewContent.style.overflow;
-                previewContent.style.height = 'auto';
-                previewContent.style.overflow = 'visible';
-
-                // PASO 2: Capturar el contenido completo del informe como imagen
-                const canvas = await html2canvas(previewContent, {
-                    scale: 2,
-                    useCORS: true,
-                    allowTaint: true,
-                    logging: false,
-                    backgroundColor: '#ffffff',
-                    windowWidth: 1200,
-                    windowHeight: previewContent.scrollHeight,
-                    height: previewContent.scrollHeight,
-                    y: 0
-                });
-
-                // Restaurar estilos originales
-                previewContent.style.height = originalHeight;
-                previewContent.style.overflow = originalOverflow;
-
-                if (btn) btn.innerHTML = '📄 Creando PDF...';
-
-                // PASO 3: Crear PDF con jsPDF (tamaño carta)
-                const { jsPDF } = window.jspdf;
-                const pdf = new jsPDF('p', 'mm', 'letter');
-                const pageW   = pdf.internal.pageSize.getWidth();
-                const pageH   = pdf.internal.pageSize.getHeight();
-                const imgW    = pageW - 20; // Márgenes de 10mm a cada lado
-                const imgH    = (canvas.height * imgW) / canvas.width;
-                const imgData = canvas.toDataURL('image/jpeg', 0.95);
-
-                // PASO 4: Agregar páginas según sea necesario
-                let heightLeft = imgH;
-                let position = 10; // Margen superior
-
-                // Primera página
-                pdf.addImage(imgData, 'JPEG', 10, position, imgW, imgH);
-                heightLeft -= (pageH - 20); // Restar altura usada (menos márgenes)
-
-                // Páginas adicionales
-                while (heightLeft > 0) {
-                    position = heightLeft - imgH + 10; // Ajustar posición para siguiente página
-                    pdf.addPage();
-                    pdf.addImage(imgData, 'JPEG', 10, position, imgW, imgH);
-                    heightLeft -= pageH;
-                }
-
-                // PASO 5: Obtener blob del PDF
-                const pdfBlob = pdf.output('blob');
-                const { clave, mesNum, mesNombre, año } = obtenerClaveMes();
-                const nombreArchivo = `informe-sst-nepal2-${clave}.pdf`;
-
-                if (btn) btn.innerHTML = '☁️ Subiendo a Firebase...';
-
-                // PASO 6: Subir a Firebase Storage
-                const storageRef = storage.ref(`nepal-2/informes/${clave}/${nombreArchivo}`);
-                await storageRef.put(pdfBlob, {
-                    contentType: 'application/pdf',
-                    customMetadata: {
-                        mes: mesNombre,
-                        año: String(año),
-                        sistema: 'SG-SST Nepal 2 - Compliance Pro'
-                    }
-                });
-
-                // PASO 5: Obtener URL de descarga pública
-                const downloadURL = await storageRef.getDownloadURL();
-
-                // PASO 6: Guardar en Firebase Realtime Database
-                await database.ref(`edificios/nepal-2/informes/${clave}`).set({
-                    generado:   true,
-                    fecha:      new Date().toISOString(),
-                    mes:        mesNum,
-                    año:        año,
-                    nombreMes:  mesNombre,
-                    link:       downloadURL,
-                    archivo:    nombreArchivo
-                });
-
-                // PASO 7: Descargar copia local también
-                pdf.save(nombreArchivo);
-
-                if (btn) { btn.innerHTML = '✅ ¡Guardado en la nube!'; }
-                setTimeout(() => {
-                    if (btn) { btn.disabled = false; btn.innerHTML = textoOriginal; }
-                }, 4000);
-
-                alert(`✅ Informe ${mesNombre} 2026 guardado exitosamente:\n\n` +
-                      `📄 Archivo: ${nombreArchivo}\n` +
-                      `☁️ Guardado en Firebase Storage\n` +
-                      `🔗 Link automático en el Dashboard\n\n` +
-                      `También se descargó una copia en tu computador.`);
-
-                console.log('✅ PDF subido:', downloadURL);
-
-            } catch (error) {
-                console.error('Error generando/subiendo PDF:', error);
-                if (btn) { btn.disabled = false; btn.innerHTML = textoOriginal; }
+            
+            // MÉTODO CONFIABLE: Usar impresión del navegador
+            alert('📄 Se abrirá el diálogo de impresión.\n\n' +
+                  '1. Selecciona "Guardar como PDF"\n' +
+                  '2. Verifica que muestre TODAS las páginas\n' +
+                  '3. Guarda el archivo\n' +
+                  '4. Luego súbelo manualmente a Google Drive\n' +
+                  '5. Copia el enlace y agrégalo en "Ejecución Constante"');
+            
+            // Imprimir el contenido de la vista previa
+            window.print();
+        }
 
                 if (error.code === 'storage/unauthorized') {
                     alert('⚠️ Firebase Storage no está activado o las reglas no permiten escritura.\n\n' +
