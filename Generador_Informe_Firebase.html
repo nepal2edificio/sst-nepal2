@@ -377,6 +377,16 @@ async function leerColeccion(ruta) {
   }
 }
 
+// Lee la misma colección desde nepal-2 Y convivienda-1 y las combina
+// (migración: datos viejos quedaron en convivienda-1 antes del fix)
+async function leerColeccionUnificada(coleccion) {
+  const [a, b] = await Promise.all([
+    leerColeccion(`edificios/nepal-2/${coleccion}`),
+    leerColeccion(`edificios/convivienda-1/${coleccion}`),
+  ]);
+  return [...a, ...b];
+}
+
 function extraerFecha(obj) {
   const c = obj.fecha || obj.fechaActividad || obj.date || "";
   if (!c) return null;
@@ -517,10 +527,10 @@ async function generarTextos() {
 
   try {
     const [supArr, insArr, indArr, mantArr] = await Promise.all([
-      leerColeccion("edificios/nepal-2/supervisiones"),
-      leerColeccion("edificios/nepal-2/inspecciones"),
-      leerColeccion("edificios/nepal-2/inducciones"),
-      leerColeccion("edificios/nepal-2/mantenimientos"),
+      leerColeccionUnificada("supervisiones"),
+      leerColeccionUnificada("inspecciones"),
+      leerColeccionUnificada("inducciones"),
+      leerColeccionUnificada("mantenimientos"),
     ]);
 
     const supMes  = filtrarPorMes(supArr, mes, anio);
@@ -898,12 +908,12 @@ async function construirPDF() {
     fechaTexto = fo.toLocaleDateString("es-CO", { day:"2-digit", month:"long", year:"numeric" });
   }
 
-  // Cargar datos para tablas
+  // Cargar datos para tablas (unificado: nepal-2 + convivienda-1)
   const [supArr, insArr, indArr, mantArr] = await Promise.all([
-    leerColeccion("edificios/nepal-2/supervisiones"),
-    leerColeccion("edificios/nepal-2/inspecciones"),
-    leerColeccion("edificios/nepal-2/inducciones"),
-    leerColeccion("edificios/nepal-2/mantenimientos"),
+    leerColeccionUnificada("supervisiones"),
+    leerColeccionUnificada("inspecciones"),
+    leerColeccionUnificada("inducciones"),
+    leerColeccionUnificada("mantenimientos"),
   ]);
   const supMes  = filtrarPorMes(supArr, mes, anio);
   const insMes  = filtrarPorPeriodo(insArr, mes, anio);

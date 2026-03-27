@@ -1650,17 +1650,25 @@
     <div id="loginModal" class="modal">
         <div class="modal-content">
             <h2 class="modal-title">🔐 Acceso Privado</h2>
-            <div class="form-group">
-                <label class="form-label">Usuario</label>
-                <input type="text" id="loginUser" class="form-input" placeholder="Ingresa tu usuario" onkeypress="if(event.key==='Enter') attemptLogin()">
-            </div>
-            <div class="form-group">
-                <label class="form-label">Contraseña</label>
-                <input type="password" id="loginPass" class="form-input" placeholder="Ingresa tu contraseña" onkeypress="if(event.key==='Enter') attemptLogin()">
-            </div>
-            <button class="btn btn-primary" style="width: 100%; margin-bottom: 10px;" onclick="attemptLogin()">
-                Iniciar Sesión
-            </button>
+            <form id="loginForm" onsubmit="event.preventDefault(); attemptLogin();" autocomplete="on">
+                <div class="form-group">
+                    <label class="form-label">Usuario</label>
+                    <input type="text" id="loginUser" name="username" class="form-input"
+                           placeholder="Ingresa tu usuario"
+                           autocomplete="username"
+                           onkeypress="if(event.key==='Enter') attemptLogin()">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Contraseña</label>
+                    <input type="password" id="loginPass" name="password" class="form-input"
+                           placeholder="Ingresa tu contraseña"
+                           autocomplete="current-password"
+                           onkeypress="if(event.key==='Enter') attemptLogin()">
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-bottom: 10px;">
+                    Iniciar Sesión
+                </button>
+            </form>
             <button class="btn btn-secondary" style="width: 100%;" onclick="closeLogin()">
                 Cancelar
             </button>
@@ -2526,13 +2534,20 @@
 
         // Combina datos de nepal-2 + convivienda-1 (migración de datos guardados con ruta anterior)
         async function cargarDatosUnificados() {
-            const db = firebase.database();
-            const [snapNepal, snapConvi] = await Promise.all([
-                db.ref('edificios/nepal-2').once('value'),
-                db.ref('edificios/convivienda-1').once('value'),
+            // Leer cada fuente de forma independiente para que un error en una no rompa la otra
+            const leer = async (ruta) => {
+                try {
+                    const snap = await database.ref(ruta).once('value');
+                    return snap.val() || {};
+                } catch(e) {
+                    console.warn('No se pudo leer', ruta, e.message);
+                    return {};
+                }
+            };
+            const [n, c] = await Promise.all([
+                leer('edificios/nepal-2'),
+                leer('edificios/convivienda-1'),
             ]);
-            const n = snapNepal.val() || {};
-            const c = snapConvi.val() || {};
             const merge = (campo) => [
                 ...(n[campo] ? Object.values(n[campo]) : []),
                 ...(c[campo] ? Object.values(c[campo]) : []),
