@@ -674,26 +674,31 @@ Firebase → edificios/nepal-2/inducciones/`);
 async function cargarRegistrosInducciones() {
     const tbody = document.getElementById('induccionRecords');
     tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 20px;">⏳ Cargando registros...</td></tr>';
-    
+
     try {
-        const ref = database.ref(`edificios/${EDIFICIO_ID}/inducciones`);
-        const snapshot = await ref.once('value');
+        const snapshot = await database.ref(`edificios/${EDIFICIO_ID}/inducciones`).once('value');
         const registros = snapshot.val();
-        
+
         if (!registros) {
             tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 30px; color: #64748b;">No hay registros aún. Completa el primer formulario para comenzar.</td></tr>';
+            document.getElementById('induccion-progress').textContent = '0/12 meses completados';
             return;
         }
-        
+
         let html = '';
+        const mesesConRegistro = new Set();
+
         Object.entries(registros).forEach(([id, data]) => {
+            // Contar meses únicos usando el campo "mes" (ej: "Enero 2026")
+            if (data.mes) mesesConRegistro.add(data.mes);
+
             html += `
                 <tr>
-                    <td>${data.mes}</td>
-                    <td>${data.fecha}</td>
-                    <td>${data.tema}</td>
-                    <td>${data.totalAsistentes}</td>
-                    <td><span class="badge badge-success">${data.estado}</span></td>
+                    <td>${data.mes || '—'}</td>
+                    <td>${data.fecha || '—'}</td>
+                    <td>${data.tema || '—'}</td>
+                    <td>${data.totalAsistentes || '—'}</td>
+                    <td><span class="badge badge-success">${data.estado || 'Completado'}</span></td>
                     <td>
                         <button class="btn-icon" onclick="verDetalle('${id}')" title="Ver detalles">👁️</button>
                         <button class="btn-icon" onclick="eliminarRegistro('${id}')" title="Eliminar">🗑️</button>
@@ -701,9 +706,16 @@ async function cargarRegistrosInducciones() {
                 </tr>
             `;
         });
-        
+
         tbody.innerHTML = html;
-        
+
+        // Actualizar contador de progreso
+        const completados = mesesConRegistro.size;
+        const progreso = Math.round((completados / 12) * 100);
+        document.getElementById('induccion-progress').textContent = `${completados}/12 meses completados`;
+        const barraInd = document.getElementById('induccion-bar');
+        if (barraInd) barraInd.style.width = progreso + '%';
+
     } catch (error) {
         console.error('Error al cargar registros:', error);
         tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 20px; color: red;">❌ Error al cargar registros</td></tr>';
@@ -1083,19 +1095,25 @@ Firebase → edificios/nepal-2/inspecciones/`);
 async function cargarRegistrosInspecciones() {
     const tbody = document.getElementById('inspeccionRecords');
     tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 20px;">⏳ Cargando...</td></tr>';
-    
+
     try {
         const ref = database.ref(`edificios/${EDIFICIO_ID}/inspecciones`);
         const snapshot = await ref.once('value');
         const registros = snapshot.val();
-        
+
         if (!registros) {
             tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 30px; color: #64748b;">No hay registros aún</td></tr>';
+            document.getElementById('inspeccion-progress').textContent = '0/12 meses completados';
             return;
         }
-        
+
         let html = '';
+        const periodosConRegistro = new Set();
+
         Object.entries(registros).forEach(([id, data]) => {
+            // Contar periodos únicos usando el campo "periodo" (ej: "Enero 2026")
+            if (data.periodo) periodosConRegistro.add(data.periodo);
+
             html += `
                 <tr>
                     <td>${data.periodo}</td>
@@ -1110,9 +1128,16 @@ async function cargarRegistrosInspecciones() {
                 </tr>
             `;
         });
-        
+
         tbody.innerHTML = html;
-        
+
+        // Actualizar contador de progreso
+        const completados = periodosConRegistro.size;
+        const progreso = Math.round((completados / 12) * 100);
+        document.getElementById('inspeccion-progress').textContent = `${completados}/12 meses completados`;
+        const barraInsp = document.getElementById('inspeccion-bar');
+        if (barraInsp) barraInsp.style.width = progreso + '%';
+
     } catch (error) {
         console.error('Error:', error);
         tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: red;">❌ Error al cargar</td></tr>';
