@@ -865,6 +865,126 @@
         .whatsapp-button:active {
             transform: translateY(-1px);
         }
+
+        /* ════════════════════════════════════════════════════════
+           SISTEMA DE ALERTAS CONTEXTUALES Y PANEL ACCIONES 2026
+           ════════════════════════════════════════════════════════ */
+        .alert-banner {
+            background: white;
+            border-radius: 15px;
+            padding: 20px 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+            border-left: 5px solid var(--warning);
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            transition: all 0.3s ease;
+        }
+        .alert-banner.success {
+            border-left-color: var(--success);
+            background: linear-gradient(to right, #ecfdf5 0%, white 100%);
+        }
+        .alert-banner.warning {
+            border-left-color: var(--warning);
+            background: linear-gradient(to right, #fffbeb 0%, white 100%);
+        }
+        .alert-banner.orange {
+            border-left-color: #f97316;
+            background: linear-gradient(to right, #fff7ed 0%, white 100%);
+        }
+        .alert-banner.danger {
+            border-left-color: var(--danger);
+            background: linear-gradient(to right, #fef2f2 0%, white 100%);
+        }
+        .alert-banner .ab-icon { font-size: 2rem; flex-shrink: 0; line-height: 1; }
+        .alert-banner .ab-body { flex: 1; }
+        .alert-banner .ab-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 5px;
+        }
+        .alert-banner .ab-message {
+            font-size: 0.9rem;
+            color: var(--text-gray);
+            line-height: 1.5;
+        }
+        .alert-banner .ab-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 12px;
+        }
+        .ab-btn {
+            padding: 7px 14px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .ab-btn-primary { background: var(--accent); color: white; }
+        .ab-btn-primary:hover { opacity: 0.85; }
+        .ab-btn-success { background: var(--success); color: white; }
+        .ab-btn-wa { background: #25D366; color: white; }
+        .ab-btn-wa:hover { background: #128C7E; }
+
+        /* Panel Próximas Acciones Requeridas */
+        .panel-acciones {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+        }
+        .panel-acciones-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .acciones-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 14px;
+        }
+        .accion-card {
+            border-radius: 12px;
+            padding: 16px;
+            border-left: 4px solid #cbd5e1;
+            background: #f8fafc;
+        }
+        .accion-card.rojo { border-left-color: var(--danger); background: #fef2f2; }
+        .accion-card.amarillo { border-left-color: var(--warning); background: #fffbeb; }
+        .accion-card.verde { border-left-color: var(--success); background: #ecfdf5; }
+        .accion-card .ac-icon { font-size: 1.5rem; margin-bottom: 6px; }
+        .accion-card .ac-titulo { font-weight: 700; font-size: 0.92rem; margin-bottom: 4px; color: var(--text-dark); }
+        .accion-card .ac-desc { font-size: 0.82rem; color: var(--text-gray); margin-bottom: 10px; line-height: 1.4; }
+        .accion-card .ac-btns { display: flex; gap: 7px; flex-wrap: wrap; }
+        .ac-btn {
+            padding: 6px 11px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-size: 0.78rem;
+            font-weight: 600;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .ac-btn-blue { background: var(--accent); color: white; }
+        .ac-btn-blue:hover { opacity: 0.85; }
+        .ac-btn-wa { background: #25D366; color: white; }
+        .ac-btn-wa:hover { background: #128C7E; }
+        .ac-btn-red { background: var(--danger); color: white; }
+        .ac-btn-red:hover { opacity: 0.85; }
     </style>
 </head>
 <body>
@@ -956,6 +1076,15 @@
             <div class="section-header">
                 <h2 class="section-title">Dashboard - Estadísticas de Implementación</h2>
                 <p class="section-subtitle">Visión general del Sistema de Gestión SST Nepal 2</p>
+            </div>
+
+            <!-- Banner de Alerta Contextual (actualizado dinámicamente) -->
+            <div id="alertBanner" class="alert-banner warning">
+                <div class="ab-icon">⏳</div>
+                <div class="ab-body">
+                    <div class="ab-title">Cargando estado del mes actual...</div>
+                    <div class="ab-message">Verificando actividades pendientes para el mes en curso</div>
+                </div>
             </div>
 
             <!-- Year Selector -->
@@ -1062,6 +1191,16 @@
                     <div class="emergency-map-card" onclick="verMapaCompleto('2.png','Planta Sótano — Garajes y Zonas de Parqueo')">
                         <img src="2.png" alt="Mapa de Evacuación Planta Sótano - Edificio Nepal II" loading="lazy">
                         <div class="emergency-map-caption">🅿️ Planta Sótano — Garajes y Zonas de Parqueo</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Panel Próximas Acciones (solo visible para administrador) -->
+            <div id="panelAccionesAdmin" style="display:none;">
+                <div class="panel-acciones">
+                    <div class="panel-acciones-title">🎯 Próximas Acciones Requeridas — <span id="panelAccionesMes"></span></div>
+                    <div class="acciones-grid" id="accionesGrid">
+                        <div style="text-align:center;padding:20px;color:var(--text-gray);">⏳ Cargando acciones...</div>
                     </div>
                 </div>
             </div>
@@ -1956,6 +2095,9 @@
                 document.getElementById('btnLogout').style.display = 'inline-block';
                 
                 actualizarDashboard2026();
+                actualizarBannerAlerta();
+                actualizarPanelAcciones();
+                iniciarNotificaciones();
             } else {
                 alert('❌ Credenciales incorrectas');
             }
@@ -1977,6 +2119,8 @@
             
             // Volver al dashboard
             showSection('dashboard');
+            const panelAcc = document.getElementById('panelAccionesAdmin');
+            if (panelAcc) panelAcc.style.display = 'none';
         }
 
         function showSection(sectionId) {
@@ -3189,11 +3333,17 @@
             // La grilla mensual en el dashboard público ya fue eliminada,
             // pero la función existe con guardia if(!grid)return para no romper nada
             actualizarGrillaMonthly();
-            
+
             // NUEVO: Actualizar semáforo y alerta de pendientes
             actualizarSemaforoCumplimiento();
             if (isLoggedIn) {
                 actualizarAlertaPendientes();
+            }
+            // NUEVO: Banner contextual y notificaciones
+            actualizarBannerAlerta();
+            iniciarNotificaciones();
+            if (isLoggedIn) {
+                actualizarPanelAcciones();
             }
         });
         setInterval(function() {
@@ -3203,6 +3353,8 @@
             if (isLoggedIn) {
                 actualizarAlertaPendientes();
             }
+            // NUEVO: Banner contextual
+            actualizarBannerAlerta();
         }, 30000);
         document.addEventListener('visibilitychange', function() {
             if (!document.hidden) {
@@ -3212,6 +3364,9 @@
                 if (isLoggedIn) {
                     actualizarAlertaPendientes();
                 }
+                // NUEVO: Banner contextual
+                actualizarBannerAlerta();
+                verificarYEnviarNotificaciones();
             }
         });
 
@@ -3348,6 +3503,302 @@
             }).catch(err => {
                 console.error('Error alerta pendientes:', err);
             });
+        }
+
+        // ══════════════════════════════════════════════════════════════════
+        // BANNER DE ALERTA CONTEXTUAL — NEPAL 2 (deadline inspección día 20)
+        // ══════════════════════════════════════════════════════════════════
+        function actualizarBannerAlerta() {
+            const banner = document.getElementById('alertBanner');
+            if (!banner) return;
+
+            const ahora = new Date();
+            const dia = ahora.getDate();
+            const mes = ahora.getMonth();
+            const año = ahora.getFullYear();
+            const clave = `${año}-${String(mes + 1).padStart(2, '0')}`;
+            const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+            const mesNombre = MESES[mes];
+            const DEADLINE = 20; // Nepal 2: inspección antes del día 20
+            const diasParaDeadline = DEADLINE - dia;
+
+            Promise.all([
+                database.ref(`edificios/${EDIFICIO_ID}/supervisiones`).once('value'),
+                database.ref(`edificios/${EDIFICIO_ID}/inspecciones`).once('value'),
+                database.ref(`edificios/${EDIFICIO_ID}/inducciones`).once('value'),
+                database.ref(`edificios/${EDIFICIO_ID}/informes/${clave}`).once('value'),
+                database.ref(`edificios/${EDIFICIO_ID}/cuentas/${clave}`).once('value')
+            ]).then(([snapSup, snapInsp, snapInd, snapInf, snapCue]) => {
+                const filtrarMes = (snap) => {
+                    if (!snap.exists()) return false;
+                    return Object.values(snap.val()).some(item => {
+                        if (!item.fecha) return false;
+                        try {
+                            const f = new Date(item.fecha);
+                            return f.getFullYear() === año && f.getMonth() === mes;
+                        } catch(e) { return false; }
+                    });
+                };
+
+                const tieneSup  = filtrarMes(snapSup);
+                const tieneInsp = filtrarMes(snapInsp);
+                const tieneInd  = filtrarMes(snapInd);
+                const tieneInf  = snapInf.val() && (snapInf.val().link || snapInf.val().generado);
+                const tieneCue  = snapCue.val() && (snapCue.val().link || snapCue.val().generado);
+
+                const pendActs = [];
+                if (!tieneSup)  pendActs.push('Supervisión');
+                if (!tieneInsp) pendActs.push('Inspección');
+                if (!tieneInd)  pendActs.push('Inducción');
+
+                let icon = '', title = '', msg = '', cls = '', accionesHTML = '';
+
+                if (dia >= 28) {
+                    // Final de mes: generar documentos
+                    const docsPend = [];
+                    if (!tieneInf) docsPend.push('Informe Mensual SST');
+                    if (!tieneCue) docsPend.push('Cuenta por Cobrar');
+                    if (docsPend.length === 0) {
+                        icon = '✅'; title = `¡${mesNombre} completado!`;
+                        msg = 'Informe y cuenta de cobro generados. ¡Todo al día!';
+                        cls = 'alert-banner success';
+                    } else {
+                        icon = '📄'; title = `Generar documentos de ${mesNombre}`;
+                        msg = `Pendiente: ${docsPend.join(' y ')}`;
+                        cls = 'alert-banner orange';
+                        accionesHTML = `<button class="ab-btn ab-btn-primary" onclick="isLoggedIn?showPrivateSection('herramientas'):openLogin()">📄 Generar Documentos</button>`;
+                    }
+                } else if (dia === DEADLINE) {
+                    icon = '🚨'; title = `¡HOY es el deadline de inspección (día ${DEADLINE})!`;
+                    msg = pendActs.length > 0
+                        ? `⚠️ Actividades pendientes: ${pendActs.join(' · ')}`
+                        : `✅ Actividades del mes registradas.`;
+                    cls = 'alert-banner danger';
+                    accionesHTML = `<button class="ab-btn ab-btn-primary" onclick="isLoggedIn?showPrivateSection('ejecucion'):openLogin()">📋 Ir a Formularios</button>`;
+                } else if (dia > DEADLINE) {
+                    icon = '🚨'; title = `Deadline de inspección vencido (día ${DEADLINE})`;
+                    msg = pendActs.length > 0
+                        ? `Actividades sin registrar: ${pendActs.join(' · ')}`
+                        : `Actividades registradas.`;
+                    cls = 'alert-banner danger';
+                    accionesHTML = `<button class="ab-btn ab-btn-primary" onclick="isLoggedIn?showPrivateSection('ejecucion'):openLogin()">📋 Ir a Formularios</button>`;
+                } else if (diasParaDeadline <= 5 && diasParaDeadline > 0) {
+                    const colorCls = diasParaDeadline <= 2 ? 'orange' : 'warning';
+                    icon = '⚠️'; title = `Inspección en ${diasParaDeadline} día(s) — deadline día ${DEADLINE}`;
+                    msg = pendActs.length > 0
+                        ? `Pendientes: ${pendActs.join(' · ')}`
+                        : `✅ Actividades completadas.`;
+                    cls = `alert-banner ${colorCls}`;
+                    accionesHTML = `<button class="ab-btn ab-btn-primary" onclick="isLoggedIn?showPrivateSection('ejecucion'):openLogin()">📋 Ir a Formularios</button>`;
+                } else if (pendActs.length === 0 && tieneInf && tieneCue) {
+                    icon = '✅'; title = `¡${mesNombre} completo!`;
+                    msg = 'Todas las actividades y documentos del mes están al día.';
+                    cls = 'alert-banner success';
+                } else {
+                    icon = '📊'; title = `Estado ${mesNombre} ${año} — Inspección antes del día ${DEADLINE}`;
+                    msg = pendActs.length > 0
+                        ? `Actividades pendientes este mes: ${pendActs.join(' · ')}`
+                        : `Actividades registradas. Documentos ${(!tieneInf || !tieneCue) ? 'pendientes de generar' : 'al día'}.`;
+                    cls = 'alert-banner warning';
+                }
+
+                banner.className = cls;
+                banner.innerHTML = `
+                    <div class="ab-icon">${icon}</div>
+                    <div class="ab-body">
+                        <div class="ab-title">${title}</div>
+                        <div class="ab-message">${msg}</div>
+                        ${accionesHTML ? `<div class="ab-actions">${accionesHTML}</div>` : ''}
+                    </div>`;
+            }).catch(err => {
+                console.error('Error actualizarBannerAlerta:', err);
+                banner.className = 'alert-banner warning';
+                banner.innerHTML = `<div class="ab-icon">⚠️</div><div class="ab-body"><div class="ab-title">Error al cargar estado</div><div class="ab-message">Verifica tu conexión a internet.</div></div>`;
+            });
+        }
+
+        // ══════════════════════════════════════════════════════════════════
+        // PANEL PRÓXIMAS ACCIONES REQUERIDAS (solo administrador)
+        // ══════════════════════════════════════════════════════════════════
+        function actualizarPanelAcciones() {
+            const panel = document.getElementById('panelAccionesAdmin');
+            if (!panel) return;
+            panel.style.display = 'block';
+
+            const ahora = new Date();
+            const dia = ahora.getDate();
+            const mes = ahora.getMonth();
+            const año = ahora.getFullYear();
+            const clave = `${año}-${String(mes + 1).padStart(2, '0')}`;
+            const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+            const mesNombre = MESES[mes];
+            const DEADLINE = 20;
+
+            // Actualizar título del mes
+            const spanMes = document.getElementById('panelAccionesMes');
+            if (spanMes) spanMes.textContent = `${mesNombre} ${año}`;
+
+            Promise.all([
+                database.ref(`edificios/${EDIFICIO_ID}/supervisiones`).once('value'),
+                database.ref(`edificios/${EDIFICIO_ID}/inspecciones`).once('value'),
+                database.ref(`edificios/${EDIFICIO_ID}/inducciones`).once('value'),
+                database.ref(`edificios/${EDIFICIO_ID}/mantenimientos`).once('value'),
+                database.ref(`edificios/${EDIFICIO_ID}/informes/${clave}`).once('value'),
+                database.ref(`edificios/${EDIFICIO_ID}/cuentas/${clave}`).once('value')
+            ]).then(([snapSup, snapInsp, snapInd, snapMant, snapInf, snapCue]) => {
+                const filtrarMes = (snap) => {
+                    if (!snap.exists()) return false;
+                    return Object.values(snap.val()).some(item => {
+                        if (!item.fecha) return false;
+                        try {
+                            const f = new Date(item.fecha);
+                            return f.getFullYear() === año && f.getMonth() === mes;
+                        } catch(e) { return false; }
+                    });
+                };
+
+                const tieneSup  = filtrarMes(snapSup);
+                const tieneInsp = filtrarMes(snapInsp);
+                const tieneInd  = filtrarMes(snapInd);
+                const tieneMant = filtrarMes(snapMant);
+                const tieneInf  = snapInf.val() && (snapInf.val().link || snapInf.val().generado);
+                const tieneCue  = snapCue.val() && (snapCue.val().link || snapCue.val().generado);
+
+                const diasParaDeadline = DEADLINE - dia;
+                const totalActs = (tieneSup?1:0)+(tieneInsp?1:0)+(tieneInd?1:0)+(tieneMant?1:0);
+                const pct = Math.round((totalActs / 4) * 100);
+
+                let cardsHTML = '';
+
+                // ─── Card 1: Actividades del mes ───
+                const actPend = [];
+                if (!tieneSup)  actPend.push('Supervisión');
+                if (!tieneInsp) actPend.push('Inspección');
+                if (!tieneInd)  actPend.push('Inducción');
+                if (!tieneMant) actPend.push('Mantenimiento');
+
+                if (actPend.length > 0) {
+                    const urg = diasParaDeadline <= 0 ? 'rojo' : diasParaDeadline <= 3 ? 'rojo' : 'amarillo';
+                    const dlMsg = diasParaDeadline <= 0 ? '🚨 Deadline vencido' : `📅 ${diasParaDeadline} día(s) para día ${DEADLINE}`;
+                    cardsHTML += `<div class="accion-card ${urg}">
+                        <div class="ac-icon">📋</div>
+                        <div class="ac-titulo">Actividades pendientes — ${mesNombre}</div>
+                        <div class="ac-desc">${actPend.join(' · ')}<br>${dlMsg}</div>
+                        <div class="ac-btns">
+                            <button class="ac-btn ac-btn-blue" onclick="showPrivateSection('ejecucion')">📝 Ir a Formularios</button>
+                        </div>
+                    </div>`;
+                } else {
+                    cardsHTML += `<div class="accion-card verde">
+                        <div class="ac-icon">✅</div>
+                        <div class="ac-titulo">Actividades ${mesNombre} al día</div>
+                        <div class="ac-desc">Supervisión, inspección, inducción y mantenimiento registrados.</div>
+                    </div>`;
+                }
+
+                // ─── Card 2: Documentos mensuales ───
+                const docsPend = [];
+                if (!tieneInf) docsPend.push('Informe Mensual SST');
+                if (!tieneCue) docsPend.push('Cuenta por Cobrar');
+                if (docsPend.length > 0) {
+                    const urgDoc = dia >= 28 ? 'rojo' : dia >= 20 ? 'amarillo' : 'verde';
+                    cardsHTML += `<div class="accion-card ${urgDoc}">
+                        <div class="ac-icon">📄</div>
+                        <div class="ac-titulo">Documentos pendientes — ${mesNombre}</div>
+                        <div class="ac-desc">${docsPend.join(' y ')}</div>
+                        <div class="ac-btns">
+                            <button class="ac-btn ac-btn-blue" onclick="showPrivateSection('herramientas')">⚙️ Herramientas Admin</button>
+                        </div>
+                    </div>`;
+                }
+
+                // ─── Card 3: Contratistas Sosa/Serdán ───
+                const urgContr = dia >= 16 ? 'rojo' : dia >= 10 ? 'amarillo' : 'verde';
+                const iconContr = dia >= 16 ? '🚨' : dia >= 10 ? '⚠️' : '📋';
+                const titContr = dia >= 16 ? 'Documentos NO recibidos — Retener pago' : dia >= 10 ? 'Verificar entrega de documentos' : 'Solicitar documentos SST a contratistas';
+                const descContr = dia >= 16
+                    ? `Sosa/Serdán aún no han entregado documentos de ${mesNombre}. Normativa: Res. 0312/2019.`
+                    : dia >= 10
+                    ? `Verificar si Sosa/Serdán entregaron los documentos de ${mesNombre}.`
+                    : `Recordar a Sosa/Serdán que remitan documentos SST de ${mesNombre} antes del día 10.`;
+                const waReqDocs = encodeURIComponent(`Estimados SOSA/SERDÁN: Favor remitir documentos SST antes del día 10:\n✅ Afiliación ARL actualizada\n✅ Certificado capacitación mes ${mesNombre}\n✅ Constancia entrega EPP\n✅ Exámenes médicos vigentes\nCarla Castellano — C.E. 679955`);
+                const waRetener = encodeURIComponent(`Señora Administradora: SOSA/SERDÁN no han entregado documentos SST obligatorios del mes ${mesNombre}. Solicito RETENER el pago hasta que subsanen. Normativa: Resolución 0312/2019.\nCarla Castellano — C.E. 679955`);
+                const waBtnContr = dia >= 16
+                    ? `<a class="ac-btn ac-btn-wa" href="https://wa.me/?text=${waRetener}" target="_blank">📱 Avisar Administradora</a>`
+                    : `<a class="ac-btn ac-btn-wa" href="https://wa.me/?text=${waReqDocs}" target="_blank">📱 Solicitar docs</a>`;
+                cardsHTML += `<div class="accion-card ${urgContr}">
+                    <div class="ac-icon">${iconContr}</div>
+                    <div class="ac-titulo">${titContr}</div>
+                    <div class="ac-desc">${descContr}</div>
+                    <div class="ac-btns">${waBtnContr}</div>
+                </div>`;
+
+                // ─── Card 4: Resumen WhatsApp ───
+                const waResumen = encodeURIComponent(`*Nepal 2 — Resumen SST ${mesNombre} ${año}*\n✅ Actividades: ${totalActs}/4 (${pct}%)\n${!tieneInf||!tieneCue ? '⚠️ Pendientes: '+[...(!tieneInf?['Informe SST']:[]),...(!tieneCue?['Cuenta x cobrar']:[])].join(', ') : '✅ Documentos al día'}\n🔗 https://nepal2edificio.github.io/sst-nepal2/\n_Carla Castellano — C.E. 679955_`);
+                cardsHTML += `<div class="accion-card" style="border-left-color:#25D366;background:#f0fdf4;">
+                    <div class="ac-icon">📱</div>
+                    <div class="ac-titulo">Resumen rápido del mes</div>
+                    <div class="ac-desc">Actividades: ${totalActs}/4 — Cumplimiento: ${pct}%</div>
+                    <div class="ac-btns">
+                        <a class="ac-btn ac-btn-wa" href="https://wa.me/?text=${waResumen}" target="_blank">📱 Enviar por WhatsApp</a>
+                        <button class="ac-btn ac-btn-blue" onclick="generarResumenWhatsApp()">📋 Copiar al portapapeles</button>
+                    </div>
+                </div>`;
+
+                const grid = document.getElementById('accionesGrid');
+                if (grid) grid.innerHTML = cardsHTML;
+            }).catch(err => {
+                console.error('Error actualizarPanelAcciones:', err);
+                const grid = document.getElementById('accionesGrid');
+                if (grid) grid.innerHTML = `<p style="color:var(--danger);">Error al cargar acciones. Verifica conexión.</p>`;
+            });
+        }
+
+        // ══════════════════════════════════════════════════════════════════
+        // NOTIFICACIONES PUSH DEL NAVEGADOR
+        // ══════════════════════════════════════════════════════════════════
+        function iniciarNotificaciones() {
+            if (!('Notification' in window)) return;
+            if (Notification.permission === 'default') {
+                setTimeout(() => {
+                    Notification.requestPermission().then(perm => {
+                        if (perm === 'granted') verificarYEnviarNotificaciones();
+                    });
+                }, 4000);
+            } else if (Notification.permission === 'granted') {
+                verificarYEnviarNotificaciones();
+            }
+        }
+
+        function verificarYEnviarNotificaciones() {
+            if (Notification.permission !== 'granted') return;
+            const ahora = new Date();
+            const dia = ahora.getDate();
+            const mes = ahora.getMonth();
+            const año = ahora.getFullYear();
+            const clave = `notif-nepal2-${año}-${String(mes+1).padStart(2,'0')}-d${dia}`;
+            if (localStorage.getItem(clave)) return;
+
+            const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+            const mesNombre = MESES[mes];
+            let nd = null;
+
+            if (dia === 1)  nd = { t: '📋 SST Nepal 2 — Solicitar docs a contratistas', b: `Inicio de ${mesNombre}: pide documentos SST a Sosa y Serdán.` };
+            if (dia === 10) nd = { t: '⚠️ SST Nepal 2 — Verificar docs contratistas', b: `Día 10 de ${mesNombre}: ¿entregaron Sosa/Serdán los documentos?` };
+            if (dia === 15) nd = { t: '⚠️ SST Nepal 2 — 5 días para inspección', b: `Inspección de ${mesNombre} vence el día 20.` };
+            if (dia === 18) nd = { t: '⚠️ SST Nepal 2 — 2 días para inspección', b: `Quedan 2 días para el deadline de inspección de ${mesNombre}.` };
+            if (dia === 20) nd = { t: '🚨 SST Nepal 2 — HOY: deadline de inspección', b: `Hoy día 20: completa la inspección de ${mesNombre}.` };
+            if (dia === 28) nd = { t: '📄 SST Nepal 2 — Generar informe y cuenta', b: `Genera el informe y la cuenta de cobro de ${mesNombre}.` };
+
+            if (nd) {
+                const notif = new Notification(nd.t, {
+                    body: nd.b,
+                    icon: '1.png',
+                    tag: `nepal2-${año}-${mes+1}-${dia}`
+                });
+                notif.onclick = () => window.focus();
+                localStorage.setItem(clave, '1');
+            }
         }
 
         // FUNCIÓN: Generar Resumen para WhatsApp
