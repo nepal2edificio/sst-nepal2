@@ -985,6 +985,89 @@
         .ac-btn-wa:hover { background: #128C7E; }
         .ac-btn-red { background: var(--danger); color: white; }
         .ac-btn-red:hover { opacity: 0.85; }
+
+        /* ═══════════════════════════════════════════════════
+           COMUNICACIONES SST — Toast / Banner / Panel
+           ═══════════════════════════════════════════════════ */
+        .toast-container { position:fixed; top:20px; right:20px; z-index:9999; display:flex; flex-direction:column; gap:10px; pointer-events:none; }
+        .toast { background:white; border-radius:12px; padding:13px 18px; box-shadow:0 4px 20px rgba(0,0,0,0.15); display:flex; align-items:center; gap:10px; font-size:0.9rem; font-weight:600; min-width:240px; max-width:340px; animation:toastIn 0.3s ease; border-left:4px solid var(--success); pointer-events:all; }
+        .toast.warning { border-left-color:var(--warning); }
+        .toast.error   { border-left-color:var(--danger); }
+        .toast.info    { border-left-color:var(--accent); }
+        @keyframes toastIn  { from { opacity:0; transform:translateX(50px); } to { opacity:1; transform:translateX(0); } }
+        @keyframes toastOut { from { opacity:1; transform:translateX(0); } to { opacity:0; transform:translateX(50px); } }
+
+        /* Banner Contratistas */
+        .banner-contratistas { display:none; border-radius:15px; padding:16px 20px; margin-bottom:18px; box-shadow:0 2px 10px rgba(0,0,0,0.05); }
+        .banner-contratistas.info    { display:flex; align-items:center; gap:12px; border-left:5px solid var(--success); background:linear-gradient(to right,#ecfdf5,white); }
+        .banner-contratistas.warning { display:flex; align-items:center; gap:12px; border-left:5px solid var(--warning); background:linear-gradient(to right,#fffbeb,white); }
+        .banner-contratistas.urgente { display:flex; align-items:center; gap:12px; border-left:5px solid var(--danger);  background:linear-gradient(to right,#fef2f2,white); }
+        .banner-contratistas .bc-icon  { font-size:1.7rem; flex-shrink:0; }
+        .banner-contratistas .bc-body  { flex:1; }
+        .banner-contratistas .bc-title { font-weight:700; font-size:0.97rem; color:var(--text-dark); margin-bottom:2px; }
+        .banner-contratistas .bc-msg   { font-size:0.85rem; color:var(--text-gray); }
+        .banner-contratistas .bc-btn   { padding:7px 13px; border-radius:8px; border:none; background:var(--accent); color:white; cursor:pointer; font-size:0.82rem; font-weight:600; white-space:nowrap; flex-shrink:0; }
+        .banner-contratistas .bc-close { background:none; border:none; cursor:pointer; font-size:1.1rem; color:var(--text-gray); padding:4px 6px; flex-shrink:0; }
+
+        /* Panel Comunicaciones */
+        .comm-panel { background:white; border-radius:15px; padding:25px; box-shadow:0 2px 10px rgba(0,0,0,0.05); margin-bottom:25px; }
+        .comm-panel-title { font-size:1.25rem; font-weight:700; color:var(--primary); margin-bottom:18px; padding-bottom:12px; border-bottom:2px solid #e2e8f0; }
+        .comm-tabs { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:20px; border-bottom:2px solid #e2e8f0; }
+        .comm-tab-btn { padding:9px 15px; border:none; background:transparent; color:var(--text-gray); font-size:0.88rem; font-weight:600; cursor:pointer; border-bottom:3px solid transparent; margin-bottom:-2px; transition:all 0.2s; border-radius:6px 6px 0 0; }
+        .comm-tab-btn:hover  { color:var(--primary); background:#f8fafc; }
+        .comm-tab-btn.active { color:var(--primary); border-bottom-color:var(--accent); background:#eff6ff; }
+        .comm-tab-content { display:none; }
+        .comm-tab-content.active { display:block; }
+        .msg-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:14px; }
+        .msg-card { border:1px solid #e2e8f0; border-radius:12px; padding:16px; background:#fafbfc; }
+        .msg-card-label { font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:7px; }
+        .msg-card-label.tipo-a { color:var(--success); }
+        .msg-card-label.tipo-b { color:var(--warning); }
+        .msg-card-label.tipo-c { color:#f97316; }
+        .msg-card-label.tipo-d { color:var(--danger); }
+        .msg-card-text { font-size:0.85rem; color:var(--text-dark); line-height:1.55; background:white; border:1px solid #e2e8f0; border-radius:8px; padding:11px; margin-bottom:10px; white-space:pre-wrap; max-height:130px; overflow-y:auto; }
+        .msg-actions { display:flex; gap:8px; }
+        .msg-btn { flex:1; padding:8px 10px; border:none; border-radius:8px; font-size:0.8rem; font-weight:600; cursor:pointer; transition:all 0.2s; }
+        .msg-btn-copy { background:#f1f5f9; color:var(--text-dark); }
+        .msg-btn-copy:hover { background:#e2e8f0; }
+        .msg-btn-wa { background:#25D366; color:white; }
+        .msg-btn-wa:hover { background:#128C7E; }
+
+        /* Tracking table */
+        .tracking-section { margin-top:22px; }
+        .tracking-section h4 { font-size:1.05rem; font-weight:700; color:var(--primary); margin-bottom:12px; }
+        .tracking-table-wrapper { overflow-x:auto; border-radius:12px; border:1px solid #e2e8f0; }
+        .tracking-table { width:100%; border-collapse:collapse; font-size:0.87rem; }
+        .tracking-table th { background:var(--primary); color:white; padding:10px 14px; text-align:center; font-weight:600; }
+        .tracking-table th:first-child { text-align:left; }
+        .tracking-table td { padding:9px 14px; border-bottom:1px solid #f1f5f9; text-align:center; }
+        .tracking-table td:first-child { text-align:left; font-weight:600; }
+        .tracking-table tr:hover { background:#f8fafc; }
+        .tracking-table tr:last-child td { border-bottom:none; }
+        .doc-status { display:inline-flex; align-items:center; gap:4px; padding:3px 10px; border-radius:20px; font-size:0.78rem; font-weight:600; }
+        .doc-status.completo     { background:#d1fae5; color:#065f46; }
+        .doc-status.parcial      { background:#fef3c7; color:#92400e; }
+        .doc-status.sin-entregar { background:#fee2e2; color:#991b1b; }
+        .doc-status.pendiente    { background:#f1f5f9; color:#475569; }
+        .track-btn { padding:4px 9px; border-radius:6px; border:none; font-size:0.76rem; font-weight:600; cursor:pointer; margin:2px; color:white; }
+        .track-btn-ok  { background:var(--success); }
+        .track-btn-par { background:var(--warning); }
+        .track-btn-no  { background:var(--danger); }
+
+        /* Mini calendario */
+        .cal-section { margin-top:22px; }
+        .cal-section h4 { font-size:1.05rem; font-weight:700; color:var(--primary); margin-bottom:12px; }
+        .cal-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:3px; }
+        .cal-header-day { text-align:center; font-size:0.72rem; font-weight:700; color:var(--text-gray); padding:5px 2px; }
+        .cal-day { min-height:48px; border-radius:7px; padding:5px; font-size:0.76rem; background:#f8fafc; border:1px solid #e2e8f0; }
+        .cal-day.other-month { opacity:0.3; }
+        .cal-day.today { background:#eff6ff; border-color:var(--accent); }
+        .cal-day-num { font-weight:700; font-size:0.83rem; color:var(--text-dark); }
+        .cal-event { font-size:0.68rem; margin-top:2px; line-height:1.3; }
+        .cal-event.done    { color:var(--success); }
+        .cal-event.pending { color:var(--warning); }
+        .cal-event.future  { color:#94a3b8; }
+        .cal-event.urgent  { color:var(--danger); font-weight:700; }
     </style>
 </head>
 <body>
@@ -1086,6 +1169,9 @@
                     <div class="ab-message">Verificando actividades pendientes para el mes en curso</div>
                 </div>
             </div>
+
+            <!-- Banner Documentos Contratistas (aparece según fecha y estado Firebase) -->
+            <div id="bannerContratistas" class="banner-contratistas"></div>
 
             <!-- Year Selector -->
             <div class="year-tabs">
@@ -1793,6 +1879,50 @@
                     </div>
                 </div>
             </div>
+
+            <!-- ═══════════════════════════════════════════════════════
+                 📱 PANEL DE COMUNICACIONES SST
+                 ═══════════════════════════════════════════════════════ -->
+            <div id="tabComm" class="comm-panel" style="margin-top:25px;">
+                <div class="comm-panel-title">📱 Panel de Comunicaciones SST — Documentos Contratistas</div>
+
+                <!-- Tabs: SOSA / SERDÁN / Administradora -->
+                <div class="comm-tabs">
+                    <button class="comm-tab-btn active" data-tab="sosa"            onclick="showCommTab('sosa')">👷 SOSA (Isabel)</button>
+                    <button class="comm-tab-btn"        data-tab="serdan"          onclick="showCommTab('serdan')">👷 SERDÁN (Gina)</button>
+                    <button class="comm-tab-btn"        data-tab="adminNepal"      onclick="showCommTab('adminNepal')">🏢 Administradora Nepal 2</button>
+                </div>
+
+                <!-- SOSA -->
+                <div id="commTab_sosa" class="comm-tab-content active">
+                    <div class="msg-grid" id="msgGrid_sosa"></div>
+                    <div id="tracking_sosa"></div>
+                    <div class="cal-section">
+                        <h4>📅 Calendario de Seguimiento — Mes Actual</h4>
+                        <div id="calSST_sosa"></div>
+                    </div>
+                </div>
+
+                <!-- SERDÁN -->
+                <div id="commTab_serdan" class="comm-tab-content">
+                    <div class="msg-grid" id="msgGrid_serdan"></div>
+                    <div id="tracking_serdan"></div>
+                </div>
+
+                <!-- Administradora Nepal 2 -->
+                <div id="commTab_adminNepal" class="comm-tab-content">
+                    <p style="font-size:0.88rem;color:var(--text-gray);margin-bottom:14px;">
+                        ℹ️ Mensaje de aviso formal a la administradora cuando algún contratista NO entrega documentos después del día 10.
+                    </p>
+                    <div style="margin-bottom:12px;">
+                        <label style="font-size:0.85rem;font-weight:600;color:var(--text-dark);">Teléfono administradora Nepal 2:</label>
+                        <input type="tel" id="telAdminNepal" placeholder="+57 300 0000000"
+                               style="display:block;margin-top:6px;padding:8px 12px;border:2px solid #e2e8f0;border-radius:8px;font-size:0.88rem;width:240px;"
+                               oninput="localStorage.setItem('telAdminNepal',this.value)">
+                    </div>
+                    <div class="msg-grid" id="msgGrid_adminNepal"></div>
+                </div>
+            </div>
         </section>
     </div>
 
@@ -2096,8 +2226,10 @@
                 
                 actualizarDashboard2026();
                 actualizarBannerAlerta();
+                actualizarBannerContratistasN2();
                 actualizarPanelAcciones();
                 iniciarNotificaciones();
+                renderMensajesTabN2('sosa');
             } else {
                 alert('❌ Credenciales incorrectas');
             }
@@ -2146,6 +2278,7 @@
             if (sectionId === 'herramientas') {
                 actualizarPanelAdmin();
                 actualizarArchivoDocumentos();
+                renderMensajesTabN2('sosa');
             }
         }
 
@@ -3341,9 +3474,11 @@
             }
             // NUEVO: Banner contextual y notificaciones
             actualizarBannerAlerta();
+            actualizarBannerContratistasN2();
             iniciarNotificaciones();
             if (isLoggedIn) {
                 actualizarPanelAcciones();
+                renderMensajesTabN2('sosa');
             }
         });
         setInterval(function() {
@@ -3355,6 +3490,7 @@
             }
             // NUEVO: Banner contextual
             actualizarBannerAlerta();
+            actualizarBannerContratistasN2();
         }, 30000);
         document.addEventListener('visibilitychange', function() {
             if (!document.hidden) {
@@ -3801,6 +3937,314 @@
             }
         }
 
+        // ═══════════════════════════════════════════════════════════════
+        // SISTEMA COMUNICACIONES SST — Nepal 2
+        // ═══════════════════════════════════════════════════════════════
+
+        const MESES_SST_N2 = ['Enero','Febrero','Marzo','Abril','Mayo','Junio',
+                               'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+
+        // --- TOAST NOTIFICATIONS ---
+        function mostrarToast(mensaje, tipo) {
+            tipo = tipo || 'success';
+            var container = document.getElementById('toastContainer');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'toastContainer';
+                container.className = 'toast-container';
+                document.body.appendChild(container);
+            }
+            var toast = document.createElement('div');
+            toast.className = 'toast ' + tipo;
+            toast.textContent = mensaje;
+            container.appendChild(toast);
+            setTimeout(function() {
+                toast.style.animation = 'toastOut 0.3s ease forwards';
+                setTimeout(function() { if (toast.parentNode) toast.parentNode.removeChild(toast); }, 300);
+            }, 3000);
+        }
+
+        // --- COPIAR AL PORTAPAPELES ---
+        function copiarMensaje(texto) {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(texto).then(function() {
+                    mostrarToast('✅ Mensaje copiado al portapapeles');
+                }).catch(function() { copiarFallback(texto); });
+            } else { copiarFallback(texto); }
+        }
+        function copiarFallback(texto) {
+            var ta = document.createElement('textarea');
+            ta.value = texto;
+            ta.style.position = 'fixed'; ta.style.left = '-9999px';
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            document.body.removeChild(ta);
+            mostrarToast('✅ Mensaje copiado');
+        }
+
+        // --- WHATSAPP ---
+        function enviarWhatsApp(numero, mensaje) {
+            var url = 'https://wa.me/' + numero.replace(/\D/g,'') + '?text=' + encodeURIComponent(mensaje);
+            window.open(url, '_blank');
+        }
+
+        // --- DATOS CONTRATISTAS ---
+        var CONTRATISTAS_N2 = {
+            sosa:       { nombre:'Isabel Forero',     empresa:'SOSA',     telefono:'573505403570' },
+            serdan:     { nombre:'Gina Poveda',       empresa:'SERDÁN',   telefono:'573165258530' },
+            adminNepal: { nombre:'Administradora',    empresa:'Nepal 2',  telefono:'' }
+        };
+
+        // --- GENERAR TEXTO DE MENSAJE ---
+        function getMensajeN2(tipo, tabKey) {
+            var c = CONTRATISTAS_N2[tabKey];
+            if (!c) return '';
+            var ahora = new Date();
+            var mes = MESES_SST_N2[ahora.getMonth()];
+            var año = ahora.getFullYear();
+            var msgs = {
+                A: 'Buenos días ' + c.nombre + ', le escribo como responsable SST del Edificio Nepal 2 para realizarle la Solicitud mensual de documentos SST ' + mes + ' ' + año + ':\n\n✅ Afiliación ARL vigente\n✅ Certificado capacitación SST\n✅ Constancia entrega EPP\n✅ Examen médico ocupacional vigente\n\nPlazo para envío: 10 de ' + mes + ' ' + año + '.\nNormativa: Resolución 0312/2019.\n\nCarla Castellano — C.E. 679955',
+                B: 'Hola ' + c.nombre + ', le envío un cordial recordatorio: los documentos SST de ' + mes + ' ' + año + ' están pendientes de recepción. Quedan 2 días para el plazo (10 de ' + mes + '). Favor confirmar el envío. Muchas gracias,\n\nCarla',
+                C: c.nombre + ', HOY vence el plazo para entrega de documentos SST de ' + mes + ' ' + año + '.\n\n⚠️ SIN ESTOS DOCUMENTOS NO PUEDO CERTIFICAR CUMPLIMIENTO.\n\nFavor enviar URGENTE. De no recibirlos, debo informar a la administración.\n\nCarla — C.E. 679955',
+                D: 'Señora Administradora,\n\nInformo formalmente: 🚨 El contratista ' + c.empresa + ' NO ha entregado los documentos SST obligatorios correspondientes a ' + mes + ' ' + año + '.\n\nSolicito: RETENER el pago mensual hasta subsanar la situación.\n\nRiesgo legal: Multa Ministerio de Trabajo, responsabilidad solidaria del edificio.\n\nCarla Castellano — C.E. 679955'
+            };
+            return msgs[tipo] || '';
+        }
+
+        // --- COMM TABS ---
+        function showCommTab(tab) {
+            document.querySelectorAll('.comm-tab-btn').forEach(function(b) { b.classList.remove('active'); });
+            document.querySelectorAll('.comm-tab-content').forEach(function(c) { c.classList.remove('active'); });
+            var btn = document.querySelector('.comm-tab-btn[data-tab="' + tab + '"]');
+            var content = document.getElementById('commTab_' + tab);
+            if (btn) btn.classList.add('active');
+            if (content) {
+                content.classList.add('active');
+                renderMensajesTabN2(tab);
+            }
+        }
+
+        function renderMensajesTabN2(tab) {
+            var esAdmin = (tab === 'adminNepal');
+            var tipos = esAdmin
+                ? [{ key:'D', label:'Aviso formal (Día 11+)', cls:'tipo-d' }]
+                : [
+                    { key:'A', label:'Solicitud Inicial (Día 1)',      cls:'tipo-a' },
+                    { key:'B', label:'Recordatorio Amable (Día 8)',    cls:'tipo-b' },
+                    { key:'C', label:'Recordatorio Urgente (Día 10)',  cls:'tipo-c' },
+                    { key:'D', label:'Aviso Administradora (Día 11+)', cls:'tipo-d' }
+                  ];
+
+            var c = CONTRATISTAS_N2[tab];
+            var tel = c ? c.telefono : '';
+
+            // Para admin, usar el tel guardado en localStorage
+            if (esAdmin) {
+                tel = localStorage.getItem('telAdminNepal') || '';
+                var inputEl = document.getElementById('telAdminNepal');
+                if (inputEl) inputEl.value = tel;
+            }
+
+            var gridId = 'msgGrid_' + tab;
+            var grid = document.getElementById(gridId);
+            if (!grid) return;
+
+            var html = '';
+            tipos.forEach(function(t) {
+                var msg = getMensajeN2(t.key, tab);
+                var telFinal = esAdmin ? (localStorage.getItem('telAdminNepal') || '') : tel;
+                var safeMsg = msg.replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/\n/g,'\\n');
+                html += '<div class="msg-card">'
+                    + '<div class="msg-card-label ' + t.cls + '">' + t.label + '</div>'
+                    + '<div class="msg-card-text">' + msg.replace(/\n/g,'<br>') + '</div>'
+                    + '<div class="msg-actions">'
+                    + '<button class="msg-btn msg-btn-copy" onclick="copiarMensaje(\'' + safeMsg + '\')">📋 Copiar</button>'
+                    + (telFinal ? '<button class="msg-btn msg-btn-wa" onclick="enviarWhatsApp(\'' + telFinal + '\',\'' + safeMsg + '\')">📱 WhatsApp</button>' : '')
+                    + '</div></div>';
+            });
+            grid.innerHTML = html;
+
+            // Tracking y calendario (solo para contratistas)
+            if (!esAdmin) {
+                renderTrackingN2(tab);
+                var calContainer = document.getElementById('calSST_' + tab);
+                if (calContainer) renderCalendarioSST_N2('calSST_' + tab, 20);
+            }
+        }
+
+        // --- TRACKING DE DOCUMENTOS ---
+        function renderTrackingN2(tab) {
+            var container = document.getElementById('tracking_' + tab);
+            if (!container) return;
+            var ahora = new Date();
+            var mesActual = ahora.getMonth();
+            var año = ahora.getFullYear();
+            var rows = '';
+            for (var i = -3; i <= 0; i++) {
+                var m = ((mesActual + i) % 12 + 12) % 12;
+                var a = año + Math.floor((mesActual + i) / 12);
+                if (mesActual + i < 0) a = año - 1;
+                var clave = a + '-' + String(m + 1).padStart(2,'0');
+                var esActual = (i === 0);
+                rows += '<tr>'
+                    + '<td>' + MESES_SST_N2[m] + ' ' + a + (esActual ? ' <span style="color:var(--accent);font-size:0.73rem;">(mes actual)</span>' : '') + '</td>'
+                    + '<td id="trk_' + tab + '_' + clave + '"><span class="doc-status pendiente">⏳ Pendiente</span></td>'
+                    + '<td>'
+                    + '<button class="track-btn track-btn-ok"  onclick="marcarDocN2(\'' + tab + '\',\'' + clave + '\',\'completo\')">✅</button>'
+                    + '<button class="track-btn track-btn-par" onclick="marcarDocN2(\'' + tab + '\',\'' + clave + '\',\'parcial\')">🟡</button>'
+                    + '<button class="track-btn track-btn-no"  onclick="marcarDocN2(\'' + tab + '\',\'' + clave + '\',\'sin-entregar\')">❌</button>'
+                    + '<button class="track-btn" style="background:#25D366;" onclick="enviarWhatsAppContratista(\'' + tab + '\',\'' + clave + '\')">📱</button>'
+                    + '</td>'
+                    + '</tr>';
+            }
+            container.innerHTML = '<div class="tracking-section">'
+                + '<h4>📊 Registro de Documentos Recibidos</h4>'
+                + '<div class="tracking-table-wrapper">'
+                + '<table class="tracking-table"><thead><tr><th>Mes</th><th>Estado</th><th>Acciones</th></tr></thead>'
+                + '<tbody>' + rows + '</tbody></table></div></div>';
+            cargarTrackingN2(tab);
+        }
+
+        function cargarTrackingN2(tab) {
+            var ahora = new Date();
+            var mesActual = ahora.getMonth();
+            var año = ahora.getFullYear();
+            for (var i = -3; i <= 0; i++) {
+                (function(idx) {
+                    var m = ((mesActual + idx) % 12 + 12) % 12;
+                    var a = año + Math.floor((mesActual + idx) / 12);
+                    if (mesActual + idx < 0) a = año - 1;
+                    var clave = a + '-' + String(m + 1).padStart(2,'0');
+                    database.ref('edificios/' + EDIFICIO_ID + '/documentos-contratistas/' + clave + '/' + tab).once('value').then(function(snap) {
+                        var el = document.getElementById('trk_' + tab + '_' + clave);
+                        if (!el) return;
+                        if (!snap.exists()) { el.innerHTML = '<span class="doc-status pendiente">⏳ Pendiente</span>'; return; }
+                        var d = snap.val();
+                        if (d.estado === 'completo')      el.innerHTML = '<span class="doc-status completo">✅ Completo</span>';
+                        else if (d.estado === 'parcial')  el.innerHTML = '<span class="doc-status parcial">🟡 Parcial (' + ((d.documentos||[]).length) + '/4)</span>';
+                        else if (d.estado === 'sin-entregar') el.innerHTML = '<span class="doc-status sin-entregar">❌ Sin entregar</span>';
+                    });
+                })(i);
+            }
+        }
+
+        function marcarDocN2(tab, clave, estado) {
+            var data = { estado: estado, fecha: new Date().toISOString() };
+            if (estado === 'parcial') {
+                var opciones = ['ARL','Capacitación','EPP','Examen médico'];
+                var docs = opciones.filter(function(d) { return confirm('¿Recibido: ' + d + '?'); });
+                data.documentos = docs;
+            }
+            database.ref('edificios/' + EDIFICIO_ID + '/documentos-contratistas/' + clave + '/' + tab).update(data).then(function() {
+                mostrarToast('✅ Estado guardado');
+                var el = document.getElementById('trk_' + tab + '_' + clave);
+                if (el) {
+                    if (estado === 'completo')      el.innerHTML = '<span class="doc-status completo">✅ Completo</span>';
+                    else if (estado === 'parcial')  el.innerHTML = '<span class="doc-status parcial">🟡 Parcial (' + ((data.documentos||[]).length) + '/4)</span>';
+                    else                            el.innerHTML = '<span class="doc-status sin-entregar">❌ Sin entregar</span>';
+                }
+                actualizarBannerContratistasN2();
+            }).catch(function() { mostrarToast('❌ Error al guardar', 'error'); });
+        }
+
+        function enviarWhatsAppContratista(tab, clave) {
+            var c = CONTRATISTAS_N2[tab];
+            if (!c || !c.telefono) { mostrarToast('Sin teléfono configurado', 'warning'); return; }
+            var ahora = new Date();
+            var dia = ahora.getDate();
+            var tipoMsg = dia >= 11 ? 'D' : (dia === 10 ? 'C' : (dia >= 8 ? 'B' : 'A'));
+            var msg = getMensajeN2(tipoMsg, tab);
+            enviarWhatsApp(c.telefono, msg);
+        }
+
+        // --- BANNER DOCUMENTOS CONTRATISTAS ---
+        function actualizarBannerContratistasN2() {
+            var banner = document.getElementById('bannerContratistas');
+            if (!banner) return;
+            var hoy = new Date();
+            var dia = hoy.getDate();
+            var mes = hoy.getMonth();
+            var año = hoy.getFullYear();
+            var clave = año + '-' + String(mes + 1).padStart(2,'0');
+            var mesNombre = MESES_SST_N2[mes];
+            var cerradoKey = 'bcN2_' + clave + '_' + dia;
+            if (localStorage.getItem(cerradoKey)) return;
+
+            Promise.all([
+                database.ref('edificios/' + EDIFICIO_ID + '/documentos-contratistas/' + clave + '/sosa').once('value'),
+                database.ref('edificios/' + EDIFICIO_ID + '/documentos-contratistas/' + clave + '/serdan').once('value')
+            ]).then(function(snaps) {
+                var snapSosa = snaps[0], snapSerdan = snaps[1];
+                var sosaOk = snapSosa.exists() && snapSosa.val().estado === 'completo';
+                var serdanOk = snapSerdan.exists() && snapSerdan.val().estado === 'completo';
+                var sosaPend = !snapSosa.exists() || snapSosa.val().estado !== 'completo';
+                var serdanPend = !snapSerdan.exists() || snapSerdan.val().estado !== 'completo';
+
+                var icon='', title='', msg='', cls='', btnHTML='';
+                var pendList = (sosaPend?'SOSA':'') + (sosaPend&&serdanPend?' y ':'') + (serdanPend?'SERDÁN':'');
+
+                if (dia >= 1 && dia <= 7 && (sosaPend || serdanPend)) {
+                    icon='📧'; cls='info';
+                    title='Solicitar documentos SST — Plazo día 10 de ' + mesNombre;
+                    msg='Enviar solicitud inicial a: ' + pendList;
+                    btnHTML='<button class="bc-btn" onclick="showPrivateSection(\'herramientas\')">📱 Ir a Comunicaciones</button>';
+                } else if (dia >= 8 && dia <= 9 && (sosaPend || serdanPend)) {
+                    icon='⏰'; cls='warning';
+                    title='Quedan ' + (10-dia) + ' día(s) — Documentos SST pendientes';
+                    msg='Recordatorio pendiente para: ' + pendList;
+                    btnHTML='<button class="bc-btn" onclick="showPrivateSection(\'herramientas\')">📱 Enviar Recordatorio</button>';
+                } else if (dia === 10 && (sosaPend || serdanPend)) {
+                    icon='🚨'; cls='urgente';
+                    title='HOY vence el plazo de documentos SST de ' + mesNombre;
+                    msg='Verificar recepción de: ' + pendList;
+                    btnHTML='<button class="bc-btn" onclick="showPrivateSection(\'herramientas\')">⚠️ Ver estado</button>';
+                } else if (dia > 10 && (sosaPend || serdanPend)) {
+                    icon='⚠️'; cls='urgente';
+                    title='Documentos SST no recibidos — Considerar aviso a administradora';
+                    msg='Sin documentos: ' + pendList + '. Día actual: ' + dia + ' de ' + mesNombre;
+                    btnHTML='<button class="bc-btn" onclick="showPrivateSection(\'herramientas\')">📋 Gestionar</button>';
+                }
+
+                if (icon) {
+                    banner.className = 'banner-contratistas ' + cls;
+                    banner.innerHTML = '<div class="bc-icon">' + icon + '</div>'
+                        + '<div class="bc-body"><div class="bc-title">' + title + '</div><div class="bc-msg">' + msg + '</div></div>'
+                        + btnHTML
+                        + '<button class="bc-close" onclick="this.closest(\'.banner-contratistas\').style.display=\'none\';localStorage.setItem(\'' + cerradoKey + '\',\'1\')">✕</button>';
+                }
+            });
+        }
+
+        // --- MINI CALENDARIO SST ---
+        function renderCalendarioSST_N2(containerId, deadline) {
+            var container = document.getElementById(containerId);
+            if (!container) return;
+            var ahora = new Date();
+            var dia = ahora.getDate();
+            var mes = ahora.getMonth();
+            var año = ahora.getFullYear();
+            var eventos = { 1:'📧 Solicitar docs', 8:'⏰ Recordatorio', 10:'🚨 Plazo docs', 11:'⚠️ Avisar admón.', 28:'📄 Generar informes' };
+            eventos[deadline] = '📋 Deadline inspección';
+            var primerDia = new Date(año, mes, 1).getDay();
+            var diasEnMes = new Date(año, mes + 1, 0).getDate();
+            var offset = primerDia === 0 ? 6 : primerDia - 1;
+            var html = '<div class="cal-grid">';
+            ['Lu','Ma','Mi','Ju','Vi','Sa','Do'].forEach(function(d) { html += '<div class="cal-header-day">' + d + '</div>'; });
+            for (var i = 0; i < offset; i++) html += '<div class="cal-day other-month"></div>';
+            for (var d = 1; d <= diasEnMes; d++) {
+                var ev = eventos[d];
+                var cls = d === dia ? 'cal-day today' : 'cal-day';
+                var evCls = ev ? (d < dia ? 'done' : (d === 10 || d === deadline ? 'urgent' : 'pending')) : 'future';
+                html += '<div class="' + cls + '"><div class="cal-day-num">' + d + '</div>'
+                    + (ev ? '<div class="cal-event ' + evCls + '">' + ev.split(' ')[0] + '</div>' : '')
+                    + '</div>';
+            }
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        // ═══════════════════════════════════════════════════════════════
         // FUNCIÓN: Generar Resumen para WhatsApp
         function generarResumenWhatsApp() {
             const db = firebase.database();
