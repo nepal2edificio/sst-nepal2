@@ -1068,6 +1068,56 @@
         .cal-event.pending { color:var(--warning); }
         .cal-event.future  { color:#94a3b8; }
         .cal-event.urgent  { color:var(--danger); font-weight:700; }
+
+        /* ═══════════════ COTIZACIONES — ESTILO DASHBOARD ═══════════════ */
+        .cq-kpi-row { display:grid; grid-template-columns:repeat(auto-fit,minmax(165px,1fr)); gap:16px; margin-bottom:20px; }
+        .cq-kpi { background:white; border-radius:14px; padding:18px 20px; box-shadow:0 2px 10px rgba(0,0,0,0.06); position:relative; overflow:hidden; border-top:4px solid var(--accent); }
+        .cq-kpi.eco   { border-top-color:#64748b; }
+        .cq-kpi.rec   { border-top-color:var(--success); }
+        .cq-kpi.pre   { border-top-color:#8b5cf6; }
+        .cq-kpi.items { border-top-color:var(--accent); }
+        .cq-kpi.pend  { border-top-color:var(--danger); }
+        .cq-kpi-label { font-size:0.78rem; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; color:var(--text-gray); margin-bottom:6px; }
+        .cq-kpi-value { font-size:1.55rem; font-weight:800; color:var(--primary); line-height:1; margin-bottom:4px; }
+        .cq-kpi.rec .cq-kpi-value { color:var(--success); }
+        .cq-kpi.pre .cq-kpi-value { color:#8b5cf6; }
+        .cq-kpi-sub   { font-size:0.75rem; color:var(--text-gray); }
+        .cq-kpi-badge { position:absolute; top:14px; right:14px; background:var(--success); color:white; font-size:0.68rem; font-weight:700; padding:2px 8px; border-radius:10px; }
+        .cq-roi { font-size:0.78rem; margin-top:8px; padding:3px 10px; border-radius:8px; display:inline-block; font-weight:600; }
+        .cq-roi.up   { background:#d1fae5; color:#065f46; }
+        .cq-roi.down { background:#fef3c7; color:#92400e; }
+        .cq-section-title { font-size:1rem; font-weight:700; color:var(--primary); margin:22px 0 12px; display:flex; align-items:center; gap:8px; }
+        .cq-section-title::after { content:''; flex:1; height:2px; background:#e2e8f0; border-radius:2px; }
+        .cq-item-card { background:white; border-radius:12px; padding:18px 20px; margin-bottom:12px; box-shadow:0 2px 8px rgba(0,0,0,0.05); }
+        .cq-item-name { font-size:0.95rem; font-weight:700; color:var(--text-dark); margin-bottom:14px; }
+        .cq-bars { display:flex; flex-direction:column; gap:9px; }
+        .cq-bar-row { display:grid; grid-template-columns:130px 1fr 80px 90px; align-items:center; gap:10px; font-size:0.82rem; }
+        .cq-bar-label { color:var(--text-gray); font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .cq-bar-track { background:#f1f5f9; border-radius:20px; height:20px; overflow:hidden; position:relative; }
+        .cq-bar-fill  { height:100%; border-radius:20px; display:flex; align-items:center; padding-left:8px; font-size:0.71rem; font-weight:700; color:white; transition:width 0.5s ease; white-space:nowrap; }
+        .cq-bar-fill.p1 { background:linear-gradient(90deg,var(--accent),#60a5fa); }
+        .cq-bar-fill.p2 { background:linear-gradient(90deg,#64748b,#94a3b8); }
+        .cq-bar-fill.p3 { background:linear-gradient(90deg,#f59e0b,#fbbf24); }
+        .cq-bar-fill.mejor { background:linear-gradient(90deg,var(--success),#34d399); }
+        .cq-bar-price { font-weight:700; color:var(--primary); text-align:right; font-size:0.83rem; }
+        .cq-bar-action { text-align:right; }
+        .cq-wa-btn { padding:4px 9px; border-radius:6px; border:none; background:#25D366; color:white; font-size:0.73rem; font-weight:600; cursor:pointer; white-space:nowrap; }
+        .cq-wa-btn:hover { background:#128C7E; }
+        .cq-mejor-tag { display:inline-flex; align-items:center; gap:3px; background:#d1fae5; color:#065f46; font-size:0.7rem; font-weight:700; padding:2px 7px; border-radius:8px; margin-top:3px; }
+        .cq-edit-btn { padding:6px 12px; border-radius:8px; border:2px solid var(--accent); background:white; color:var(--accent); font-size:0.78rem; font-weight:700; cursor:pointer; transition:all 0.2s; flex-shrink:0; }
+        .cq-edit-btn:hover { background:var(--accent); color:white; }
+        .carta-modal-n2 { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:9998; align-items:center; justify-content:center; }
+        .carta-modal-n2.active { display:flex; }
+        .carta-modal-n2 .carta-modal-inner { background:white; border-radius:16px; padding:28px; max-width:680px; width:92%; max-height:86vh; overflow-y:auto; box-shadow:0 20px 60px rgba(0,0,0,0.3); }
+        .progress-bar-track-n2 { background:#e2e8f0; border-radius:20px; height:11px; overflow:hidden; margin:8px 0 4px; }
+        .progress-bar-fill-n2 { height:100%; background:linear-gradient(to right,var(--success),var(--accent)); border-radius:20px; transition:width 0.5s ease; }
+        .checklist-cotiz-n2 { list-style:none; margin-top:14px; }
+        .checklist-cotiz-n2 li { display:flex; align-items:center; gap:12px; padding:10px 14px; border-radius:8px; margin-bottom:6px; font-size:0.88rem; border:1px solid #e2e8f0; background:white; transition:background 0.2s; }
+        .checklist-cotiz-n2 li.done { background:#ecfdf5; border-color:#a7f3d0; }
+        .checklist-cotiz-n2 li input[type="checkbox"] { width:17px; height:17px; cursor:pointer; accent-color:var(--success); flex-shrink:0; }
+        .checklist-cotiz-n2 .step-label { flex:1; }
+        .checklist-cotiz-n2 .step-fecha-input { font-size:0.78rem; border:1px solid #e2e8f0; border-radius:6px; padding:3px 7px; width:120px; }
+        @media(max-width:768px){ .cq-bar-row{grid-template-columns:100px 1fr 70px 80px;} .cq-bottom-grid-n2{grid-template-columns:1fr!important;} }
     </style>
 </head>
 <body>
@@ -1144,6 +1194,9 @@
             </button>
             <button class="nav-btn private" onclick="showPrivateSection('herramientas')" id="btnHerramientas" style="display:none;">
                 🔧 Herramientas Admin
+            </button>
+            <button class="nav-btn private" onclick="showPrivateSection('cotizacionesN2')" id="btnCotizacionesN2" style="display:none;">
+                💰 Cotizaciones SST
             </button>
             <button class="nav-btn" onclick="window.location.href='habeas-data-nepal2.html'">📋 Habeas Data</button>
             <button class="nav-btn" id="btnLogin" onclick="openLogin()" style="border-color: #10b981; color: #10b981;">
@@ -1924,6 +1977,132 @@
                 </div>
             </div>
         </section>
+
+        <!-- ═══════════════════════════════════════════════════════
+             SECTION: 💰 COTIZACIONES SST NEPAL 2 (PRIVADA)
+             ═══════════════════════════════════════════════════════ -->
+        <section id="cotizacionesN2" class="section">
+            <div class="section-header" style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+                <div>
+                    <h2 class="section-title">💰 Análisis de Cotizaciones SST</h2>
+                    <p class="section-subtitle">Comparativo de proveedores — Elementos obligatorios Resolución 0312/2019 | Nepal 2</p>
+                </div>
+                <div>
+                    <span style="font-size:0.82rem;color:var(--text-gray);background:#f1f5f9;padding:6px 12px;border-radius:8px;">Los totales se calculan automáticamente al ingresar datos</span>
+                </div>
+            </div>
+
+            <!-- KPI CARDS -->
+            <div class="cq-kpi-row">
+                <div class="cq-kpi eco">
+                    <div class="cq-kpi-label">Opción Económica</div>
+                    <div class="cq-kpi-value" id="n2KpiEco">—</div>
+                    <div class="cq-kpi-sub" id="n2KpiEcoSub">Sin datos aún</div>
+                    <div class="cq-roi down">Precio mínimo</div>
+                </div>
+                <div class="cq-kpi rec">
+                    <div class="cq-kpi-badge">⭐ RECOMENDADA</div>
+                    <div class="cq-kpi-label">Opción Recomendada</div>
+                    <div class="cq-kpi-value" id="n2KpiRec">—</div>
+                    <div class="cq-kpi-sub" id="n2KpiRecSub">Sin datos aún</div>
+                    <div class="cq-roi up">Mejor costo/calidad</div>
+                </div>
+                <div class="cq-kpi pre">
+                    <div class="cq-kpi-label">Opción Premium</div>
+                    <div class="cq-kpi-value" id="n2KpiPre">—</div>
+                    <div class="cq-kpi-sub">Máxima calidad</div>
+                    <div class="cq-roi down">Precio máximo</div>
+                </div>
+                <div class="cq-kpi items">
+                    <div class="cq-kpi-label">Elementos a cotizar</div>
+                    <div class="cq-kpi-value">7</div>
+                    <div class="cq-kpi-sub">Obligatorios Res. 0312/2019</div>
+                    <div class="cq-roi down">⚠️ Pendiente adquisición</div>
+                </div>
+                <div class="cq-kpi pend">
+                    <div class="cq-kpi-label">Estado de aprobación</div>
+                    <div class="cq-kpi-value" id="n2KpiEstado">⏳ Pend.</div>
+                    <div class="cq-kpi-sub" id="n2KpiEstadoSub">Sin iniciar</div>
+                    <div class="cq-roi down" id="n2KpiEstadoRoi">Requiere acción</div>
+                </div>
+            </div>
+
+            <!-- COMPARATIVO POR ELEMENTO -->
+            <div class="cq-section-title">📊 Comparativo por Elemento y Proveedor</div>
+            <div id="cotizBarrasN2">
+                <div style="text-align:center;padding:30px;color:var(--text-gray);">⏳ Cargando comparativo...</div>
+            </div>
+
+            <!-- CARTA + TRACKING -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:20px;" class="cq-bottom-grid-n2">
+                <!-- Carta -->
+                <div style="background:white;border-radius:14px;padding:22px;box-shadow:0 2px 10px rgba(0,0,0,0.05);">
+                    <div class="cq-section-title" style="margin-top:0;">📄 Carta para Administradora</div>
+                    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:14px;">
+                        <div>
+                            <label style="font-size:0.82rem;font-weight:600;display:block;margin-bottom:4px;color:var(--text-gray);">Nombre administradora</label>
+                            <input type="text" id="n2CartaNombre" placeholder="Sra. María González"
+                                   style="width:100%;padding:8px 11px;border:2px solid #e2e8f0;border-radius:8px;font-size:0.86rem;"
+                                   oninput="actualizarPreviewCartaN2()">
+                        </div>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                            <div>
+                                <label style="font-size:0.82rem;font-weight:600;display:block;margin-bottom:4px;color:var(--text-gray);">Fecha</label>
+                                <input type="date" id="n2CartaFecha"
+                                       style="width:100%;padding:8px 11px;border:2px solid #e2e8f0;border-radius:8px;font-size:0.86rem;"
+                                       oninput="actualizarPreviewCartaN2()">
+                            </div>
+                            <div>
+                                <label style="font-size:0.82rem;font-weight:600;display:block;margin-bottom:4px;color:var(--text-gray);">Opción</label>
+                                <select id="n2CartaOpcion" style="width:100%;padding:8px 11px;border:2px solid #e2e8f0;border-radius:8px;font-size:0.83rem;" onchange="actualizarPreviewCartaN2()">
+                                    <option value="economica">💡 Económica</option>
+                                    <option value="recomendada" selected>⭐ Recomendada</option>
+                                    <option value="premium">🏆 Premium</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                        <button class="btn btn-primary" style="padding:8px 14px;font-size:0.82rem;" onclick="mostrarCartaModalN2()">📄 Vista Previa</button>
+                        <button class="btn btn-primary" style="padding:8px 14px;font-size:0.82rem;background:#25D366;" onclick="copiarCartaN2()">📋 Copiar</button>
+                        <button class="btn btn-primary" style="padding:8px 14px;font-size:0.82rem;background:#f97316;" onclick="imprimirCartaN2()">🖨️ PDF</button>
+                    </div>
+                </div>
+
+                <!-- Tracking -->
+                <div style="background:white;border-radius:14px;padding:22px;box-shadow:0 2px 10px rgba(0,0,0,0.05);">
+                    <div class="cq-section-title" style="margin-top:0;">📋 Tracking de Aprobación y Compra</div>
+                    <div class="progress-bar-track-n2"><div class="progress-bar-fill-n2" id="n2CotizProgress" style="width:0%"></div></div>
+                    <div style="text-align:right;font-size:0.78rem;color:var(--text-gray);margin-bottom:10px;" id="n2CotizProgressLabel">0% completado</div>
+                    <ul class="checklist-cotiz-n2" id="n2ChecklistCotiz">
+                        <li id="n2step_carta">      <input type="checkbox" onchange="guardarStepN2('carta',this.checked)">      <span class="step-label">Carta enviada a administradora</span><input type="date" class="step-fecha-input" id="n2fecha_carta"       onchange="guardarFechaN2('carta',this.value)"></li>
+                        <li id="n2step_aprobacion"> <input type="checkbox" onchange="guardarStepN2('aprobacion',this.checked)"> <span class="step-label">Aprobación recibida</span>             <input type="date" class="step-fecha-input" id="n2fecha_aprobacion" onchange="guardarFechaN2('aprobacion',this.value)"></li>
+                        <li id="n2step_pedidos">    <input type="checkbox" onchange="guardarStepN2('pedidos',this.checked)">    <span class="step-label">Pedidos realizados</span>              <input type="date" class="step-fecha-input" id="n2fecha_pedidos"    onchange="guardarFechaN2('pedidos',this.value)"></li>
+                        <li id="n2step_anticipo">   <input type="checkbox" onchange="guardarStepN2('anticipo',this.checked)">   <span class="step-label">Anticipo pagado 50%</span>             <input type="date" class="step-fecha-input" id="n2fecha_anticipo"   onchange="guardarFechaN2('anticipo',this.value)"></li>
+                        <li id="n2step_recepcion">  <input type="checkbox" onchange="guardarStepN2('recepcion',this.checked)">  <span class="step-label">Productos recibidos</span>             <input type="date" class="step-fecha-input" id="n2fecha_recepcion"  onchange="guardarFechaN2('recepcion',this.value)"></li>
+                        <li id="n2step_instalacion"><input type="checkbox" onchange="guardarStepN2('instalacion',this.checked)"><span class="step-label">Instalación completada</span>          <input type="date" class="step-fecha-input" id="n2fecha_instalacion" onchange="guardarFechaN2('instalacion',this.value)"></li>
+                        <li id="n2step_saldo">      <input type="checkbox" onchange="guardarStepN2('saldo',this.checked)">      <span class="step-label">Saldo pagado 50%</span>                <input type="date" class="step-fecha-input" id="n2fecha_saldo"      onchange="guardarFechaN2('saldo',this.value)"></li>
+                        <li id="n2step_docs">       <input type="checkbox" onchange="guardarStepN2('docs',this.checked)">       <span class="step-label">Docs actualizados en Drive</span>     <input type="date" class="step-fecha-input" id="n2fecha_docs"       onchange="guardarFechaN2('docs',this.value)"></li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Modal Carta Nepal 2 -->
+    <div id="cartaModalN2" class="carta-modal-n2">
+        <div class="carta-modal-inner">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                <h3 style="color:var(--primary);font-size:1.15rem;">📄 Vista Previa — Carta para Administradora</h3>
+                <button onclick="document.getElementById('cartaModalN2').classList.remove('active')" style="background:none;border:none;font-size:1.4rem;cursor:pointer;color:var(--text-gray);">✕</button>
+            </div>
+            <div style="font-size:0.86rem;line-height:1.7;color:var(--text-dark);white-space:pre-wrap;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:18px;max-height:340px;overflow-y:auto;margin:14px 0;" id="n2CartaPreview">Completa los datos del formulario para generar la carta.</div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;">
+                <button class="btn btn-primary" style="padding:9px 16px;font-size:0.85rem;" onclick="copiarCartaN2()">📋 Copiar</button>
+                <button class="btn btn-primary" style="padding:9px 16px;font-size:0.85rem;background:#f97316;" onclick="imprimirCartaN2()">🖨️ PDF/Imprimir</button>
+                <button class="btn btn-secondary" style="padding:9px 16px;font-size:0.85rem;" onclick="document.getElementById('cartaModalN2').classList.remove('active')">Cerrar</button>
+            </div>
+        </div>
     </div>
 
     <!-- Login Modal -->
@@ -2279,6 +2458,13 @@
                 actualizarPanelAdmin();
                 actualizarArchivoDocumentos();
                 renderMensajesTabN2('sosa');
+            }
+            if (sectionId === 'cotizacionesN2') {
+                renderCotizacionesN2();
+                cargarTrackingN2Cotiz();
+                actualizarKpiEstadoN2();
+                var fc = document.getElementById('n2CartaFecha');
+                if (fc && !fc.value) fc.value = new Date().toISOString().split('T')[0];
             }
         }
 
@@ -4242,6 +4428,351 @@
             }
             html += '</div>';
             container.innerHTML = html;
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // ═══════════════════════════════════════════════════════════════
+        // COTIZACIONES SST — Nepal 2
+        // ═══════════════════════════════════════════════════════════════
+
+        var ELEMENTOS_SST_N2 = [
+            { key:'botiquin',      label:'🩺 Botiquín Tipo A Empresarial' },
+            { key:'camilla',       label:'🚑 Camilla Rígida + Inmovilizador Cervical' },
+            { key:'luces',         label:'💡 Luces de Emergencia LED (×10)' },
+            { key:'senalizacion',  label:'🔏 Señalización Fotoluminiscente (Kit 23 señales + planos)' },
+            { key:'cinta',         label:'🦶 Cinta Antideslizante (80 metros)' },
+            { key:'extintor',      label:'🔥 Extintor ABC 20lb Sótano' },
+            { key:'sen_adicional', label:'🚧 Señalización Adicional (6 señales)' }
+        ];
+
+        var cotizDatosN2 = {};
+
+        function renderCotizacionesN2() {
+            var container = document.getElementById('cotizBarrasN2');
+            if (!container) return;
+            container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-gray);">⏳ Cargando...</div>';
+            database.ref('edificios/' + EDIFICIO_ID + '/cotizaciones/2026/proveedores').once('value').then(function(snap) {
+                cotizDatosN2 = snap.exists() ? snap.val() : {};
+                pintarCotizacionesN2();
+                recalcularKpiTotalesN2();
+            }).catch(function() { cotizDatosN2 = {}; pintarCotizacionesN2(); });
+        }
+
+        function pintarCotizacionesN2() {
+            var container = document.getElementById('cotizBarrasN2');
+            if (!container) return;
+            var html = '';
+            ELEMENTOS_SST_N2.forEach(function(elem) {
+                var d = cotizDatosN2[elem.key] || {};
+                var tieneAlgo = (d.p1 && d.p1.nombre) || (d.p2 && d.p2.nombre) || (d.p3 && d.p3.nombre);
+                var mejorKey  = d.mejor || '';
+                var precios = ['p1','p2','p3'].map(function(pk) {
+                    return d[pk] && d[pk].precio ? parseInt((d[pk].precio+'').replace(/[^0-9]/g,'')) || 0 : 0;
+                });
+                var maxP = Math.max.apply(null, precios) || 1;
+
+                html += '<div class="cq-item-card" id="n2card_' + elem.key + '">';
+                html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">';
+                html += '<div class="cq-item-name" style="margin-bottom:0;">' + elem.label + '</div>';
+                html += '<button class="cq-edit-btn" onclick="toggleEditCardN2(\'' + elem.key + '\')" id="n2editBtn_' + elem.key + '">'
+                    + (tieneAlgo ? '✏️ Editar' : '➕ Ingresar datos') + '</button>';
+                html += '</div>';
+
+                // Vista barras
+                html += '<div id="n2view_' + elem.key + '" ' + (tieneAlgo ? '' : 'style="display:none"') + '>';
+                if (tieneAlgo) {
+                    html += '<div class="cq-bars">';
+                    html += '<div class="cq-bar-row" style="font-size:0.71rem;color:var(--text-gray);font-weight:700;border-bottom:1px solid #f1f5f9;padding-bottom:5px;margin-bottom:4px;">'
+                        + '<span>Proveedor</span><span>Comparativo de precio</span><span style="text-align:right;">Precio</span><span style="text-align:right;">Contactar</span></div>';
+                    ['p1','p2','p3'].forEach(function(pk) {
+                        var p = d[pk] || {};
+                        if (!p.nombre) return;
+                        var precio = parseInt((p.precio+'').replace(/[^0-9]/g,'')) || 0;
+                        var pct = maxP > 0 ? Math.round((precio / maxP) * 100) : 0;
+                        var esMejor = mejorKey === pk;
+                        var barCls = esMejor ? 'mejor' : pk;
+                        var precioFmt = precio > 0 ? '$' + precio.toLocaleString('es-CO') : '—';
+                        html += '<div class="cq-bar-row">';
+                        html += '<div class="cq-bar-label"><span style="font-weight:700;color:var(--text-dark);">' + p.nombre + '</span>'
+                            + (esMejor ? ' <span class="cq-mejor-tag">⭐ Mejor</span>' : '')
+                            + (p.obs ? '<div style="font-size:0.7rem;color:var(--text-gray);">' + p.obs + '</div>' : '')
+                            + '</div>';
+                        html += '<div class="cq-bar-track"><div class="cq-bar-fill ' + barCls + '" style="width:' + pct + '%">'
+                            + (pct > 20 ? precioFmt : '') + '</div></div>';
+                        html += '<div class="cq-bar-price">' + precioFmt + '</div>';
+                        var telLimpio = (p.tel || '').replace(/[^0-9]/g,'');
+                        html += '<div class="cq-bar-action">'
+                            + (telLimpio ? '<button class="cq-wa-btn" onclick="enviarWhatsApp(\'' + telLimpio + '\',\'Hola ' + (p.nombre||'').replace(/'/g,"\\'") + ', solicito cotización SST para: ' + elem.label.replace(/'/g,"\\'") + '\')">📞 WA</button>' : '<span style="font-size:0.75rem;color:#cbd5e1;">Sin tel.</span>')
+                            + '</div>';
+                        html += '</div>';
+                    });
+                    html += '</div>';
+                }
+                html += '</div>';
+
+                // Formulario edición
+                html += '<div id="n2form_' + elem.key + '" style="display:' + (tieneAlgo ? 'none' : 'block') + ';margin-top:10px;">';
+                html += '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;">';
+                ['p1','p2','p3'].forEach(function(pk, idx) {
+                    var p = d[pk] || {};
+                    var pLabel = ['Proveedor 1','Proveedor 2','Proveedor 3'][idx];
+                    html += '<div style="background:#f8fafc;border-radius:10px;padding:14px;border:2px solid #e2e8f0;">'
+                        + '<div style="font-size:0.78rem;font-weight:700;color:var(--primary);margin-bottom:8px;text-transform:uppercase;">' + pLabel + '</div>'
+                        + '<div style="display:flex;flex-direction:column;gap:6px;">'
+                        + '<input type="text"   id="n2inp_' + elem.key + '_' + pk + '_nombre"  placeholder="Nombre proveedor" value="' + (p.nombre||'') + '" style="padding:7px 10px;border:1px solid #e2e8f0;border-radius:7px;font-size:0.84rem;width:100%;">'
+                        + '<input type="number" id="n2inp_' + elem.key + '_' + pk + '_precio"  placeholder="Precio (ej: 180000)" value="' + (p.precio ? parseInt((p.precio+'').replace(/[^0-9]/g,'')) : '') + '" style="padding:7px 10px;border:1px solid #e2e8f0;border-radius:7px;font-size:0.84rem;width:100%;">'
+                        + '<input type="tel"    id="n2inp_' + elem.key + '_' + pk + '_tel"     placeholder="Teléfono WA (ej: 573001234567)" value="' + (p.tel||'') + '" style="padding:7px 10px;border:1px solid #e2e8f0;border-radius:7px;font-size:0.84rem;width:100%;">'
+                        + '<input type="text"   id="n2inp_' + elem.key + '_' + pk + '_obs"     placeholder="Observaciones (garantía, instalación...)" value="' + (p.obs||'') + '" style="padding:7px 10px;border:1px solid #e2e8f0;border-radius:7px;font-size:0.84rem;width:100%;">'
+                        + '</div>'
+                        + '<label style="display:flex;align-items:center;gap:6px;margin-top:8px;font-size:0.81rem;font-weight:600;cursor:pointer;">'
+                        + '<input type="radio" name="n2mejor_' + elem.key + '" value="' + pk + '" ' + (mejorKey===pk ? 'checked' : '') + ' style="accent-color:var(--success);"> ⭐ Marcar como mejor opción'
+                        + '</label>'
+                        + '</div>';
+                });
+                html += '</div>';
+                html += '<div style="margin-top:12px;display:flex;gap:8px;">'
+                    + '<button class="btn btn-primary" style="padding:8px 16px;font-size:0.83rem;" onclick="guardarCotizN2(\'' + elem.key + '\')">💾 Guardar</button>'
+                    + (tieneAlgo ? '<button class="btn btn-secondary" style="padding:8px 14px;font-size:0.83rem;" onclick="toggleEditCardN2(\'' + elem.key + '\',true)">Cancelar</button>' : '')
+                    + '</div>';
+                html += '</div>';
+                html += '</div>';
+            });
+            container.innerHTML = html;
+        }
+
+        function toggleEditCardN2(key, cancelar) {
+            var formEl = document.getElementById('n2form_' + key);
+            var viewEl = document.getElementById('n2view_' + key);
+            var btnEl  = document.getElementById('n2editBtn_' + key);
+            if (!formEl) return;
+            var showing = formEl.style.display !== 'none';
+            if (cancelar || showing) {
+                formEl.style.display = 'none';
+                if (viewEl) viewEl.style.display = 'block';
+                if (btnEl) btnEl.textContent = '✏️ Editar';
+            } else {
+                formEl.style.display = 'block';
+                if (viewEl) viewEl.style.display = 'none';
+                if (btnEl) btnEl.textContent = '✕ Cerrar';
+            }
+        }
+
+        function guardarCotizN2(key) {
+            var data = {};
+            ['p1','p2','p3'].forEach(function(pk) {
+                var nombre    = (document.getElementById('n2inp_' + key + '_' + pk + '_nombre') || {}).value || '';
+                var precioRaw = (document.getElementById('n2inp_' + key + '_' + pk + '_precio') || {}).value || '';
+                var tel       = (document.getElementById('n2inp_' + key + '_' + pk + '_tel')    || {}).value || '';
+                var obs       = (document.getElementById('n2inp_' + key + '_' + pk + '_obs')    || {}).value || '';
+                data[pk] = { nombre:nombre, precio:precioRaw ? parseInt(precioRaw) : '', tel:tel, obs:obs };
+            });
+            var mejorRadio = document.querySelector('input[name="n2mejor_' + key + '"]:checked');
+            if (mejorRadio) data.mejor = mejorRadio.value;
+
+            database.ref('edificios/' + EDIFICIO_ID + '/cotizaciones/2026/proveedores/' + key).set(data).then(function() {
+                mostrarToast('✅ Guardado correctamente');
+                cotizDatosN2[key] = data;
+                pintarCotizacionesN2();
+                recalcularKpiTotalesN2();
+            }).catch(function() { mostrarToast('❌ Error al guardar', 'error'); });
+        }
+
+        function recalcularKpiTotalesN2() {
+            var totEco = 0, totRec = 0, totPre = 0, completos = 0;
+            ELEMENTOS_SST_N2.forEach(function(elem) {
+                var d = cotizDatosN2[elem.key] || {};
+                var precios = ['p1','p2','p3'].map(function(pk) {
+                    return d[pk] && d[pk].precio ? parseInt((d[pk].precio+'').replace(/[^0-9]/g,'')) || 0 : 0;
+                }).filter(function(p) { return p > 0; });
+                if (precios.length > 0) {
+                    completos++;
+                    totEco += Math.min.apply(null, precios);
+                    totPre += Math.max.apply(null, precios);
+                    var mejorP = 0;
+                    if (d.mejor && d[d.mejor] && d[d.mejor].precio)
+                        mejorP = parseInt((d[d.mejor].precio+'').replace(/[^0-9]/g,'')) || 0;
+                    totRec += mejorP || Math.min.apply(null, precios);
+                }
+            });
+            var sub = completos + '/' + ELEMENTOS_SST_N2.length + ' elementos cotizados';
+            var ecoEl = document.getElementById('n2KpiEco');
+            var recEl = document.getElementById('n2KpiRec');
+            var preEl = document.getElementById('n2KpiPre');
+            var ecoSub = document.getElementById('n2KpiEcoSub');
+            var recSub = document.getElementById('n2KpiRecSub');
+            if (ecoEl) ecoEl.textContent = totEco > 0 ? '$' + Math.round(totEco/1000) + 'K' : '—';
+            if (recEl) recEl.textContent = totRec > 0 ? '$' + Math.round(totRec/1000) + 'K' : '—';
+            if (preEl) preEl.textContent = totPre > 0 ? '$' + Math.round(totPre/1000) + 'K' : '—';
+            if (ecoSub) ecoSub.textContent = sub;
+            if (recSub) recSub.textContent = sub;
+            window._preciosCartaN2 = {
+                economica:   totEco > 0 ? '$' + totEco.toLocaleString('es-CO') : 'Por definir',
+                recomendada: totRec > 0 ? '$' + totRec.toLocaleString('es-CO') : 'Por definir',
+                premium:     totPre > 0 ? '$' + totPre.toLocaleString('es-CO') : 'Por definir'
+            };
+        }
+
+        // --- TRACKING COTIZACIONES N2 ---
+        var STEPS_COTIZ_N2 = ['carta','aprobacion','pedidos','anticipo','recepcion','instalacion','saldo','docs'];
+
+        function cargarTrackingN2Cotiz() {
+            database.ref('edificios/' + EDIFICIO_ID + '/cotizaciones/2026/tracking').once('value').then(function(snap) {
+                if (!snap.exists()) return;
+                var data = snap.val();
+                var done = 0;
+                STEPS_COTIZ_N2.forEach(function(step) {
+                    if (data[step] && data[step].completado) {
+                        var li = document.getElementById('n2step_' + step);
+                        var cb = li ? li.querySelector('input[type="checkbox"]') : null;
+                        if (cb) cb.checked = true;
+                        if (li) li.classList.add('done');
+                        done++;
+                        if (data[step].fecha) {
+                            var fi = document.getElementById('n2fecha_' + step);
+                            if (fi) fi.value = data[step].fecha;
+                        }
+                    }
+                });
+                actualizarProgressBarN2(done);
+            });
+        }
+
+        function guardarStepN2(step, completado) {
+            var fi = document.getElementById('n2fecha_' + step);
+            var data = { completado: completado };
+            if (fi && fi.value) data.fecha = fi.value;
+            database.ref('edificios/' + EDIFICIO_ID + '/cotizaciones/2026/tracking/' + step).update(data).then(function() {
+                var li = document.getElementById('n2step_' + step);
+                if (li) { if (completado) li.classList.add('done'); else li.classList.remove('done'); }
+                recalcularProgressN2();
+                mostrarToast(completado ? '✅ Paso completado' : 'Paso desmarcado');
+                recalcularCompletadoTotalN2();
+            }).catch(function() { mostrarToast('❌ Error al guardar', 'error'); });
+        }
+
+        function guardarFechaN2(step, fecha) {
+            database.ref('edificios/' + EDIFICIO_ID + '/cotizaciones/2026/tracking/' + step).update({ fecha: fecha });
+        }
+
+        function recalcularProgressN2() {
+            var done = STEPS_COTIZ_N2.filter(function(s) {
+                var li = document.getElementById('n2step_' + s);
+                return li && li.classList.contains('done');
+            }).length;
+            actualizarProgressBarN2(done);
+        }
+
+        function actualizarProgressBarN2(done) {
+            var pct = Math.round((done / STEPS_COTIZ_N2.length) * 100);
+            var fill  = document.getElementById('n2CotizProgress');
+            var label = document.getElementById('n2CotizProgressLabel');
+            if (fill)  fill.style.width = pct + '%';
+            if (label) label.textContent = pct + '% completado (' + done + '/' + STEPS_COTIZ_N2.length + ' pasos)';
+        }
+
+        function recalcularCompletadoTotalN2() {
+            var todos = STEPS_COTIZ_N2.every(function(s) {
+                var li = document.getElementById('n2step_' + s);
+                return li && li.classList.contains('done');
+            });
+            database.ref('edificios/' + EDIFICIO_ID + '/cotizaciones/2026/completado').set(todos);
+        }
+
+        function actualizarKpiEstadoN2() {
+            database.ref('edificios/' + EDIFICIO_ID + '/cotizaciones/2026/tracking').once('value').then(function(snap) {
+                var el  = document.getElementById('n2KpiEstado');
+                var sub = document.getElementById('n2KpiEstadoSub');
+                var roi = document.getElementById('n2KpiEstadoRoi');
+                if (!el) return;
+                if (!snap.exists()) return;
+                var d = snap.val();
+                var done = STEPS_COTIZ_N2.filter(function(s) { return d[s] && d[s].completado; }).length;
+                var pct = Math.round((done / STEPS_COTIZ_N2.length) * 100);
+                if (pct === 100) {
+                    el.textContent = '✅ Completo';
+                    if (sub) sub.textContent = 'Todos los pasos completados';
+                    if (roi) { roi.textContent = '¡Implementado!'; roi.className = 'cq-roi up'; }
+                } else if (done === 0) {
+                    el.textContent = '⏳ Sin iniciar';
+                    if (sub) sub.textContent = 'Ningún paso completado';
+                } else {
+                    el.textContent = pct + '% (' + done + '/8)';
+                    if (sub) sub.textContent = done + ' pasos completados';
+                    if (roi) roi.textContent = 'En proceso';
+                }
+            });
+        }
+
+        // --- CARTA NEPAL 2 ---
+        function generarTextoCartaN2() {
+            var admin = (document.getElementById('n2CartaNombre') || {}).value || 'Señora Administradora';
+            var fechaEl = document.getElementById('n2CartaFecha');
+            var fecha = fechaEl && fechaEl.value
+                ? new Date(fechaEl.value + 'T00:00:00').toLocaleDateString('es-CO',{day:'numeric',month:'long',year:'numeric'})
+                : new Date().toLocaleDateString('es-CO',{day:'numeric',month:'long',year:'numeric'});
+            var opcion = (document.getElementById('n2CartaOpcion') || {}).value || 'recomendada';
+            var labels = { economica:'Económica', recomendada:'Recomendada ⭐', premium:'Premium' };
+            var precios = window._preciosCartaN2 || { economica:'Por definir', recomendada:'Por definir', premium:'Por definir' };
+            var precio = precios[opcion];
+
+            return 'Bogotá D.C., ' + fecha + '\n\n'
+                + admin + '\n'
+                + 'Administradora — Edificio Nepal 2\n\n'
+                + 'Asunto: SOLICITUD DE APROBACIÓN — Elementos de Seguridad Obligatorios SG-SST 2026\n\n'
+                + 'Respetada Administradora,\n\n'
+                + 'En cumplimiento de mis funciones como profesional responsable del Sistema de Gestión de Seguridad y Salud en el Trabajo (SG-SST) del edificio, y en aplicación de la Resolución 0312 de 2019 del Ministerio de Trabajo, me permito presentar la siguiente solicitud formal.\n\n'
+                + '═══════════════════════════════\n'
+                + 'ELEMENTOS REQUERIDOS\n'
+                + '═══════════════════════════════\n\n'
+                + '🔴 Elementos prioritarios:\n'
+                + '  • Botiquín de primeros auxilios Tipo A\n'
+                + '  • Camilla rígida + inmovilizador cervical\n'
+                + '  • Luces de emergencia LED (×10)\n'
+                + '  • Señalización fotoluminiscente (kit 23 señales + planos)\n'
+                + '  • Cinta antideslizante (80 metros)\n'
+                + '  • Extintor ABC 20lb sótano\n'
+                + '  • Señalización adicional (6 señales)\n\n'
+                + '═══════════════════════════════\n'
+                + 'RIESGO LEGAL\n'
+                + '═══════════════════════════════\n\n'
+                + '⚠️ La ausencia de estos elementos puede generar:\n'
+                + '  • Multas del Ministerio de Trabajo (hasta 500 SMLMV)\n'
+                + '  • Responsabilidad solidaria de la administración\n'
+                + '  • Responsabilidad civil ante accidentes\n\n'
+                + '═══════════════════════════════\n'
+                + 'INVERSIÓN REQUERIDA — Opción ' + labels[opcion] + '\n'
+                + '═══════════════════════════════\n\n'
+                + '  Total estimado: ' + precio + '\n'
+                + '  Condición de pago: 50% anticipo + 50% contra entrega\n\n'
+                + 'Solicito respetuosamente su aprobación para proceder con la adquisición e instalación.\n\n'
+                + 'Cordialmente,\n\n'
+                + 'Carla Castellano Madriz\n'
+                + 'C.E. 679955\n'
+                + 'Profesional SST — SG-SST Nepal 2\n'
+                + 'Tel: +57 302 6662046';
+        }
+
+        function actualizarPreviewCartaN2() {
+            var el = document.getElementById('n2CartaPreview');
+            if (el) el.textContent = generarTextoCartaN2();
+        }
+
+        function mostrarCartaModalN2() {
+            actualizarPreviewCartaN2();
+            document.getElementById('cartaModalN2').classList.add('active');
+        }
+
+        function copiarCartaN2() {
+            copiarMensaje(generarTextoCartaN2());
+        }
+
+        function imprimirCartaN2() {
+            var texto = generarTextoCartaN2();
+            var v = window.open('', '_blank');
+            v.document.write('<html><head><title>Carta SST Nepal 2</title>'
+                + '<style>body{font-family:Arial,sans-serif;font-size:12px;line-height:1.7;padding:40px;max-width:700px;margin:0 auto;white-space:pre-wrap;}</style></head>'
+                + '<body>' + texto.replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</body></html>');
+            v.document.close(); v.focus(); v.print();
         }
 
         // ═══════════════════════════════════════════════════════════════
