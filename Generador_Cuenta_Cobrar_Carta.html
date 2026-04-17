@@ -340,6 +340,7 @@
         <div class="btn-container">
             <button class="btn" onclick="generarDocumento()">👁️ Ver Vista Previa</button>
             <button class="btn" id="btnGuardarCuenta" onclick="guardarCuentaNube()">☁️ Guardar en la Nube</button>
+            <button class="btn" id="btnEnviarCorreo" onclick="marcarParaEnvio()" style="background: linear-gradient(135deg, #27ae60, #2ecc71); display:none;">📧 Enviar por Correo</button>
             <button class="btn" onclick="imprimirCuenta()">🖨️ Imprimir / Descargar PDF</button>
         </div>
     </div>
@@ -564,15 +565,24 @@
 
                 // PASO 6: Guardar en Realtime Database
                 await _dbCC.ref(`edificios/nepal-2/cuentas/${clave}`).set({
-                    generado:    true,
-                    fecha:       ahora.toISOString(),
-                    mes:         mesNum,
-                    año:         año,
-                    link:        downloadURL,
-                    archivo:     nombreArchivo,
-                    descripcion: descripcion,
-                    valor:       valor
+                    generado:       true,
+                    fecha:          ahora.toISOString(),
+                    mes:            mesNum,
+                    año:            año,
+                    link:           downloadURL,
+                    archivo:        nombreArchivo,
+                    descripcion:    descripcion,
+                    valor:          valor,
+                    pendienteEnvio: false,
+                    enviado:        false
                 });
+
+                // Mostrar botón de enviar correo
+                const btnEnviar = document.getElementById('btnEnviarCorreo');
+                if (btnEnviar) {
+                    btnEnviar.style.display = 'inline-block';
+                    btnEnviar.dataset.clave = clave;
+                }
 
                 // PASO 7: Descargar copia local
                 pdf.save(nombreArchivo);
@@ -594,6 +604,24 @@
                 console.error('Error guardando cuenta:', error);
                 if (btn) { btn.disabled = false; btn.innerHTML = textoOriginal; }
                 alert('❌ Error al guardar. Intenta de nuevo.');
+            }
+        }
+
+        async function marcarParaEnvio() {
+            const btn  = document.getElementById('btnEnviarCorreo');
+            const clave = btn ? btn.dataset.clave : null;
+            if (!clave) { alert('Primero guarda la cuenta en la nube.'); return; }
+            if (!_dbCC)  { alert('Firebase no está listo. Recarga la página.'); return; }
+
+            btn.disabled  = true;
+            btn.innerHTML = '⏳ Marcando...';
+            try {
+                await _dbCC.ref(`edificios/nepal-2/cuentas/${clave}`).update({ pendienteEnvio: true });
+                btn.innerHTML = '✅ ¡Listo! El correo se enviará en minutos.';
+            } catch(e) {
+                btn.disabled  = false;
+                btn.innerHTML = '📧 Enviar por Correo';
+                alert('Error: ' + e.message);
             }
         }
 
