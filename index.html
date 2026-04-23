@@ -1195,7 +1195,7 @@
             <button class="nav-btn private" onclick="showPrivateSection('herramientas')" id="btnHerramientas" style="display:none;">
                 🔧 Herramientas Admin
             </button>
-            <button class="nav-btn private" onclick="showPrivateSection('cotizacionesN2')" id="btnCotizacionesN2" style="display:none;">
+            <button class="nav-btn" onclick="showCotizacionesPublic(event)" id="btnCotizacionesN2">
                 💰 Cotizaciones SST
             </button>
             <button class="nav-btn" onclick="window.location.href='habeas-data-nepal2.html'">📋 Habeas Data</button>
@@ -1331,6 +1331,28 @@
                         <img src="2.png" alt="Mapa de Evacuación Planta Sótano - Edificio Nepal II" loading="lazy">
                         <div class="emergency-map-caption">🅿️ Planta Sótano — Garajes y Zonas de Parqueo</div>
                     </div>
+                </div>
+            </div>
+
+            <!-- Informes y Cuentas por Cobrar — Vista pública -->
+            <div class="record-form" style="margin-top:24px;">
+                <h3 style="margin-bottom:6px;">📁 Informes y Cuentas por Cobrar 2026</h3>
+                <p style="color:var(--text-gray);font-size:0.87rem;margin-bottom:16px;">
+                    Documentos mensuales del Sistema de Gestión SST — Edificio Nepal 2
+                </p>
+                <div style="overflow-x:auto;">
+                    <table style="width:100%;border-collapse:collapse;font-size:0.92rem;">
+                        <thead>
+                            <tr style="background:var(--primary);color:white;">
+                                <th style="padding:10px 14px;text-align:left;">Mes</th>
+                                <th style="padding:10px 14px;text-align:center;">📋 Informe Mensual SST</th>
+                                <th style="padding:10px 14px;text-align:center;">💰 Cuenta por Cobrar</th>
+                            </tr>
+                        </thead>
+                        <tbody id="archivoDocBodyDashboard">
+                            <tr><td colspan="3" style="text-align:center;padding:20px;color:var(--text-gray);">⏳ Cargando documentos...</td></tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
 
@@ -2441,6 +2463,18 @@
             event.target.classList.add('active');
         }
 
+        function showCotizacionesPublic(e) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('cotizacionesN2').classList.add('active');
+            e.target.classList.add('active');
+            renderCotizacionesN2();
+            cargarTrackingN2Cotiz();
+            actualizarKpiEstadoN2();
+            var fc = document.getElementById('n2CartaFecha');
+            if (fc && !fc.value) fc.value = new Date().toISOString().split('T')[0];
+        }
+
         function showPrivateSection(sectionId) {
             if (!isLoggedIn) {
                 document.getElementById('loginModal').classList.add('active');
@@ -2581,7 +2615,13 @@
         document.addEventListener('DOMContentLoaded', async function() {
             console.log('🚀 Sistema Nepal 2 cargado');
             await actualizarDashboard2026();
+            actualizarArchivoDocumentos();
         });
+
+        function compartirWA(tipo, mes, link) {
+            const texto = encodeURIComponent('Hola, te comparto el ' + tipo + ' de ' + mes + ' — Edificio Nepal 2:\n' + link);
+            window.open('https://wa.me/?text=' + texto, '_blank');
+        }
 
         setInterval(function() {
             actualizarDashboard2026();
@@ -3238,9 +3278,12 @@
                 const tbodyEjec = document.getElementById('archivoDocBodyEjec');
                 // ─── Tabla de Herramientas Admin ───
                 const tbodyAdmin = document.getElementById('archivoDocBodyAdmin');
+                // ─── Tabla pública del Dashboard ───
+                const tbodyDash = document.getElementById('archivoDocBodyDashboard');
 
                 let htmlEjec = '';
                 let htmlAdmin = '';
+                let htmlDash = '';
 
                 for (let m = 0; m < 12; m++) {
                     const clave = `${año}-${String(m+1).padStart(2,'0')}`;
@@ -3284,10 +3327,35 @@
                         <td>${cueCell}</td>
                         <td>${estadoAdmin}</td>
                     </tr>`;
+
+                    // ─── Fila pública (Dashboard): solo Ver + WhatsApp ───
+                    const infLink = (informesLinks2[clave] && informesLinks2[clave].link) || '';
+                    const cueLink = (cuentas[clave] && cuentas[clave].link) || '';
+                    const mesNombre = MESES_NOMBRES[m] + ' 2026';
+
+                    const infDash = esFuturo ? '<span style="color:#cbd5e1;">—</span>' :
+                        infLink ? `<div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap;">
+                            <button onclick="window.open('${infLink}','_blank')" style="background:#10b981;color:white;border:none;padding:5px 12px;border-radius:6px;cursor:pointer;font-size:0.82rem;font-weight:600;">📄 Ver</button>
+                            <button onclick="compartirWA('Informe SST','${mesNombre}','${infLink}')" style="background:#25D366;color:white;border:none;padding:5px 12px;border-radius:6px;cursor:pointer;font-size:0.82rem;font-weight:600;">📲 WhatsApp</button>
+                        </div>` : '<span style="color:#cbd5e1;font-size:0.8rem;">Sin documento</span>';
+
+                    const cueDash = esFuturo ? '<span style="color:#cbd5e1;">—</span>' :
+                        cueLink ? `<div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap;">
+                            <button onclick="window.open('${cueLink}','_blank')" style="background:#10b981;color:white;border:none;padding:5px 12px;border-radius:6px;cursor:pointer;font-size:0.82rem;font-weight:600;">📄 Ver</button>
+                            <button onclick="compartirWA('Cuenta por Cobrar','${mesNombre}','${cueLink}')" style="background:#25D366;color:white;border:none;padding:5px 12px;border-radius:6px;cursor:pointer;font-size:0.82rem;font-weight:600;">📲 WhatsApp</button>
+                        </div>` : '<span style="color:#cbd5e1;font-size:0.8rem;">Sin documento</span>';
+
+                    htmlDash += `
+                    <tr class="${rowClass}" style="border-bottom:1px solid #e2e8f0;">
+                        <td style="font-weight:600;padding:10px 14px;">${mesLabel}</td>
+                        <td style="padding:8px;text-align:center;">${infDash}</td>
+                        <td style="padding:8px;text-align:center;">${cueDash}</td>
+                    </tr>`;
                 }
 
                 if (tbodyEjec)  tbodyEjec.innerHTML  = htmlEjec;
                 if (tbodyAdmin) tbodyAdmin.innerHTML = htmlAdmin;
+                if (tbodyDash)  tbodyDash.innerHTML  = htmlDash;
 
             }).catch(err => {
                 console.error('Error archivo docs:', err);
