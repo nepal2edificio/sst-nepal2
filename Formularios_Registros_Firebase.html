@@ -8,6 +8,7 @@
     <!-- Firebase Scripts -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
     
     <style>
         * {
@@ -552,7 +553,7 @@
         <div class="file-upload" onclick="document.getElementById('fileInduccion').click()">
             <p>📎 Click para adjuntar archivos</p>
             <small>Lista de asistencia, fotos, presentaciones, evaluaciones</small>
-            <input type="file" id="fileInduccion" name="archivos" multiple accept=".pdf,.jpg,.png,.xlsx,.docx">
+            <input type="file" id="fileInduccion" name="archivos" multiple accept=".pdf,.jpg,.png,.xlsx,.docx" onchange="handleFileChange('fileInduccion','filesInduccion','induccion')">
         </div>
         <div class="uploaded-files" id="filesInduccion"></div>
     </div>
@@ -686,7 +687,8 @@ document.getElementById('formInduccion').addEventListener('submit', async functi
         // 2. ID: usar existente si editando, o nuevo
         const induccionId = editandoInduccionId || ('induccion-' + Date.now());
 
-        // 3. GUARDAR EN FIREBASE
+        // 3. SUBIR ARCHIVOS Y GUARDAR EN FIREBASE
+        datos.archivos = await uploadFilesAlStorage('induccion', induccionId);
         const ref = database.ref(`edificios/${EDIFICIO_ID}/inducciones/${induccionId}`);
         await ref.set(datos);
         
@@ -708,7 +710,7 @@ Firebase → edificios/nepal-2/inducciones/`);
         if (bannerInd) bannerInd.style.display = 'none';
         e.target.reset();
         document.getElementById('totalAsistentes').value = '';
-        document.getElementById('filesInduccion').innerHTML = '';
+        limpiarArchivos('induccion', 'filesInduccion');
         btn.innerHTML = '💾 Guardar Registro';
 
         // 6. RECARGAR TABLA DE REGISTROS
@@ -1012,7 +1014,7 @@ window.addEventListener('DOMContentLoaded', cargarRegistrosInducciones);
         <div class="file-upload" onclick="document.getElementById('fileInspeccion').click()">
             <p>📷 Click para adjuntar fotos</p>
             <small>Fotos de hallazgos, condiciones revisadas, evidencias</small>
-            <input type="file" id="fileInspeccion" name="archivos" multiple accept="image/*,.pdf">
+            <input type="file" id="fileInspeccion" name="archivos" multiple accept="image/*,.pdf" onchange="handleFileChange('fileInspeccion','filesInspeccion','inspeccion')">
         </div>
         <div class="uploaded-files" id="filesInspeccion"></div>
     </div>
@@ -1114,7 +1116,8 @@ document.getElementById('formInspecciones').addEventListener('submit', async fun
         // Generar ID
         const inspeccionId = 'inspeccion-' + Date.now();
         
-        // Guardar en Firebase
+        // Subir archivos y guardar en Firebase
+        datos.archivos = await uploadFilesAlStorage('inspeccion', inspeccionId);
         const ref = database.ref(`edificios/${EDIFICIO_ID}/inspecciones/${inspeccionId}`);
         await ref.set(datos);
         
@@ -1132,7 +1135,7 @@ Firebase → edificios/nepal-2/inspecciones/`);
         
         // Limpiar formulario
         e.target.reset();
-        document.getElementById('filesInspeccion').innerHTML = '';
+        limpiarArchivos('inspeccion', 'filesInspeccion');
         document.getElementById('inspeccion-locativa').style.display = 'none';
         document.getElementById('inspeccion-equipos').style.display = 'none';
         
@@ -1342,7 +1345,7 @@ window.addEventListener('DOMContentLoaded', cargarRegistrosInspecciones);
         <div class="file-upload" onclick="document.getElementById('fileMantenimiento').click()">
             <p>📎 Click para adjuntar archivos</p>
             <small>Fotos antes/después, facturas, certificados, garantías</small>
-            <input type="file" id="fileMantenimiento" name="archivos" multiple accept="image/*,.pdf,.xlsx,.docx">
+            <input type="file" id="fileMantenimiento" name="archivos" multiple accept="image/*,.pdf,.xlsx,.docx" onchange="handleFileChange('fileMantenimiento','filesMantenimiento','mantenimiento')">
         </div>
         <div class="uploaded-files" id="filesMantenimiento"></div>
     </div>
@@ -1397,7 +1400,8 @@ document.getElementById('formMantenimiento').addEventListener('submit', async fu
         // Generar ID único
         const mantenimientoId = 'mantenimiento-' + Date.now();
         
-        // Guardar en Firebase
+        // Subir archivos y guardar en Firebase
+        datos.archivos = await uploadFilesAlStorage('mantenimiento', mantenimientoId);
         const ref = database.ref(`edificios/${EDIFICIO_ID}/mantenimientos/${mantenimientoId}`);
         await ref.set(datos);
         
@@ -1417,7 +1421,7 @@ Firebase → edificios/nepal-2/mantenimientos/`);
         
         // Limpiar formulario
         e.target.reset();
-        document.getElementById('filesMantenimiento').innerHTML = '';
+        limpiarArchivos('mantenimiento', 'filesMantenimiento');
         
         // Recargar tabla
         cargarRegistrosMantenimientos();
@@ -1680,7 +1684,7 @@ window.addEventListener('DOMContentLoaded', cargarRegistrosMantenimientos);
         <div class="file-upload" onclick="document.getElementById('fileContratistas').click()">
             <p>📎 Click para adjuntar archivos</p>
             <small>Afiliaciones, certificados, matriz de riesgos, exámenes médicos, EPP</small>
-            <input type="file" id="fileContratistas" name="archivos" multiple accept=".pdf,.jpg,.png,.xlsx">
+            <input type="file" id="fileContratistas" name="archivos" multiple accept=".pdf,.jpg,.png,.xlsx" onchange="handleFileChange('fileContratistas','filesContratistas','contratistas')">
         </div>
         <div class="uploaded-files" id="filesContratistas"></div>
     </div>
@@ -1776,7 +1780,8 @@ document.getElementById('formContratistas').addEventListener('submit', async fun
         // Generar ID único
         const contratistaId = 'contratista-' + Date.now();
         
-        // Guardar en Firebase
+        // Subir archivos y guardar en Firebase
+        datos.archivos = await uploadFilesAlStorage('contratistas', contratistaId);
         const ref = database.ref(`edificios/${EDIFICIO_ID}/contratistas/${contratistaId}`);
         await ref.set(datos);
         
@@ -1802,7 +1807,7 @@ Firebase → edificios/nepal-2/contratistas/`);
         e.target.reset();
         document.getElementById('cumplimientoDisplay').textContent = '0%';
         document.getElementById('cumplimientoValue').value = '0';
-        document.getElementById('filesContratistas').innerHTML = '';
+        limpiarArchivos('contratistas', 'filesContratistas');
         
         // Recargar tabla
         cargarRegistrosContratistas();
@@ -2075,7 +2080,7 @@ window.addEventListener('DOMContentLoaded', cargarRegistrosContratistas);
         <div class="file-upload" onclick="document.getElementById('fileAccidentes').click()">
             <p>📎 Click para adjuntar archivos</p>
             <small>Fotos del lugar, FURAT, reportes médicos, testimonios, formato de investigación</small>
-            <input type="file" id="fileAccidentes" name="archivos" multiple accept="image/*,.pdf,.docx">
+            <input type="file" id="fileAccidentes" name="archivos" multiple accept="image/*,.pdf,.docx" onchange="handleFileChange('fileAccidentes','filesAccidentes','accidentes')">
         </div>
         <div class="uploaded-files" id="filesAccidentes"></div>
     </div>
@@ -2159,7 +2164,8 @@ document.getElementById('formAccidentes').addEventListener('submit', async funct
         // Generar ID único
         const accidenteId = 'accidente-' + Date.now();
         
-        // Guardar en Firebase
+        // Subir archivos y guardar en Firebase
+        datos.archivos = await uploadFilesAlStorage('accidentes', accidenteId);
         const ref = database.ref(`edificios/${EDIFICIO_ID}/accidentes/${accidenteId}`);
         await ref.set(datos);
         
@@ -2188,7 +2194,7 @@ Firebase → edificios/nepal-2/accidentes/`);
         
         // Limpiar formulario
         e.target.reset();
-        document.getElementById('filesAccidentes').innerHTML = '';
+        limpiarArchivos('accidentes', 'filesAccidentes');
         
         // Recargar tabla
         cargarRegistrosAccidentes();
@@ -2475,7 +2481,7 @@ window.addEventListener('DOMContentLoaded', cargarRegistrosAccidentes);
         <div class="file-upload" onclick="document.getElementById('fileSimulacros').click()">
             <p>📷 Click para adjuntar archivos</p>
             <small>Fotos, videos, actas, listas de asistencia, formato de evaluación</small>
-            <input type="file" id="fileSimulacros" name="archivos" multiple accept="image/*,video/*,.pdf,.xlsx,.docx">
+            <input type="file" id="fileSimulacros" name="archivos" multiple accept="image/*,video/*,.pdf,.xlsx,.docx" onchange="handleFileChange('fileSimulacros','filesSimulacros','simulacros')">
         </div>
         <div class="uploaded-files" id="filesSimulacros"></div>
     </div>
@@ -2556,7 +2562,8 @@ document.getElementById('formSimulacros').addEventListener('submit', async funct
         // Generar ID único
         const simulacroId = 'simulacro-' + Date.now();
         
-        // Guardar en Firebase
+        // Subir archivos y guardar en Firebase
+        datos.archivos = await uploadFilesAlStorage('simulacros', simulacroId);
         const ref = database.ref(`edificios/${EDIFICIO_ID}/simulacros/${simulacroId}`);
         await ref.set(datos);
         
@@ -2583,7 +2590,7 @@ Firebase → edificios/nepal-2/simulacros/`);
         
         // Limpiar formulario
         e.target.reset();
-        document.getElementById('filesSimulacros').innerHTML = '';
+        limpiarArchivos('simulacros', 'filesSimulacros');
         
         // Recargar tabla
         cargarRegistrosSimulacros();
@@ -2701,6 +2708,7 @@ window.addEventListener('DOMContentLoaded', cargarRegistrosSimulacros);
 
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
+        const storage = firebase.storage();
         const EDIFICIO_ID = 'nepal-2';
 
         console.log('✅ Firebase inicializado - Nepal 2');
@@ -2733,9 +2741,77 @@ window.addEventListener('DOMContentLoaded', cargarRegistrosSimulacros);
         // ═══════════════════════════════════════════════════════════════
         // UTILITY FUNCTIONS
         // ═══════════════════════════════════════════════════════════════
+        // ═══════════════════════════════════════════════════════════════
+        // MANEJO DE ARCHIVOS ADJUNTOS
+        // ═══════════════════════════════════════════════════════════════
+
+        const archivosSeleccionados = {
+            induccion: [], inspeccion: [], mantenimiento: [],
+            contratistas: [], accidentes: [], simulacros: []
+        };
+
+        const formFileMap = {
+            formInduccion:     { key: 'induccion',     container: 'filesInduccion' },
+            formInspecciones:  { key: 'inspeccion',    container: 'filesInspeccion' },
+            formMantenimiento: { key: 'mantenimiento', container: 'filesMantenimiento' },
+            formContratistas:  { key: 'contratistas',  container: 'filesContratistas' },
+            formAccidentes:    { key: 'accidentes',    container: 'filesAccidentes' },
+            formSimulacros:    { key: 'simulacros',    container: 'filesSimulacros' }
+        };
+
+        function handleFileChange(inputId, containerId, formKey) {
+            const input = document.getElementById(inputId);
+            Array.from(input.files).forEach(f => archivosSeleccionados[formKey].push(f));
+            renderArchivosList(containerId, formKey);
+            input.value = '';
+        }
+
+        function renderArchivosList(containerId, formKey) {
+            const container = document.getElementById(containerId);
+            const files = archivosSeleccionados[formKey];
+            container.innerHTML = files.length === 0 ? '' : files.map((f, i) =>
+                `<div class="file-item">
+                    <span>📎 ${f.name} <small>(${(f.size/1024).toFixed(1)} KB)</small></span>
+                    <span class="file-remove" onclick="removeFile('${containerId}','${formKey}',${i})">✕</span>
+                </div>`
+            ).join('');
+        }
+
+        function removeFile(containerId, formKey, index) {
+            archivosSeleccionados[formKey].splice(index, 1);
+            renderArchivosList(containerId, formKey);
+        }
+
+        async function uploadFilesAlStorage(formKey, registroId) {
+            const files = archivosSeleccionados[formKey];
+            if (!files.length) return [];
+            const urls = [];
+            for (const file of files) {
+                const path = `edificios/${EDIFICIO_ID}/${formKey}/${registroId}/${Date.now()}_${file.name}`;
+                const storageRef = storage.ref(path);
+                await storageRef.put(file);
+                const url = await storageRef.getDownloadURL();
+                urls.push({ nombre: file.name, url, path });
+            }
+            return urls;
+        }
+
+        function limpiarArchivos(formKey, containerId) {
+            archivosSeleccionados[formKey] = [];
+            const el = document.getElementById(containerId);
+            if (el) el.innerHTML = '';
+        }
+
         function limpiarFormulario(formId) {
-            if (confirm('¿Limpiar el formulario?')) {
+            if (confirm('¿Limpiar el formulario? Se perderán los datos no guardados.')) {
                 document.getElementById(formId).reset();
+                const info = formFileMap[formId];
+                if (info) limpiarArchivos(info.key, info.container);
+                if (formId === 'formInduccion') document.getElementById('totalAsistentes').value = '';
+                if (formId === 'formContratistas') {
+                    document.getElementById('cumplimientoDisplay').textContent = '0%';
+                    document.getElementById('cumplimientoValue').value = '0';
+                }
             }
         }
 
