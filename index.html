@@ -2006,34 +2006,23 @@
         <section id="cotizacionesN2" class="section">
             <div class="section-header" style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:10px;">
                 <div>
-                    <h2 class="section-title">💰 Análisis de Cotizaciones SST</h2>
-                    <p class="section-subtitle">Comparativo de proveedores — Elementos obligatorios Resolución 0312/2019 | Nepal 2</p>
-                </div>
-                <div>
-                    <span style="font-size:0.82rem;color:var(--text-gray);background:#f1f5f9;padding:6px 12px;border-radius:8px;">Los totales se calculan automáticamente al ingresar datos</span>
+                    <h2 class="section-title">💰 Cotizaciones SST</h2>
+                    <p class="section-subtitle">Empresas contactadas, precios y análisis comparativo — Res. 0312/2019 | Nepal 2</p>
                 </div>
             </div>
 
             <!-- KPI CARDS -->
             <div class="cq-kpi-row">
                 <div class="cq-kpi eco">
-                    <div class="cq-kpi-label">Opción Económica</div>
-                    <div class="cq-kpi-value" id="n2KpiEco">—</div>
-                    <div class="cq-kpi-sub" id="n2KpiEcoSub">Sin datos aún</div>
-                    <div class="cq-roi down">Precio mínimo</div>
+                    <div class="cq-kpi-label">Empresas Registradas</div>
+                    <div class="cq-kpi-value" id="n2KpiEco">0</div>
+                    <div class="cq-kpi-sub" id="n2KpiEcoSub">Contactadas</div>
                 </div>
                 <div class="cq-kpi rec">
-                    <div class="cq-kpi-badge">⭐ RECOMENDADA</div>
-                    <div class="cq-kpi-label">Opción Recomendada</div>
-                    <div class="cq-kpi-value" id="n2KpiRec">—</div>
-                    <div class="cq-kpi-sub" id="n2KpiRecSub">Sin datos aún</div>
-                    <div class="cq-roi up">Mejor costo/calidad</div>
-                </div>
-                <div class="cq-kpi pre">
-                    <div class="cq-kpi-label">Opción Premium</div>
-                    <div class="cq-kpi-value" id="n2KpiPre">—</div>
-                    <div class="cq-kpi-sub">Máxima calidad</div>
-                    <div class="cq-roi down">Precio máximo</div>
+                    <div class="cq-kpi-badge">📋 COTIZACIONES</div>
+                    <div class="cq-kpi-label">Con Precio Recibido</div>
+                    <div class="cq-kpi-value" id="n2KpiRec">0</div>
+                    <div class="cq-kpi-sub" id="n2KpiRecSub">Enviaron cotización</div>
                 </div>
                 <div class="cq-kpi items">
                     <div class="cq-kpi-label">Elementos a cotizar</div>
@@ -2049,15 +2038,39 @@
                 </div>
             </div>
 
-            <!-- COMPARATIVO POR ELEMENTO -->
-            <div class="cq-section-title">📊 Comparativo por Elemento y Proveedor</div>
-            <div id="cotizBarrasN2">
-                <div style="text-align:center;padding:30px;color:var(--text-gray);">⏳ Cargando comparativo...</div>
+            <!-- TABS -->
+            <div style="display:flex;gap:0;margin:24px 0 0 0;border-bottom:2px solid #e2e8f0;">
+                <button id="n2TabEmpresasBtn" onclick="mostrarTabN2('empresas')"
+                    style="padding:10px 22px;border:none;border-bottom:3px solid var(--primary);margin-bottom:-2px;background:none;font-size:0.9rem;font-weight:700;cursor:pointer;color:var(--primary);">🏢 Empresas</button>
+                <button id="n2TabAnalisisBtn" onclick="mostrarTabN2('analisis')"
+                    style="padding:10px 22px;border:none;border-bottom:3px solid transparent;margin-bottom:-2px;background:none;font-size:0.9rem;font-weight:700;cursor:pointer;color:var(--text-gray);">📊 Análisis Comparativo</button>
+            </div>
+
+            <!-- TAB EMPRESAS -->
+            <div id="n2TabEmpresas" style="margin-top:20px;">
+                <div style="background:white;border-radius:14px;padding:18px 20px;box-shadow:0 2px 10px rgba(0,0,0,0.05);margin-bottom:20px;border:2px dashed #c7d2fe;">
+                    <div style="font-weight:700;font-size:0.93rem;color:var(--primary);margin-bottom:12px;">➕ Agregar Nueva Empresa</div>
+                    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;margin-bottom:12px;">
+                        <input type="text" id="n2NombreEmp"   placeholder="Nombre empresa *" style="padding:9px 12px;border:2px solid #e2e8f0;border-radius:8px;font-size:0.86rem;width:100%;box-sizing:border-box;">
+                        <input type="tel"  id="n2TelEmp"      placeholder="Tel WA: 573001234567" style="padding:9px 12px;border:2px solid #e2e8f0;border-radius:8px;font-size:0.86rem;width:100%;box-sizing:border-box;">
+                        <input type="text" id="n2ContactoEmp" placeholder="Nombre contacto" style="padding:9px 12px;border:2px solid #e2e8f0;border-radius:8px;font-size:0.86rem;width:100%;box-sizing:border-box;">
+                    </div>
+                    <button onclick="agregarEmpresaN2()" style="background:var(--primary);color:white;border:none;border-radius:8px;padding:9px 22px;font-size:0.86rem;font-weight:700;cursor:pointer;">+ Agregar Empresa</button>
+                </div>
+                <div id="n2ListaEmpresas">
+                    <div style="text-align:center;padding:40px;color:var(--text-gray);">⏳ Cargando empresas...</div>
+                </div>
+            </div>
+
+            <!-- TAB ANÁLISIS -->
+            <div id="n2TabAnalisis" style="display:none;margin-top:20px;">
+                <div id="n2ContenidoAnalisis">
+                    <div style="text-align:center;padding:40px;color:var(--text-gray);">Cargando análisis...</div>
+                </div>
             </div>
 
             <!-- CARTA + TRACKING -->
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:20px;" class="cq-bottom-grid-n2">
-                <!-- Carta -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:24px;" class="cq-bottom-grid-n2">
                 <div style="background:white;border-radius:14px;padding:22px;box-shadow:0 2px 10px rgba(0,0,0,0.05);">
                     <div class="cq-section-title" style="margin-top:0;">📄 Carta para Administradora</div>
                     <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:14px;">
@@ -2091,7 +2104,6 @@
                     </div>
                 </div>
 
-                <!-- Tracking -->
                 <div style="background:white;border-radius:14px;padding:22px;box-shadow:0 2px 10px rgba(0,0,0,0.05);">
                     <div class="cq-section-title" style="margin-top:0;">📋 Tracking de Aprobación y Compra</div>
                     <div class="progress-bar-track-n2"><div class="progress-bar-fill-n2" id="n2CotizProgress" style="width:0%"></div></div>
@@ -4499,185 +4511,365 @@
         }
 
         // ═══════════════════════════════════════════════════════════════
-        // ═══════════════════════════════════════════════════════════════
-        // COTIZACIONES SST — Nepal 2
+        // COTIZACIONES SST — Nepal 2 (modelo por empresa)
         // ═══════════════════════════════════════════════════════════════
 
         var ELEMENTOS_SST_N2 = [
-            { key:'botiquin',      label:'🩺 Botiquín Tipo A Empresarial' },
-            { key:'camilla',       label:'🚑 Camilla Rígida + Inmovilizador Cervical' },
-            { key:'luces',         label:'💡 Luces de Emergencia LED (×10)' },
-            { key:'senalizacion',  label:'🔏 Señalización Fotoluminiscente (Kit 23 señales + planos)' },
-            { key:'cinta',         label:'🦶 Cinta Antideslizante (80 metros)' },
-            { key:'extintor',      label:'🔥 Extintor ABC 20lb Sótano' },
-            { key:'sen_adicional', label:'🚧 Señalización Adicional (6 señales)' }
+            { key:'botiquin',      label:'Botiquín Tipo A Empresarial' },
+            { key:'camilla',       label:'Camilla Rígida + Inmovilizador Cervical' },
+            { key:'luces',         label:'Luces de Emergencia LED (×10)' },
+            { key:'senalizacion',  label:'Señalización Fotoluminiscente (Kit 23 señales)' },
+            { key:'cinta',         label:'Cinta Antideslizante (80 metros)' },
+            { key:'extintor',      label:'Extintor ABC 20lb Sótano' },
+            { key:'sen_adicional', label:'Señalización Adicional (6 señales)' }
         ];
 
-        var cotizDatosN2 = {};
+        var empresasN2Cache = {};
+
+        function mostrarTabN2(tab) {
+            document.getElementById('n2TabEmpresas').style.display = (tab === 'empresas') ? 'block' : 'none';
+            document.getElementById('n2TabAnalisis').style.display = (tab === 'analisis') ? 'block' : 'none';
+            var btnE = document.getElementById('n2TabEmpresasBtn');
+            var btnA = document.getElementById('n2TabAnalisisBtn');
+            if (btnE) { btnE.style.color = (tab==='empresas') ? 'var(--primary)' : 'var(--text-gray)'; btnE.style.borderBottomColor = (tab==='empresas') ? 'var(--primary)' : 'transparent'; }
+            if (btnA) { btnA.style.color = (tab==='analisis') ? 'var(--primary)' : 'var(--text-gray)'; btnA.style.borderBottomColor = (tab==='analisis') ? 'var(--primary)' : 'transparent'; }
+            if (tab === 'analisis') renderAnalisisN2();
+        }
 
         function renderCotizacionesN2() {
-            var container = document.getElementById('cotizBarrasN2');
-            if (!container) return;
-            container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-gray);">⏳ Cargando...</div>';
-            database.ref('edificios/' + EDIFICIO_ID + '/cotizaciones/2026/proveedores').once('value').then(function(snap) {
-                cotizDatosN2 = snap.exists() ? snap.val() : {};
-                pintarCotizacionesN2();
-                recalcularKpiTotalesN2();
-            }).catch(function() { cotizDatosN2 = {}; pintarCotizacionesN2(); });
+            cargarEmpresasN2();
         }
 
-        function pintarCotizacionesN2() {
-            var container = document.getElementById('cotizBarrasN2');
-            if (!container) return;
-            var html = '';
-            ELEMENTOS_SST_N2.forEach(function(elem) {
-                var d = cotizDatosN2[elem.key] || {};
-                var tieneAlgo = (d.p1 && d.p1.nombre) || (d.p2 && d.p2.nombre) || (d.p3 && d.p3.nombre);
-                var mejorKey  = d.mejor || '';
-                var precios = ['p1','p2','p3'].map(function(pk) {
-                    return d[pk] && d[pk].precio ? parseInt((d[pk].precio+'').replace(/[^0-9]/g,'')) || 0 : 0;
-                });
-                var maxP = Math.max.apply(null, precios) || 1;
+        function cargarEmpresasN2() {
+            var lista = document.getElementById('n2ListaEmpresas');
+            if (lista) lista.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-gray);">⏳ Cargando...</div>';
+            database.ref('edificios/' + EDIFICIO_ID + '/cotizaciones2/empresas').once('value').then(function(snap) {
+                empresasN2Cache = snap.exists() ? snap.val() : {};
+                renderEmpresasN2(empresasN2Cache);
+                actualizarKpisEmpresasN2(empresasN2Cache);
+            }).catch(function() {
+                if (lista) lista.innerHTML = '<div style="text-align:center;padding:30px;color:#ef4444;">❌ Error al cargar. Verifique conexión.</div>';
+            });
+        }
 
-                html += '<div class="cq-item-card" id="n2card_' + elem.key + '">';
-                html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">';
-                html += '<div class="cq-item-name" style="margin-bottom:0;">' + elem.label + '</div>';
-                html += '<button class="cq-edit-btn" onclick="toggleEditCardN2(\'' + elem.key + '\')" id="n2editBtn_' + elem.key + '">'
-                    + (tieneAlgo ? '✏️ Editar' : '➕ Ingresar datos') + '</button>';
-                html += '</div>';
-
-                // Vista barras
-                html += '<div id="n2view_' + elem.key + '" ' + (tieneAlgo ? '' : 'style="display:none"') + '>';
-                if (tieneAlgo) {
-                    html += '<div class="cq-bars">';
-                    html += '<div class="cq-bar-row" style="font-size:0.71rem;color:var(--text-gray);font-weight:700;border-bottom:1px solid #f1f5f9;padding-bottom:5px;margin-bottom:4px;">'
-                        + '<span>Proveedor</span><span>Comparativo de precio</span><span style="text-align:right;">Precio</span><span style="text-align:right;">Contactar</span></div>';
-                    ['p1','p2','p3'].forEach(function(pk) {
-                        var p = d[pk] || {};
-                        if (!p.nombre) return;
-                        var precio = parseInt((p.precio+'').replace(/[^0-9]/g,'')) || 0;
-                        var pct = maxP > 0 ? Math.round((precio / maxP) * 100) : 0;
-                        var esMejor = mejorKey === pk;
-                        var barCls = esMejor ? 'mejor' : pk;
-                        var precioFmt = precio > 0 ? '$' + precio.toLocaleString('es-CO') : '—';
-                        html += '<div class="cq-bar-row">';
-                        html += '<div class="cq-bar-label"><span style="font-weight:700;color:var(--text-dark);">' + p.nombre + '</span>'
-                            + (esMejor ? ' <span class="cq-mejor-tag">⭐ Mejor</span>' : '')
-                            + (p.obs ? '<div style="font-size:0.7rem;color:var(--text-gray);">' + p.obs + '</div>' : '')
-                            + '</div>';
-                        html += '<div class="cq-bar-track"><div class="cq-bar-fill ' + barCls + '" style="width:' + pct + '%">'
-                            + (pct > 20 ? precioFmt : '') + '</div></div>';
-                        html += '<div class="cq-bar-price">' + precioFmt + '</div>';
-                        var telLimpio = (p.tel || '').replace(/[^0-9]/g,'');
-                        html += '<div class="cq-bar-action">'
-                            + (telLimpio ? '<button class="cq-wa-btn" onclick="enviarWhatsApp(\'' + telLimpio + '\',\'Hola ' + (p.nombre||'').replace(/'/g,"\\'") + ', solicito cotización SST para: ' + elem.label.replace(/'/g,"\\'") + '\')">📞 WA</button>' : '<span style="font-size:0.75rem;color:#cbd5e1;">Sin tel.</span>')
-                            + '</div>';
-                        html += '</div>';
-                    });
-                    html += '</div>';
-                }
-                html += '</div>';
-
-                // Formulario edición
-                html += '<div id="n2form_' + elem.key + '" style="display:' + (tieneAlgo ? 'none' : 'block') + ';margin-top:10px;">';
-                html += '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;">';
-                ['p1','p2','p3'].forEach(function(pk, idx) {
-                    var p = d[pk] || {};
-                    var pLabel = ['Proveedor 1','Proveedor 2','Proveedor 3'][idx];
-                    html += '<div style="background:#f8fafc;border-radius:10px;padding:14px;border:2px solid #e2e8f0;">'
-                        + '<div style="font-size:0.78rem;font-weight:700;color:var(--primary);margin-bottom:8px;text-transform:uppercase;">' + pLabel + '</div>'
-                        + '<div style="display:flex;flex-direction:column;gap:6px;">'
-                        + '<input type="text"   id="n2inp_' + elem.key + '_' + pk + '_nombre"  placeholder="Nombre proveedor" value="' + (p.nombre||'') + '" style="padding:7px 10px;border:1px solid #e2e8f0;border-radius:7px;font-size:0.84rem;width:100%;">'
-                        + '<input type="number" id="n2inp_' + elem.key + '_' + pk + '_precio"  placeholder="Precio (ej: 180000)" value="' + (p.precio ? parseInt((p.precio+'').replace(/[^0-9]/g,'')) : '') + '" style="padding:7px 10px;border:1px solid #e2e8f0;border-radius:7px;font-size:0.84rem;width:100%;">'
-                        + '<input type="tel"    id="n2inp_' + elem.key + '_' + pk + '_tel"     placeholder="Teléfono WA (ej: 573001234567)" value="' + (p.tel||'') + '" style="padding:7px 10px;border:1px solid #e2e8f0;border-radius:7px;font-size:0.84rem;width:100%;">'
-                        + '<input type="text"   id="n2inp_' + elem.key + '_' + pk + '_obs"     placeholder="Observaciones (garantía, instalación...)" value="' + (p.obs||'') + '" style="padding:7px 10px;border:1px solid #e2e8f0;border-radius:7px;font-size:0.84rem;width:100%;">'
-                        + '</div>'
-                        + '<label style="display:flex;align-items:center;gap:6px;margin-top:8px;font-size:0.81rem;font-weight:600;cursor:pointer;">'
-                        + '<input type="radio" name="n2mejor_' + elem.key + '" value="' + pk + '" ' + (mejorKey===pk ? 'checked' : '') + ' style="accent-color:var(--success);"> ⭐ Marcar como mejor opción'
-                        + '</label>'
-                        + '</div>';
-                });
-                html += '</div>';
-                html += '<div style="margin-top:12px;display:flex;gap:8px;">'
-                    + '<button class="btn btn-primary" style="padding:8px 16px;font-size:0.83rem;" onclick="guardarCotizN2(\'' + elem.key + '\')">💾 Guardar</button>'
-                    + (tieneAlgo ? '<button class="btn btn-secondary" style="padding:8px 14px;font-size:0.83rem;" onclick="toggleEditCardN2(\'' + elem.key + '\',true)">Cancelar</button>' : '')
+        function renderEmpresasN2(empresas) {
+            var lista = document.getElementById('n2ListaEmpresas');
+            if (!lista) return;
+            var ids = Object.keys(empresas || {});
+            if (!ids.length) {
+                lista.innerHTML = '<div style="text-align:center;padding:50px;color:var(--text-gray);background:white;border-radius:14px;">'
+                    + '<div style="font-size:2rem;margin-bottom:10px;">🏢</div>'
+                    + '<div style="font-weight:600;">Aún no hay empresas registradas</div>'
+                    + '<div style="font-size:0.85rem;margin-top:6px;">Agrega la primera empresa usando el formulario de arriba</div>'
                     + '</div>';
-                html += '</div>';
-                html += '</div>';
-            });
-            container.innerHTML = html;
-        }
-
-        function toggleEditCardN2(key, cancelar) {
-            var formEl = document.getElementById('n2form_' + key);
-            var viewEl = document.getElementById('n2view_' + key);
-            var btnEl  = document.getElementById('n2editBtn_' + key);
-            if (!formEl) return;
-            var showing = formEl.style.display !== 'none';
-            if (cancelar || showing) {
-                formEl.style.display = 'none';
-                if (viewEl) viewEl.style.display = 'block';
-                if (btnEl) btnEl.textContent = '✏️ Editar';
-            } else {
-                formEl.style.display = 'block';
-                if (viewEl) viewEl.style.display = 'none';
-                if (btnEl) btnEl.textContent = '✕ Cerrar';
+                return;
             }
+            var html = '';
+            ids.sort(function(a,b){ return (empresas[a].creado||0) - (empresas[b].creado||0); }).forEach(function(id) {
+                html += buildTarjetaEmpresaN2(id, empresas[id]);
+            });
+            lista.innerHTML = html;
         }
 
-        function guardarCotizN2(key) {
-            var data = {};
-            ['p1','p2','p3'].forEach(function(pk) {
-                var nombre    = (document.getElementById('n2inp_' + key + '_' + pk + '_nombre') || {}).value || '';
-                var precioRaw = (document.getElementById('n2inp_' + key + '_' + pk + '_precio') || {}).value || '';
-                var tel       = (document.getElementById('n2inp_' + key + '_' + pk + '_tel')    || {}).value || '';
-                var obs       = (document.getElementById('n2inp_' + key + '_' + pk + '_obs')    || {}).value || '';
-                data[pk] = { nombre:nombre, precio:precioRaw ? parseInt(precioRaw) : '', tel:tel, obs:obs };
-            });
-            var mejorRadio = document.querySelector('input[name="n2mejor_' + key + '"]:checked');
-            if (mejorRadio) data.mejor = mejorRadio.value;
+        function buildTarjetaEmpresaN2(id, emp) {
+            var estado = emp.estado || 'pendiente';
+            var estadoColors = { pendiente:'#f59e0b', llamada:'#3b82f6', cotizacion:'#10b981' };
+            var color = estadoColors[estado] || '#94a3b8';
+            var tel = (emp.tel || '').replace(/[^0-9]/g,'');
+            var waMsg = encodeURIComponent('Hola ' + (emp.nombre||'') + ', soy Carla Castellano, profesional SST del Edificio Nepal 2. Quisiera solicitar una cotización para los elementos de seguridad obligatorios según la Resolución 0312/2019.');
+            var waLink = tel ? 'https://wa.me/' + tel + '?text=' + waMsg : '';
 
-            database.ref('edificios/' + EDIFICIO_ID + '/cotizaciones/2026/proveedores/' + key).set(data).then(function() {
-                mostrarToast('✅ Guardado correctamente');
-                cotizDatosN2[key] = data;
-                pintarCotizacionesN2();
-                recalcularKpiTotalesN2();
+            var precios = emp.precios || {};
+            var preciosHtml = '<table style="width:100%;border-collapse:collapse;font-size:0.83rem;margin-top:12px;">'
+                + '<thead><tr style="background:#f8fafc;"><th style="text-align:left;padding:7px 10px;color:var(--text-gray);font-weight:600;">Elemento SST</th>'
+                + '<th style="text-align:right;padding:7px 10px;color:var(--text-gray);font-weight:600;">Precio (COP)</th></tr></thead><tbody>';
+            var totalEmp = 0;
+            ELEMENTOS_SST_N2.forEach(function(elem) {
+                var p = precios[elem.key] ? parseInt(precios[elem.key]) : 0;
+                if (p) totalEmp += p;
+                preciosHtml += '<tr style="border-top:1px solid #f1f5f9;">'
+                    + '<td style="padding:6px 10px;">' + elem.label + '</td>'
+                    + '<td style="padding:6px 10px;text-align:right;">'
+                    + '<input type="number" placeholder="0" value="' + (p||'') + '" min="0" step="1000"'
+                    + ' style="width:130px;text-align:right;padding:4px 8px;border:1px solid #e2e8f0;border-radius:6px;font-size:0.83rem;"'
+                    + ' onchange="guardarPrecioEmpresaN2(\'' + id + '\',\'' + elem.key + '\',this.value)">'
+                    + '</td></tr>';
+            });
+            preciosHtml += '<tr style="border-top:2px solid #e2e8f0;font-weight:700;">'
+                + '<td style="padding:8px 10px;color:var(--primary);">TOTAL</td>'
+                + '<td style="padding:8px 10px;text-align:right;color:var(--primary);" id="n2totalemp_' + id + '">'
+                + (totalEmp > 0 ? '$' + totalEmp.toLocaleString('es-CO') : '—') + '</td></tr>';
+            preciosHtml += '</tbody></table>';
+
+            var archivos = emp.archivos || [];
+            var archivosHtml = '';
+            if (archivos.length) {
+                archivosHtml += '<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;">';
+                archivos.forEach(function(arch, idx) {
+                    if (arch.tipo && arch.tipo.startsWith('image/')) {
+                        archivosHtml += '<div style="position:relative;display:inline-block;">'
+                            + '<img src="' + arch.datos + '" alt="' + (arch.nombre||'foto') + '"'
+                            + ' style="width:80px;height:80px;object-fit:cover;border-radius:8px;border:2px solid #e2e8f0;cursor:pointer;"'
+                            + ' onclick="verImagenN2(this.src)" title="' + (arch.nombre||'') + '">'
+                            + '<button onclick="eliminarArchivoEmpN2(\'' + id + '\',' + idx + ')" title="Eliminar"'
+                            + ' style="position:absolute;top:-6px;right:-6px;background:#ef4444;color:white;border:none;border-radius:50%;width:18px;height:18px;font-size:10px;cursor:pointer;line-height:18px;padding:0;">✕</button>'
+                            + '</div>';
+                    } else {
+                        archivosHtml += '<div style="position:relative;display:inline-flex;align-items:center;gap:5px;background:#f1f5f9;border-radius:8px;padding:6px 10px;font-size:0.78rem;border:1px solid #e2e8f0;">'
+                            + '<span>📄</span><span style="max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="' + (arch.nombre||'archivo') + '">' + (arch.nombre||'archivo') + '</span>'
+                            + '<button onclick="eliminarArchivoEmpN2(\'' + id + '\',' + idx + ')" title="Eliminar"'
+                            + ' style="background:#ef4444;color:white;border:none;border-radius:50%;width:16px;height:16px;font-size:9px;cursor:pointer;line-height:16px;padding:0;flex-shrink:0;">✕</button>'
+                            + '</div>';
+                    }
+                });
+                archivosHtml += '</div>';
+            }
+
+            return '<div id="n2emp_' + id + '" style="background:white;border-radius:14px;padding:0;box-shadow:0 2px 10px rgba(0,0,0,0.06);margin-bottom:16px;overflow:hidden;border-left:4px solid ' + color + ';">'
+                + '<div style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;gap:10px;flex-wrap:wrap;">'
+                + '<div style="min-width:0;flex:1;">'
+                + '<div style="font-weight:700;font-size:0.97rem;color:var(--text-dark);">' + (emp.nombre||'Sin nombre') + '</div>'
+                + '<div style="font-size:0.78rem;color:var(--text-gray);">' + (emp.contacto ? '👤 '+emp.contacto+'  ' : '') + (emp.tel ? '📞 '+emp.tel : '') + '</div>'
+                + '</div>'
+                + '<div style="display:flex;align-items:center;gap:8px;flex-shrink:0;flex-wrap:wrap;">'
+                + '<select onchange="guardarEstadoEmpresaN2(\'' + id + '\',this.value)" style="padding:5px 10px;border:2px solid ' + color + ';border-radius:8px;font-size:0.8rem;font-weight:600;background:white;color:' + color + ';cursor:pointer;">'
+                + '<option value="pendiente"' + (estado==='pendiente'?' selected':'') + '>⏳ Pendiente</option>'
+                + '<option value="llamada"'   + (estado==='llamada'?' selected':'')   + '>📞 Llamada realizada</option>'
+                + '<option value="cotizacion"'+ (estado==='cotizacion'?' selected':'')+ '>✅ Cotización recibida</option>'
+                + '</select>'
+                + (waLink ? '<a href="' + waLink + '" target="_blank" style="background:#25D366;color:white;border:none;border-radius:8px;padding:6px 12px;font-size:0.8rem;font-weight:700;cursor:pointer;text-decoration:none;white-space:nowrap;">📲 WA</a>' : '')
+                + '<button onclick="eliminarEmpresaN2(\'' + id + '\')" style="background:#fee2e2;color:#ef4444;border:none;border-radius:8px;padding:6px 10px;font-size:0.82rem;cursor:pointer;" title="Eliminar empresa">🗑️</button>'
+                + '</div></div>'
+                + '<div style="padding:0 18px 16px 18px;border-top:1px solid #f1f5f9;">'
+                + preciosHtml
+                + '<div style="margin-top:14px;">'
+                + '<div style="font-size:0.82rem;font-weight:600;color:var(--text-gray);margin-bottom:6px;">📎 Cotización adjunta (fotos / PDF)</div>'
+                + archivosHtml
+                + '<label style="display:inline-flex;align-items:center;gap:6px;background:#f8fafc;border:2px dashed #cbd5e1;border-radius:8px;padding:7px 14px;font-size:0.82rem;cursor:pointer;margin-top:8px;color:var(--text-gray);">'
+                + '📎 Adjuntar archivo<input type="file" accept="image/*,application/pdf" multiple style="display:none;" onchange="adjuntarArchivosEmpresaN2(\'' + id + '\',this)">'
+                + '</label>'
+                + '</div></div></div>';
+        }
+
+        function agregarEmpresaN2() {
+            var nombre   = (document.getElementById('n2NombreEmp')   ||{}).value || '';
+            var tel      = (document.getElementById('n2TelEmp')      ||{}).value || '';
+            var contacto = (document.getElementById('n2ContactoEmp') ||{}).value || '';
+            if (!nombre.trim()) { mostrarToast('Escribe el nombre de la empresa', 'error'); return; }
+            var ref = database.ref('edificios/' + EDIFICIO_ID + '/cotizaciones2/empresas').push();
+            ref.set({ nombre: nombre.trim(), tel: tel.trim(), contacto: contacto.trim(), estado: 'pendiente', creado: Date.now() }).then(function() {
+                mostrarToast('✅ Empresa agregada');
+                document.getElementById('n2NombreEmp').value   = '';
+                document.getElementById('n2TelEmp').value      = '';
+                document.getElementById('n2ContactoEmp').value = '';
+                cargarEmpresasN2();
             }).catch(function() { mostrarToast('❌ Error al guardar', 'error'); });
         }
 
-        function recalcularKpiTotalesN2() {
-            var totEco = 0, totRec = 0, totPre = 0, completos = 0;
-            ELEMENTOS_SST_N2.forEach(function(elem) {
-                var d = cotizDatosN2[elem.key] || {};
-                var precios = ['p1','p2','p3'].map(function(pk) {
-                    return d[pk] && d[pk].precio ? parseInt((d[pk].precio+'').replace(/[^0-9]/g,'')) || 0 : 0;
-                }).filter(function(p) { return p > 0; });
-                if (precios.length > 0) {
-                    completos++;
-                    totEco += Math.min.apply(null, precios);
-                    totPre += Math.max.apply(null, precios);
-                    var mejorP = 0;
-                    if (d.mejor && d[d.mejor] && d[d.mejor].precio)
-                        mejorP = parseInt((d[d.mejor].precio+'').replace(/[^0-9]/g,'')) || 0;
-                    totRec += mejorP || Math.min.apply(null, precios);
+        function guardarEstadoEmpresaN2(id, estado) {
+            database.ref('edificios/' + EDIFICIO_ID + '/cotizaciones2/empresas/' + id).update({ estado: estado }).then(function() {
+                if (empresasN2Cache[id]) empresasN2Cache[id].estado = estado;
+                mostrarToast('✅ Estado actualizado');
+                actualizarKpisEmpresasN2(empresasN2Cache);
+            }).catch(function() { mostrarToast('❌ Error', 'error'); });
+        }
+
+        function guardarPrecioEmpresaN2(id, elemKey, valor) {
+            var num = parseInt(valor) || 0;
+            database.ref('edificios/' + EDIFICIO_ID + '/cotizaciones2/empresas/' + id + '/precios/' + elemKey).set(num || null).then(function() {
+                if (!empresasN2Cache[id]) empresasN2Cache[id] = {};
+                if (!empresasN2Cache[id].precios) empresasN2Cache[id].precios = {};
+                empresasN2Cache[id].precios[elemKey] = num;
+                var total = 0;
+                ELEMENTOS_SST_N2.forEach(function(e) {
+                    var v = (empresasN2Cache[id].precios||{})[e.key];
+                    if (v) total += parseInt(v)||0;
+                });
+                var totEl = document.getElementById('n2totalemp_' + id);
+                if (totEl) totEl.textContent = total > 0 ? '$'+total.toLocaleString('es-CO') : '—';
+            }).catch(function() { mostrarToast('❌ Error al guardar precio', 'error'); });
+        }
+
+        async function adjuntarArchivosEmpresaN2(id, input) {
+            if (!input.files || !input.files.length) return;
+            var label = input.parentElement;
+            label.style.opacity = '0.5';
+            label.style.pointerEvents = 'none';
+            try {
+                var existentes = (empresasN2Cache[id] && empresasN2Cache[id].archivos) ? empresasN2Cache[id].archivos.slice() : [];
+                var nuevos = [];
+                for (var i = 0; i < input.files.length; i++) {
+                    var file = input.files[i];
+                    if (file.size > 8 * 1024 * 1024) { mostrarToast('⚠️ ' + file.name + ' supera 8MB', 'error'); continue; }
+                    var base64 = file.type.startsWith('image/') ? await comprimirImagenN2(file) : await leerBase64N2(file);
+                    nuevos.push({ nombre: file.name, tipo: file.type, tamano: Math.round(file.size/1024)+'KB', datos: base64 });
                 }
+                if (!nuevos.length) { label.style.opacity=''; label.style.pointerEvents=''; return; }
+                var todos = existentes.concat(nuevos);
+                await database.ref('edificios/' + EDIFICIO_ID + '/cotizaciones2/empresas/' + id + '/archivos').set(todos);
+                if (!empresasN2Cache[id]) empresasN2Cache[id] = {};
+                empresasN2Cache[id].archivos = todos;
+                mostrarToast('✅ ' + nuevos.length + ' archivo(s) adjuntado(s)');
+                renderEmpresasN2(empresasN2Cache);
+            } catch(e) {
+                mostrarToast('❌ Error: ' + e.message, 'error');
+                label.style.opacity=''; label.style.pointerEvents='';
+            }
+        }
+
+        function leerBase64N2(file) {
+            return new Promise(function(resolve, reject) {
+                var reader = new FileReader();
+                reader.onload = function() { resolve(reader.result); };
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
             });
-            var sub = completos + '/' + ELEMENTOS_SST_N2.length + ' elementos cotizados';
-            var ecoEl = document.getElementById('n2KpiEco');
-            var recEl = document.getElementById('n2KpiRec');
-            var preEl = document.getElementById('n2KpiPre');
+        }
+
+        function comprimirImagenN2(file) {
+            return new Promise(function(resolve, reject) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    var img = new Image();
+                    img.onload = function() {
+                        var maxW = 1000, maxH = 1000, w = img.width, h = img.height;
+                        if (w > maxW) { h = Math.round(h * maxW / w); w = maxW; }
+                        if (h > maxH) { w = Math.round(w * maxH / h); h = maxH; }
+                        var canvas = document.createElement('canvas');
+                        canvas.width = w; canvas.height = h;
+                        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                        resolve(canvas.toDataURL('image/jpeg', 0.72));
+                    };
+                    img.onerror = reject;
+                    img.src = e.target.result;
+                };
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function eliminarArchivoEmpN2(id, idx) {
+            if (!confirm('¿Eliminar este archivo?')) return;
+            var archivos = ((empresasN2Cache[id] || {}).archivos || []).slice();
+            archivos.splice(idx, 1);
+            database.ref('edificios/' + EDIFICIO_ID + '/cotizaciones2/empresas/' + id + '/archivos').set(archivos.length ? archivos : null).then(function() {
+                if (empresasN2Cache[id]) empresasN2Cache[id].archivos = archivos;
+                renderEmpresasN2(empresasN2Cache);
+                mostrarToast('🗑️ Archivo eliminado');
+            }).catch(function() { mostrarToast('❌ Error', 'error'); });
+        }
+
+        function eliminarEmpresaN2(id) {
+            var nombre = (empresasN2Cache[id] || {}).nombre || 'esta empresa';
+            if (!confirm('¿Eliminar "' + nombre + '"? Se borrarán sus precios y archivos.')) return;
+            database.ref('edificios/' + EDIFICIO_ID + '/cotizaciones2/empresas/' + id).remove().then(function() {
+                delete empresasN2Cache[id];
+                renderEmpresasN2(empresasN2Cache);
+                actualizarKpisEmpresasN2(empresasN2Cache);
+                mostrarToast('🗑️ Empresa eliminada');
+            }).catch(function() { mostrarToast('❌ Error', 'error'); });
+        }
+
+        function actualizarKpisEmpresasN2(empresas) {
+            var ids = Object.keys(empresas || {});
+            var total = ids.length;
+            var conCotiz = ids.filter(function(id) { return empresas[id].estado === 'cotizacion'; }).length;
+            var ecoEl  = document.getElementById('n2KpiEco');
+            var recEl  = document.getElementById('n2KpiRec');
             var ecoSub = document.getElementById('n2KpiEcoSub');
             var recSub = document.getElementById('n2KpiRecSub');
-            if (ecoEl) ecoEl.textContent = totEco > 0 ? '$' + Math.round(totEco/1000) + 'K' : '—';
-            if (recEl) recEl.textContent = totRec > 0 ? '$' + Math.round(totRec/1000) + 'K' : '—';
-            if (preEl) preEl.textContent = totPre > 0 ? '$' + Math.round(totPre/1000) + 'K' : '—';
-            if (ecoSub) ecoSub.textContent = sub;
-            if (recSub) recSub.textContent = sub;
-            window._preciosCartaN2 = {
-                economica:   totEco > 0 ? '$' + totEco.toLocaleString('es-CO') : 'Por definir',
-                recomendada: totRec > 0 ? '$' + totRec.toLocaleString('es-CO') : 'Por definir',
-                premium:     totPre > 0 ? '$' + totPre.toLocaleString('es-CO') : 'Por definir'
-            };
+            if (ecoEl)  ecoEl.textContent  = total;
+            if (recEl)  recEl.textContent  = conCotiz;
+            if (ecoSub) ecoSub.textContent = total === 1 ? '1 empresa' : total + ' empresas';
+            if (recSub) recSub.textContent = conCotiz + ' de ' + total + ' enviaron precio';
+        }
+
+        function renderAnalisisN2() {
+            var cont = document.getElementById('n2ContenidoAnalisis');
+            if (!cont) return;
+            var empresas = empresasN2Cache;
+            var ids = Object.keys(empresas || {}).filter(function(id) {
+                return Object.keys((empresas[id].precios||{})).length > 0;
+            });
+            if (!ids.length) {
+                cont.innerHTML = '<div style="text-align:center;padding:50px;color:var(--text-gray);background:white;border-radius:14px;">'
+                    + '<div style="font-size:2rem;">📊</div><div style="font-weight:600;margin-top:8px;">Sin datos para analizar</div>'
+                    + '<div style="font-size:0.85rem;margin-top:6px;">Registra precios en la pestaña Empresas para ver el comparativo</div></div>';
+                return;
+            }
+            var html = '<div style="background:white;border-radius:14px;padding:20px;box-shadow:0 2px 10px rgba(0,0,0,0.05);overflow-x:auto;">';
+            html += '<div style="font-weight:700;font-size:1rem;color:var(--primary);margin-bottom:16px;">📊 Comparativo de Precios por Elemento</div>';
+            html += '<table style="width:100%;border-collapse:collapse;font-size:0.83rem;min-width:400px;">';
+            html += '<thead><tr style="background:#f8fafc;"><th style="text-align:left;padding:10px 12px;color:var(--text-gray);font-weight:600;">Elemento SST</th>';
+            ids.forEach(function(id) { html += '<th style="text-align:right;padding:10px 12px;color:var(--text-gray);font-weight:600;">' + (empresas[id].nombre||'?') + '</th>'; });
+            html += '<th style="text-align:right;padding:10px 12px;color:#10b981;font-weight:700;">💡 Menor</th></tr></thead><tbody>';
+            var totales = {};
+            ids.forEach(function(id) { totales[id] = 0; });
+            ELEMENTOS_SST_N2.forEach(function(elem) {
+                var preciosElem = {};
+                var minP = Infinity;
+                ids.forEach(function(id) {
+                    var p = parseInt(((empresas[id].precios||{})[elem.key])||0)||0;
+                    preciosElem[id] = p;
+                    if (p > 0 && p < minP) minP = p;
+                });
+                html += '<tr style="border-top:1px solid #f1f5f9;"><td style="padding:8px 12px;font-weight:500;">' + elem.label + '</td>';
+                ids.forEach(function(id) {
+                    var p = preciosElem[id];
+                    var esMejor = p > 0 && p === minP;
+                    if (p) totales[id] += p;
+                    html += '<td style="padding:8px 12px;text-align:right;background:' + (esMejor?'#dcfce7':'transparent') + ';color:' + (esMejor?'#15803d':'var(--text-dark)') + ';font-weight:' + (esMejor?'700':'400') + ';">'
+                        + (p > 0 ? '$'+p.toLocaleString('es-CO')+(esMejor?' ⭐':'') : '—') + '</td>';
+                });
+                var mejorPElem = ids.reduce(function(best,id){ var p=preciosElem[id]; return (p>0&&p<best)?p:best; }, Infinity);
+                html += '<td style="padding:8px 12px;text-align:right;color:#15803d;font-weight:700;">' + (mejorPElem < Infinity ? '$'+mejorPElem.toLocaleString('es-CO') : '—') + '</td></tr>';
+            });
+            var minTot = Math.min.apply(null, ids.map(function(id){ return totales[id]||Infinity; }));
+            html += '<tr style="border-top:2px solid #e2e8f0;font-weight:700;background:#f8fafc;"><td style="padding:10px 12px;color:var(--primary);">TOTAL</td>';
+            ids.forEach(function(id) {
+                var t = totales[id];
+                var esMejor = t > 0 && t === minTot;
+                html += '<td style="padding:10px 12px;text-align:right;background:' + (esMejor?'#dcfce7':'transparent') + ';color:' + (esMejor?'#15803d':'var(--primary)') + ';">'
+                    + (t > 0 ? '$'+t.toLocaleString('es-CO')+(esMejor?' ⭐':'') : '—') + '</td>';
+            });
+            html += '<td style="padding:10px 12px;text-align:right;color:#15803d;">' + (minTot < Infinity ? '$'+minTot.toLocaleString('es-CO') : '—') + '</td>';
+            html += '</tr></tbody></table></div>';
+
+            var hayFotos = false;
+            var fotosHtml = '<div style="margin-top:20px;background:white;border-radius:14px;padding:20px;box-shadow:0 2px 10px rgba(0,0,0,0.05);">'
+                + '<div style="font-weight:700;font-size:1rem;color:var(--primary);margin-bottom:14px;">🖼️ Cotizaciones Adjuntas</div>'
+                + '<div style="display:flex;flex-wrap:wrap;gap:16px;">';
+            ids.forEach(function(id) {
+                var emp = empresas[id];
+                var archivos = emp.archivos || [];
+                if (!archivos.length) return;
+                hayFotos = true;
+                fotosHtml += '<div><div style="font-size:0.78rem;font-weight:700;color:var(--text-gray);margin-bottom:6px;">' + (emp.nombre||'Empresa') + '</div>'
+                    + '<div style="display:flex;gap:6px;flex-wrap:wrap;">';
+                archivos.forEach(function(arch) {
+                    if (arch.tipo && arch.tipo.startsWith('image/')) {
+                        fotosHtml += '<img src="' + arch.datos + '" style="width:90px;height:90px;object-fit:cover;border-radius:8px;border:2px solid #e2e8f0;cursor:pointer;" onclick="verImagenN2(this.src)">';
+                    } else {
+                        fotosHtml += '<div style="width:90px;height:90px;background:#f1f5f9;border-radius:8px;border:2px solid #e2e8f0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px;">'
+                            + '<span style="font-size:1.6rem;">📄</span>'
+                            + '<span style="font-size:0.65rem;color:var(--text-gray);text-align:center;padding:0 4px;max-width:82px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + (arch.nombre||'PDF') + '</span>'
+                            + '</div>';
+                    }
+                });
+                fotosHtml += '</div></div>';
+            });
+            fotosHtml += '</div>';
+            if (!hayFotos) fotosHtml += '<div style="color:var(--text-gray);font-size:0.85rem;">Sin archivos adjuntos aún</div>';
+            fotosHtml += '</div>';
+            cont.innerHTML = html + fotosHtml;
+        }
+
+        function verImagenN2(src) {
+            var modal = document.createElement('div');
+            modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;display:flex;align-items:center;justify-content:center;cursor:pointer;';
+            modal.onclick = function() { document.body.removeChild(modal); };
+            modal.innerHTML = '<img src="' + src + '" style="max-width:90vw;max-height:90vh;border-radius:12px;object-fit:contain;">';
+            document.body.appendChild(modal);
         }
 
         // --- TRACKING COTIZACIONES N2 ---
@@ -4772,6 +4964,23 @@
         }
 
         // --- CARTA NEPAL 2 ---
+        function calcularTotalesCartaN2() {
+            var ids = Object.keys(empresasN2Cache || {});
+            if (!ids.length) return { economica:'Por definir', recomendada:'Por definir', premium:'Por definir' };
+            var tots = ids.map(function(id) {
+                var ps = empresasN2Cache[id].precios || {};
+                var t = 0;
+                ELEMENTOS_SST_N2.forEach(function(e) { if (ps[e.key]) t += parseInt(ps[e.key])||0; });
+                return t;
+            }).filter(function(t){ return t > 0; }).sort(function(a,b){return a-b;});
+            if (!tots.length) return { economica:'Por definir', recomendada:'Por definir', premium:'Por definir' };
+            return {
+                economica:   '$' + tots[0].toLocaleString('es-CO'),
+                recomendada: '$' + tots[Math.floor(tots.length/2)].toLocaleString('es-CO'),
+                premium:     '$' + tots[tots.length-1].toLocaleString('es-CO')
+            };
+        }
+
         function generarTextoCartaN2() {
             var admin = (document.getElementById('n2CartaNombre') || {}).value || 'Señora Administradora';
             var fechaEl = document.getElementById('n2CartaFecha');
@@ -4780,7 +4989,7 @@
                 : new Date().toLocaleDateString('es-CO',{day:'numeric',month:'long',year:'numeric'});
             var opcion = (document.getElementById('n2CartaOpcion') || {}).value || 'recomendada';
             var labels = { economica:'Económica', recomendada:'Recomendada ⭐', premium:'Premium' };
-            var precios = window._preciosCartaN2 || { economica:'Por definir', recomendada:'Por definir', premium:'Por definir' };
+            var precios = calcularTotalesCartaN2();
             var precio = precios[opcion];
 
             return 'Bogotá D.C., ' + fecha + '\n\n'
