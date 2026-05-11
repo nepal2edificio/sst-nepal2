@@ -3060,32 +3060,20 @@
             });
         }
 
-        // Combina datos de nepal-2 + convivienda-1 (migración de datos guardados con ruta anterior)
         async function cargarDatosUnificados() {
-            // Leer cada fuente de forma independiente para que un error en una no rompa la otra
-            const leer = async (ruta) => {
-                try {
-                    const snap = await database.ref(ruta).once('value');
-                    return snap.val() || {};
-                } catch(e) {
-                    console.warn('No se pudo leer', ruta, e.message);
-                    return {};
-                }
-            };
-            const [n, c] = await Promise.all([
-                leer('edificios/nepal-2'),
-                leer('edificios/convivienda-1'),
-            ]);
-            const merge = (campo) => [
-                ...(n[campo] ? Object.values(n[campo]) : []),
-                ...(c[campo] ? Object.values(c[campo]) : []),
-            ];
-            return {
-                supervisiones:  merge('supervisiones'),
-                inspecciones:   merge('inspecciones'),
-                inducciones:    merge('inducciones'),
-                mantenimientos: merge('mantenimientos'),
-            };
+            try {
+                const snap = await database.ref('edificios/nepal-2').once('value');
+                const n = snap.val() || {};
+                return {
+                    supervisiones:  n.supervisiones  ? Object.values(n.supervisiones)  : [],
+                    inspecciones:   n.inspecciones   ? Object.values(n.inspecciones)   : [],
+                    inducciones:    n.inducciones    ? Object.values(n.inducciones)    : [],
+                    mantenimientos: n.mantenimientos ? Object.values(n.mantenimientos) : [],
+                };
+            } catch(e) {
+                console.warn('No se pudo leer edificios/nepal-2', e.message);
+                return { supervisiones: [], inspecciones: [], inducciones: [], mantenimientos: [] };
+            }
         }
 
         function actualizarGrillaMonthly() {
