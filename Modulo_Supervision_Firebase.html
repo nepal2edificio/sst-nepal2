@@ -527,6 +527,7 @@
         let hallazgosPositivos = [];
         let hallazgosNegativos = [];
         let contadorHallazgosNegativos = 0;
+        let editandoId = null; // ID de la supervisión que se está editando (null = nueva)
 
         // Cargar datos guardados
         window.onload = function() {
@@ -732,9 +733,10 @@
             const el = document.getElementById('statusMsg');
             el.innerHTML = msg;
             el.style.display = 'block';
-            if (tipo === 'success') { el.style.background='#d1fae5'; el.style.color='#065f46'; el.style.border='2px solid #10b981'; }
-            else if (tipo === 'error') { el.style.background='#fee2e2'; el.style.color='#991b1b'; el.style.border='2px solid #dc2626'; }
-            else { el.style.background='#dbeafe'; el.style.color='#1e40af'; el.style.border='2px solid #2563eb'; }
+            if      (tipo === 'success') { el.style.background='#d1fae5'; el.style.color='#065f46'; el.style.border='2px solid #10b981'; }
+            else if (tipo === 'error')   { el.style.background='#fee2e2'; el.style.color='#991b1b'; el.style.border='2px solid #dc2626'; }
+            else if (tipo === 'warning') { el.style.background='#fef3c7'; el.style.color='#92400e'; el.style.border='2px solid #f59e0b'; }
+            else                         { el.style.background='#dbeafe'; el.style.color='#1e40af'; el.style.border='2px solid #2563eb'; }
         }
 
         async function guardarSupervision() {
@@ -742,20 +744,27 @@
             if (!datos.fecha) { setStatus('Por favor ingrese la fecha de supervision.', 'error'); return; }
 
             const btn = document.getElementById('btnGuardar');
-            btn.disabled = true; btn.textContent = 'Guardando...';
-            setStatus('Guardando supervision en Firebase...', 'info');
+            const esEdicion = !!editandoId;
+            btn.disabled = true;
+            btn.textContent = esEdicion ? 'Actualizando...' : 'Guardando...';
+            setStatus(esEdicion ? 'Actualizando supervision en Firebase...' : 'Guardando supervision en Firebase...', 'info');
 
-            const supervisionId = 'supervision-' + Date.now();
+            // Si es edición reutiliza el mismo ID, si es nueva crea uno nuevo
+            const supervisionId = esEdicion ? editandoId : 'supervision-' + Date.now();
             try {
                 await database.ref(`edificios/${EDIFICIO_ID}/supervisiones/${supervisionId}`).set(datos);
                 localStorage.setItem('supervision_borrador_nepal2', JSON.stringify(datos));
-                console.log('Supervision guardada:', supervisionId);
-                setStatus('Supervision guardada correctamente en Firebase. ID: ' + supervisionId, 'success');
+                console.log('Supervision guardada:', supervisionId, '| edicion:', esEdicion);
+                setStatus((esEdicion ? 'Supervision ACTUALIZADA' : 'Supervision guardada') + ' correctamente. ID: ' + supervisionId, 'success');
+                // Limpiar modo edición
+                editandoId = null;
+                document.getElementById('btnGuardar').textContent = 'Guardar Supervision';
+                document.getElementById('modoEdicionBanner')?.remove();
             } catch(err) {
                 console.error('Error guardando:', err);
                 setStatus('Error al guardar en Firebase: ' + err.message, 'error');
             } finally {
-                btn.disabled = false; btn.textContent = 'Guardar Supervision';
+                btn.disabled = false;
             }
             return supervisionId;
         }
@@ -776,37 +785,110 @@
         // ============================================
         // VER SUPERVISIONES GUARDADAS (panel visual)
         // ============================================
-        function cargarSupervisiones() {
+        async function cargarSupervisiones() {
             const lista = document.getElementById('listaSupervisiones');
             lista.innerHTML = '<p style="color:#64748b; padding:10px;">Cargando...</p>';
             document.getElementById('modalSupervisiones').style.display = 'block';
 
-            database.ref(`edificios/${EDIFICIO_ID}/supervisiones`).once('value')
-                .then(snapshot => {
-                    if (!snapshot.exists()) {
-                        lista.innerHTML = '<p style="color:#64748b; padding:20px; text-align:center;">No hay supervisiones guardadas aun para Nepal 2.</p>';
-                        return;
-                    }
-                    const sups = [];
-                    snapshot.forEach(child => sups.push({ id: child.key, ...child.val() }));
-                    sups.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-                    console.log('Supervisiones cargadas:', sups.length);
-                    mostrarListaSupervisiones(sups);
-                })
-                .catch(err => {
-                    lista.innerHTML = '<p style="color:#dc2626; padding:20px;">Error al cargar: ' + err.message + '</p>';
-                    console.error(err);
-                });
+            try {
+                const leer = async (ruta) => {
+                    try {
+                        const snap = await database.ref(ruta).once('value');
+                        if (!snap.exists()) return [];
+                        const arr = [];
+                        snap.forEach(child => arr.push({ id: child.key, _ruta: ruta, ...child.val() }));
+                        return arr;
+                    } catch(e) { return []; }
+                };
+
+                const sups = await leer(`edificios/nepal-2/supervisiones`);
+                sups.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+
+                if (sups.length === 0) {
+                    lista.innerHTML = '<p style="color:#64748b; padding:20px; text-align:center;">No hay supervisiones guardadas aun.</p>';
+                    return;
+                }
+                mostrarListaSupervisiones(sups);
+            } catch(err) {
+                lista.innerHTML = '<p style="color:#dc2626; padding:20px;">Error al cargar: ' + err.message + '</p>';
+                console.error(err);
+            }
         }
 
         function cerrarModal() {
             document.getElementById('modalSupervisiones').style.display = 'none';
         }
 
+        function editarSupervision(sup) {
+            cerrarModal();
+
+            // Marcar que estamos editando
+            editandoId = sup.id;
+
+            // Rellenar campos básicos
+            document.getElementById('fecha').value        = sup.fecha || '';
+            document.getElementById('horaInicio').value   = sup.horaInicio || '';
+            document.getElementById('horaFin').value      = sup.horaFin || '';
+
+            // Marcar checkboxes de áreas
+            document.querySelectorAll('.checkbox-item input[type="checkbox"]').forEach(cb => {
+                cb.checked = Array.isArray(sup.areas) && sup.areas.includes(cb.value);
+            });
+
+            // Restaurar hallazgos positivos
+            hallazgosPositivos = Array.isArray(sup.hallazgosPositivos)
+                ? sup.hallazgosPositivos.map(h => ({ id: Date.now() + Math.random(), texto: h.texto || String(h) }))
+                : [];
+            renderizarHallazgosPositivos();
+
+            // Restaurar hallazgos negativos (limpiar primero)
+            hallazgosNegativos = [];
+            document.getElementById('hallazgos-negativos-lista').innerHTML = '';
+            if (Array.isArray(sup.hallazgosNegativos)) {
+                sup.hallazgosNegativos.forEach(h => {
+                    // Pre-llenar el textarea de entrada y agregar
+                    document.getElementById('hallazgos-negativos-input').value = h.descripcion || '';
+                    agregarHallazgoNegativo();
+                    // Rellenar los demás campos del hallazgo recién creado
+                    const id = hallazgosNegativos[hallazgosNegativos.length - 1].id;
+                    if (document.getElementById('nivel-'    + id)) document.getElementById('nivel-'    + id).value = h.nivel    || 'medio';
+                    if (document.getElementById('ubicacion-'+ id)) document.getElementById('ubicacion-'+ id).value = h.ubicacion|| '';
+                    if (document.getElementById('accion-'   + id)) document.getElementById('accion-'   + id).value = h.accion   || '';
+                    if (document.getElementById('responsable-'+id)) document.getElementById('responsable-'+id).value = h.responsable || '';
+                    if (document.getElementById('plazo-'    + id)) document.getElementById('plazo-'    + id).value = h.plazo    || '';
+                });
+            }
+
+            // Fotos existentes (sin datos binarios, solo referencias)
+            fotosArray = [];
+            renderizarFotos();
+
+            actualizarResumen();
+
+            // Mostrar banner de modo edición
+            const existing = document.getElementById('modoEdicionBanner');
+            if (existing) existing.remove();
+            const banner = document.createElement('div');
+            banner.id = 'modoEdicionBanner';
+            banner.style.cssText = 'background:#fef3c7;border:2px solid #f59e0b;border-radius:8px;padding:12px 18px;margin-bottom:20px;font-weight:700;color:#92400e;';
+            banner.innerHTML = '&#9998; Modo edición: supervisión del ' + (sup.fecha || 'sin fecha') + ' — Modifica los campos y haz clic en "Guardar Supervision" para actualizar.';
+            document.querySelector('.content').insertBefore(banner, document.querySelector('.form-section'));
+
+            // Actualizar texto del botón
+            document.getElementById('btnGuardar').textContent = 'Actualizar Supervision';
+
+            // Scroll arriba para ver el formulario
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            setStatus('Editando supervision del ' + (sup.fecha || 'sin fecha') + '. Modifica y guarda.', 'warning');
+        }
+
         function mostrarListaSupervisiones(supervisiones) {
             const lista = document.getElementById('listaSupervisiones');
             let html = `<p style="color:#64748b; margin-bottom:14px; font-size:.88rem;">${supervisiones.length} supervision(es) encontrada(s) en Nepal 2</p>`;
-            html += '<table class="sup-table"><thead><tr><th>#</th><th>Fecha</th><th>Hora</th><th>Areas</th><th>Hall. Positivos</th><th>Hall. Negativos</th><th>Fotos</th></tr></thead><tbody>';
+            // Guardamos las supervisiones en window para acceder desde los botones
+            window._supervisiones_cargadas = supervisiones;
+
+            html += '<table class="sup-table"><thead><tr><th>#</th><th>Fecha</th><th>Hora</th><th>Areas</th><th>Hall. Positivos</th><th>Hall. Negativos</th><th>Fotos</th><th>Accion</th></tr></thead><tbody>';
 
             supervisiones.forEach((sup, i) => {
                 const fecha = sup.fecha || '—';
@@ -824,11 +906,12 @@
                     <td><span class="badge badge-pos">${pos} positivos</span></td>
                     <td><span class="badge badge-neg">${neg} negativos</span></td>
                     <td>${fotos}</td>
+                    <td><button onclick="editarSupervision(window._supervisiones_cargadas[${i}])" style="background:#f59e0b;color:#fff;border:none;border-radius:6px;padding:6px 12px;font-weight:700;cursor:pointer;font-size:.82rem;">&#9998; Editar</button></td>
                 </tr>`;
 
                 // Detalle de hallazgos negativos
                 if (Array.isArray(sup.hallazgosNegativos) && sup.hallazgosNegativos.length > 0) {
-                    html += `<tr><td colspan="7" style="background:#fff8f8; padding:10px 14px;">`;
+                    html += `<tr><td colspan="8" style="background:#fff8f8; padding:10px 14px;">`;
                     html += `<strong style="color:#991b1b;">Hallazgos negativos:</strong><ul style="margin:6px 0 0 18px;">`;
                     sup.hallazgosNegativos.forEach(h => {
                         html += `<li style="font-size:.85rem; margin-bottom:4px;"><strong>[${h.nivel || 'medio'}]</strong> ${h.descripcion || '—'} ${h.ubicacion ? '— Ubicacion: '+h.ubicacion : ''} ${h.accion ? '<br><em>Accion: '+h.accion+'</em>' : ''}</li>`;

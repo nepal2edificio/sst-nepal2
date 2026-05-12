@@ -377,14 +377,8 @@ async function leerColeccion(ruta) {
   }
 }
 
-// Lee la misma colección desde nepal-2 Y convivienda-1 y las combina
-// (migración: datos viejos quedaron en convivienda-1 antes del fix)
 async function leerColeccionUnificada(coleccion) {
-  const [a, b] = await Promise.all([
-    leerColeccion(`edificios/nepal-2/${coleccion}`),
-    leerColeccion(`edificios/convivienda-1/${coleccion}`),
-  ]);
-  return [...a, ...b];
+  return leerColeccion(`edificios/nepal-2/${coleccion}`);
 }
 
 function extraerFecha(obj) {
@@ -908,7 +902,7 @@ async function construirPDF() {
     fechaTexto = fo.toLocaleDateString("es-CO", { day:"2-digit", month:"long", year:"numeric" });
   }
 
-  // Cargar datos para tablas (unificado: nepal-2 + convivienda-1)
+  // Cargar datos para tablas desde nepal-2
   const [supArr, insArr, indArr, mantArr] = await Promise.all([
     leerColeccionUnificada("supervisiones"),
     leerColeccionUnificada("inspecciones"),
