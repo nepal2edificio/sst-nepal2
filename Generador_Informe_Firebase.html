@@ -462,30 +462,23 @@ function analizarInspecciones(inspecciones) {
     if (ins.accionesCorrectivas && ins.accionesCorrectivas.trim())
       resultado.acciones.push(ins.accionesCorrectivas.trim());
 
-    // Analizar checklist locativa
-    if (ins.checklist_locativa) {
-      Object.entries(ins.checklist_locativa).forEach(([key, val]) => {
-        const label = CHECKLIST_LOCATIVA[key] || key;
-        if (val === true) {
-          if (!resultado.itemsOK.find(i => i.key === key))
-            resultado.itemsOK.push({ key, label });
-        } else {
-          if (!resultado.itemsFallidos.find(i => i.key === key))
-            resultado.itemsFallidos.push({ key, label });
-        }
-      });
-    }
+    // Solo analizar el checklist relevante según el tipo de inspección
+    const esEquipos = tipo === "trimestral";
+    const checklist = esEquipos ? ins.checklist_equipos : ins.checklist_locativa;
+    const dict      = esEquipos ? CHECKLIST_EQUIPOS     : CHECKLIST_LOCATIVA;
+    const prefix    = esEquipos ? "eq_"                 : "";
 
-    // Analizar checklist equipos
-    if (ins.checklist_equipos) {
-      Object.entries(ins.checklist_equipos).forEach(([key, val]) => {
-        const label = CHECKLIST_EQUIPOS[key] || key;
+    if (checklist) {
+      Object.entries(checklist).forEach(([key, val]) => {
+        if (!dict[key]) return; // ignorar claves numéricas u obsoletas
+        const label = dict[key];
+        const uid   = prefix + key;
         if (val === true) {
-          if (!resultado.itemsOK.find(i => i.key === "eq_"+key))
-            resultado.itemsOK.push({ key: "eq_"+key, label });
+          if (!resultado.itemsOK.find(i => i.key === uid))
+            resultado.itemsOK.push({ key: uid, label });
         } else {
-          if (!resultado.itemsFallidos.find(i => i.key === "eq_"+key))
-            resultado.itemsFallidos.push({ key: "eq_"+key, label });
+          if (!resultado.itemsFallidos.find(i => i.key === uid))
+            resultado.itemsFallidos.push({ key: uid, label });
         }
       });
     }
