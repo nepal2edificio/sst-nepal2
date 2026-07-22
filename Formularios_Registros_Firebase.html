@@ -641,9 +641,9 @@ function limpiarFormulario(formId) {
 
 document.getElementById('formInduccion').addEventListener('submit', async function(e) {
     e.preventDefault();
-    
+
     const btn = e.target.querySelector('button[type="submit"]');
-    const btnText = btn.innerHTML;
+    let btnText = '💾 Guardar Registro';
     btn.disabled = true;
     btn.innerHTML = '⏳ Guardando en Firebase...';
     
@@ -761,9 +761,9 @@ async function cargarRegistrosInducciones() {
                     <td>${data.totalAsistentes || '—'}</td>
                     <td><span class="badge badge-success">${data.estado || 'Completado'}</span></td>
                     <td>
-                        <button class="btn-icon" onclick="verDetalle('${id}')" title="Ver detalles">👁️</button>
+                        <button class="btn-icon" onclick="verDetalle('inducciones','${id}')" title="Ver detalles">👁️</button>
                         <button class="btn-icon" onclick="editarInduccion('${id}', window._inducciones_cargadas['${id}'])" title="Editar">✏️</button>
-                        <button class="btn-icon" onclick="eliminarRegistro('${id}')" title="Eliminar">🗑️</button>
+                        <button class="btn-icon" onclick="eliminarRegistro('inducciones','${id}')" title="Eliminar">🗑️</button>
                     </td>
                 </tr>
             `;
@@ -1039,7 +1039,7 @@ window.addEventListener('DOMContentLoaded', cargarRegistrosInducciones);
 function updateInspectionType(tipo) {
     const locativa = document.getElementById('inspeccion-locativa');
     const equipos = document.getElementById('inspeccion-equipos');
-    
+
     if (tipo === 'mensual') {
         locativa.style.display = 'block';
         equipos.style.display = 'none';
@@ -1053,14 +1053,82 @@ function updateInspectionType(tipo) {
 }
 
 // ═══════════════════════════════════════════════════════════════
+// EDITAR INSPECCIÓN
+// ═══════════════════════════════════════════════════════════════
+
+let editandoInspeccionId = null;
+
+function editarInspeccion(id, data) {
+    editandoInspeccionId = id;
+    const f = document.getElementById('formInspecciones');
+
+    f.querySelector('[name="tipoInspeccion"]').value = data.tipoInspeccion || '';
+    updateInspectionType(data.tipoInspeccion || '');
+    f.querySelector('[name="periodo"]').value = data.periodo || '';
+    f.querySelector('[name="fecha"]').value = data.fecha || '';
+    f.querySelector('[name="hallazgos"]').value = data.hallazgos || '';
+    f.querySelector('[name="nivelRiesgo"]').value = data.nivelRiesgo || 'Sin hallazgos';
+    f.querySelector('[name="estado"]').value = data.estado || 'Todo OK';
+    f.querySelector('[name="accionesCorrectivas"]').value = data.accionesCorrectivas || '';
+    f.querySelector('[name="responsableNombre"]').value = data.responsableNombre || '';
+    f.querySelector('[name="responsableCargo"]').value = data.responsableCargo || '';
+
+    const loc = data.checklist_locativa || {};
+    f.querySelector('[name="loc_escaleras"]').checked = !!loc.escaleras;
+    f.querySelector('[name="loc_cintas"]').checked = !!loc.cintas;
+    f.querySelector('[name="loc_iluminacion"]').checked = !!loc.iluminacion;
+    f.querySelector('[name="loc_lucesEmergencia"]').checked = !!loc.lucesEmergencia;
+    f.querySelector('[name="loc_senalizacion"]').checked = !!loc.senalizacion;
+    f.querySelector('[name="loc_puertasElectricas"]').checked = !!loc.puertasElectricas;
+    f.querySelector('[name="loc_pisos"]').checked = !!loc.pisos;
+    f.querySelector('[name="loc_rutasEvacuacion"]').checked = !!loc.rutasEvacuacion;
+    f.querySelector('[name="loc_tanques"]').checked = !!loc.tanques;
+    f.querySelector('[name="loc_filtraciones"]').checked = !!loc.filtraciones;
+
+    const eq = data.checklist_equipos || {};
+    f.querySelector('[name="eq_extintor1"]').checked = !!eq.extintor1;
+    f.querySelector('[name="eq_extintor2"]').checked = !!eq.extintor2;
+    f.querySelector('[name="eq_extintor3"]').checked = !!eq.extintor3;
+    f.querySelector('[name="eq_extintor4"]').checked = !!eq.extintor4;
+    f.querySelector('[name="eq_manguera"]').checked = !!eq.manguera;
+    f.querySelector('[name="eq_valvula"]').checked = !!eq.valvula;
+    f.querySelector('[name="eq_senalizacion"]').checked = !!eq.senalizacion;
+    f.querySelector('[name="eq_acceso"]').checked = !!eq.acceso;
+
+    let banner = document.getElementById('banner-editar-inspeccion');
+    if (!banner) {
+        banner = document.createElement('div');
+        banner.id = 'banner-editar-inspeccion';
+        banner.style.cssText = 'background:#fef08a;border:2px solid #eab308;padding:10px 16px;border-radius:8px;margin-bottom:12px;font-weight:600;color:#854d0e;display:flex;justify-content:space-between;align-items:center;';
+        f.insertAdjacentElement('beforebegin', banner);
+    }
+    banner.innerHTML = `✏️ Editando inspección — ${data.periodo || ''} <button onclick="cancelarEdicionInspeccion()" style="background:#ef4444;color:white;border:none;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:13px;">✕ Cancelar</button>`;
+    banner.style.display = 'flex';
+
+    f.querySelector('button[type="submit"]').innerHTML = '💾 Actualizar Inspección';
+    f.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function cancelarEdicionInspeccion() {
+    editandoInspeccionId = null;
+    const f = document.getElementById('formInspecciones');
+    f.reset();
+    document.getElementById('inspeccion-locativa').style.display = 'none';
+    document.getElementById('inspeccion-equipos').style.display = 'none';
+    const banner = document.getElementById('banner-editar-inspeccion');
+    if (banner) banner.style.display = 'none';
+    f.querySelector('button[type="submit"]').innerHTML = '💾 Guardar Inspección';
+}
+
+// ═══════════════════════════════════════════════════════════════
 // GUARDAR INSPECCIÓN EN FIREBASE
 // ═══════════════════════════════════════════════════════════════
 
 document.getElementById('formInspecciones').addEventListener('submit', async function(e) {
     e.preventDefault();
-    
+
     const btn = e.target.querySelector('button[type="submit"]');
-    const btnText = btn.innerHTML;
+    let btnText = '💾 Guardar Inspección';
     btn.disabled = true;
     btn.innerHTML = '⏳ Guardando en Firebase...';
     
@@ -1119,14 +1187,14 @@ document.getElementById('formInspecciones').addEventListener('submit', async fun
         const itemsOK = Object.values(checklistRelevante).filter(v => v === true).length;
         datos.cumplimiento = Math.round((itemsOK / totalItems) * 100);
         
-        // Generar ID
-        const inspeccionId = 'inspeccion-' + Date.now();
-        
+        // ID: usar existente si se está editando, o nuevo
+        const inspeccionId = editandoInspeccionId || ('inspeccion-' + Date.now());
+
         // Subir archivos y guardar en Firebase
         datos.archivos = await uploadFilesAlStorage('inspeccion', inspeccionId);
         const ref = database.ref(`edificios/${EDIFICIO_ID}/inspecciones/${inspeccionId}`);
         await ref.set(datos);
-        
+
         // Confirmación
         alert(`✅ INSPECCIÓN GUARDADA EXITOSAMENTE
 
@@ -1138,13 +1206,17 @@ document.getElementById('formInspecciones').addEventListener('submit', async fun
 
 Los datos se guardaron en:
 Firebase → edificios/nepal-2/inspecciones/`);
-        
-        // Limpiar formulario
+
+        // Limpiar formulario y estado de edición
+        editandoInspeccionId = null;
+        const bannerInsp = document.getElementById('banner-editar-inspeccion');
+        if (bannerInsp) bannerInsp.style.display = 'none';
         e.target.reset();
         limpiarArchivos('inspeccion', 'filesInspeccion');
         document.getElementById('inspeccion-locativa').style.display = 'none';
         document.getElementById('inspeccion-equipos').style.display = 'none';
-        
+        btnText = '💾 Guardar Inspección';
+
         // Recargar tabla
         cargarRegistrosInspecciones();
         
@@ -1179,6 +1251,9 @@ async function cargarRegistrosInspecciones() {
         let html = '';
         const periodosConRegistro = new Set();
 
+        // Guardar referencia global para el editor
+        window._inspecciones_cargadas = registros;
+
         Object.entries(registros).forEach(([id, data]) => {
             // Contar periodos únicos usando el campo "periodo" (ej: "Enero 2026")
             if (data.periodo) periodosConRegistro.add(data.periodo);
@@ -1191,8 +1266,9 @@ async function cargarRegistrosInspecciones() {
                     <td>${data.cumplimiento}%</td>
                     <td><span class="badge badge-${data.nivelRiesgo === 'Sin hallazgos' ? 'success' : 'warning'}">${data.nivelRiesgo}</span></td>
                     <td>
-                        <button class="btn-icon" onclick="verDetalle('${id}')" title="Ver">👁️</button>
-                        <button class="btn-icon" onclick="eliminarRegistro('${id}')" title="Eliminar">🗑️</button>
+                        <button class="btn-icon" onclick="verDetalle('inspecciones','${id}')" title="Ver">👁️</button>
+                        <button class="btn-icon" onclick="editarInspeccion('${id}', window._inspecciones_cargadas['${id}'])" title="Editar">✏️</button>
+                        <button class="btn-icon" onclick="eliminarRegistro('inspecciones','${id}')" title="Eliminar">🗑️</button>
                     </td>
                 </tr>
             `;
@@ -1364,14 +1440,58 @@ window.addEventListener('DOMContentLoaded', cargarRegistrosInspecciones);
 
 <script>
 // ═══════════════════════════════════════════════════════════════
+// EDITAR MANTENIMIENTO
+// ═══════════════════════════════════════════════════════════════
+
+let editandoMantenimientoId = null;
+
+function editarMantenimiento(id, data) {
+    editandoMantenimientoId = id;
+    const f = document.getElementById('formMantenimiento');
+
+    f.querySelector('[name="tipo"]').value = data.tipo || '';
+    f.querySelector('[name="fecha"]').value = data.fecha || '';
+    f.querySelector('[name="area"]').value = data.area || '';
+    f.querySelector('[name="descripcion"]').value = data.descripcion || '';
+    f.querySelector('[name="responsable"]').value = data.responsable || '';
+    f.querySelector('[name="costo"]').value = data.costo || '';
+    f.querySelector('[name="estado"]').value = data.estado || 'Completado';
+    f.querySelector('[name="observaciones"]').value = data.observaciones || '';
+    f.querySelector('[name="proximoMantenimiento"]').value = data.proximoMantenimiento || '';
+    f.querySelector('[name="frecuencia"]').value = data.frecuencia || '';
+
+    let banner = document.getElementById('banner-editar-mantenimiento');
+    if (!banner) {
+        banner = document.createElement('div');
+        banner.id = 'banner-editar-mantenimiento';
+        banner.style.cssText = 'background:#fef08a;border:2px solid #eab308;padding:10px 16px;border-radius:8px;margin-bottom:12px;font-weight:600;color:#854d0e;display:flex;justify-content:space-between;align-items:center;';
+        f.insertAdjacentElement('beforebegin', banner);
+    }
+    banner.innerHTML = `✏️ Editando mantenimiento — ${data.area || ''} <button onclick="cancelarEdicionMantenimiento()" style="background:#ef4444;color:white;border:none;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:13px;">✕ Cancelar</button>`;
+    banner.style.display = 'flex';
+
+    f.querySelector('button[type="submit"]').innerHTML = '💾 Actualizar Registro';
+    f.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function cancelarEdicionMantenimiento() {
+    editandoMantenimientoId = null;
+    const f = document.getElementById('formMantenimiento');
+    f.reset();
+    const banner = document.getElementById('banner-editar-mantenimiento');
+    if (banner) banner.style.display = 'none';
+    f.querySelector('button[type="submit"]').innerHTML = '💾 Guardar Registro';
+}
+
+// ═══════════════════════════════════════════════════════════════
 // GUARDAR MANTENIMIENTO EN FIREBASE
 // ═══════════════════════════════════════════════════════════════
 
 document.getElementById('formMantenimiento').addEventListener('submit', async function(e) {
     e.preventDefault();
-    
+
     const btn = e.target.querySelector('button[type="submit"]');
-    const btnText = btn.innerHTML;
+    let btnText = '💾 Guardar Registro';
     btn.disabled = true;
     btn.innerHTML = '⏳ Guardando en Firebase...';
     
@@ -1403,14 +1523,14 @@ document.getElementById('formMantenimiento').addEventListener('submit', async fu
             edificio: 'Nepal 2'
         };
         
-        // Generar ID único
-        const mantenimientoId = 'mantenimiento-' + Date.now();
-        
+        // ID: usar existente si se está editando, o nuevo
+        const mantenimientoId = editandoMantenimientoId || ('mantenimiento-' + Date.now());
+
         // Subir archivos y guardar en Firebase
         datos.archivos = await uploadFilesAlStorage('mantenimiento', mantenimientoId);
         const ref = database.ref(`edificios/${EDIFICIO_ID}/mantenimientos/${mantenimientoId}`);
         await ref.set(datos);
-        
+
         // Confirmación con detalles
         alert(`✅ MANTENIMIENTO GUARDADO EXITOSAMENTE
 
@@ -1424,11 +1544,15 @@ ${datos.proximoMantenimiento ? '\n📆 Próximo: ' + datos.proximoMantenimiento 
 
 Los datos se guardaron en:
 Firebase → edificios/nepal-2/mantenimientos/`);
-        
-        // Limpiar formulario
+
+        // Limpiar formulario y estado de edición
+        editandoMantenimientoId = null;
+        const bannerMant = document.getElementById('banner-editar-mantenimiento');
+        if (bannerMant) bannerMant.style.display = 'none';
         e.target.reset();
         limpiarArchivos('mantenimiento', 'filesMantenimiento');
-        
+        btnText = '💾 Guardar Registro';
+
         // Recargar tabla
         cargarRegistrosMantenimientos();
         
@@ -1475,10 +1599,13 @@ async function cargarRegistrosMantenimientos() {
         
         let html = '';
         let costoTotal = 0;
-        
+
+        // Guardar referencia global para el editor
+        window._mantenimientos_cargados = registros;
+
         Object.entries(registros).forEach(([id, data]) => {
             costoTotal += data.costo || 0;
-            
+
             html += `
                 <tr>
                     <td>${data.fecha}</td>
@@ -1488,8 +1615,9 @@ async function cargarRegistrosMantenimientos() {
                     <td>$${(data.costo || 0).toLocaleString('es-CO')}</td>
                     <td><span class="badge badge-${data.estado === 'Completado' ? 'success' : 'warning'}">${data.estado}</span></td>
                     <td>
-                        <button class="btn-icon" onclick="verDetalle('${id}')" title="Ver detalles">👁️</button>
-                        <button class="btn-icon" onclick="eliminarRegistro('${id}')" title="Eliminar">🗑️</button>
+                        <button class="btn-icon" onclick="verDetalle('mantenimientos','${id}')" title="Ver detalles">👁️</button>
+                        <button class="btn-icon" onclick="editarMantenimiento('${id}', window._mantenimientos_cargados['${id}'])" title="Editar">✏️</button>
+                        <button class="btn-icon" onclick="eliminarRegistro('mantenimientos','${id}')" title="Eliminar">🗑️</button>
                     </td>
                 </tr>
             `;
@@ -1727,14 +1855,73 @@ function calcularCumplimientoContratista() {
 }
 
 // ═══════════════════════════════════════════════════════════════
+// EDITAR CONTRATISTA
+// ═══════════════════════════════════════════════════════════════
+
+let editandoContratistaId = null;
+
+function editarContratista(id, data) {
+    editandoContratistaId = id;
+    const f = document.getElementById('formContratistas');
+
+    f.querySelector('[name="empresa"]').value = data.empresa || '';
+    f.querySelector('[name="periodo"]').value = data.periodo || '';
+    f.querySelector('[name="fechaVerificacion"]').value = data.fechaVerificacion || '';
+    f.querySelector('[name="nit"]').value = data.nit || '';
+    f.querySelector('[name="representante"]').value = data.representante || '';
+    f.querySelector('[name="numeroTrabajadores"]').value = data.numeroTrabajadores || '';
+
+    const doc = data.documentacion || {};
+    f.querySelector('[name="doc_arl"]').checked = !!doc.arl;
+    f.querySelector('[name="doc_eps"]').checked = !!doc.eps;
+    f.querySelector('[name="doc_pension"]').checked = !!doc.pension;
+    f.querySelector('[name="doc_certificadoSGSST"]').checked = !!doc.certificadoSGSST;
+    f.querySelector('[name="doc_induccion"]').checked = !!doc.induccion;
+    f.querySelector('[name="doc_matrizRiesgos"]').checked = !!doc.matrizRiesgos;
+    f.querySelector('[name="doc_epp"]').checked = !!doc.epp;
+    f.querySelector('[name="doc_examenMedico"]').checked = !!doc.examenMedico;
+    calcularCumplimientoContratista();
+
+    f.querySelector('[name="observaciones"]').value = data.observaciones || '';
+    const venc = data.vencimientos || {};
+    f.querySelector('[name="vencimientoAfiliaciones"]').value = venc.afiliaciones || '';
+    f.querySelector('[name="vencimientoCertificado"]').value = venc.certificado || '';
+    f.querySelector('[name="vencimientoExamen"]').value = venc.examen || '';
+
+    let banner = document.getElementById('banner-editar-contratista');
+    if (!banner) {
+        banner = document.createElement('div');
+        banner.id = 'banner-editar-contratista';
+        banner.style.cssText = 'background:#fef08a;border:2px solid #eab308;padding:10px 16px;border-radius:8px;margin-bottom:12px;font-weight:600;color:#854d0e;display:flex;justify-content:space-between;align-items:center;';
+        f.insertAdjacentElement('beforebegin', banner);
+    }
+    banner.innerHTML = `✏️ Editando verificación — ${data.empresa || ''} (${data.periodo || ''}) <button onclick="cancelarEdicionContratista()" style="background:#ef4444;color:white;border:none;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:13px;">✕ Cancelar</button>`;
+    banner.style.display = 'flex';
+
+    f.querySelector('button[type="submit"]').innerHTML = '💾 Actualizar Verificación';
+    f.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function cancelarEdicionContratista() {
+    editandoContratistaId = null;
+    const f = document.getElementById('formContratistas');
+    f.reset();
+    document.getElementById('cumplimientoDisplay').textContent = '0%';
+    document.getElementById('cumplimientoValue').value = '0';
+    const banner = document.getElementById('banner-editar-contratista');
+    if (banner) banner.style.display = 'none';
+    f.querySelector('button[type="submit"]').innerHTML = '💾 Guardar Verificación';
+}
+
+// ═══════════════════════════════════════════════════════════════
 // GUARDAR CONTRATISTA EN FIREBASE
 // ═══════════════════════════════════════════════════════════════
 
 document.getElementById('formContratistas').addEventListener('submit', async function(e) {
     e.preventDefault();
-    
+
     const btn = e.target.querySelector('button[type="submit"]');
-    const btnText = btn.innerHTML;
+    let btnText = '💾 Guardar Verificación';
     btn.disabled = true;
     btn.innerHTML = '⏳ Guardando en Firebase...';
     
@@ -1783,17 +1970,17 @@ document.getElementById('formContratistas').addEventListener('submit', async fun
             edificio: 'Nepal 2'
         };
         
-        // Generar ID único
-        const contratistaId = 'contratista-' + Date.now();
-        
+        // ID: usar existente si se está editando, o nuevo
+        const contratistaId = editandoContratistaId || ('contratista-' + Date.now());
+
         // Subir archivos y guardar en Firebase
         datos.archivos = await uploadFilesAlStorage('contratistas', contratistaId);
         const ref = database.ref(`edificios/${EDIFICIO_ID}/contratistas/${contratistaId}`);
         await ref.set(datos);
-        
+
         // Confirmación
         const emoji = datos.cumplimiento === 100 ? '🎉' : datos.cumplimiento >= 75 ? '⚠️' : '❌';
-        
+
         alert(`${emoji} VERIFICACIÓN GUARDADA EXITOSAMENTE
 
 📋 ID: ${contratistaId}
@@ -1803,18 +1990,22 @@ document.getElementById('formContratistas').addEventListener('submit', async fun
 ✔️ Estado: ${datos.estado}
 👷 Trabajadores: ${datos.numeroTrabajadores}
 
-${datos.cumplimiento === 100 ? '✅ Documentación COMPLETA' : 
+${datos.cumplimiento === 100 ? '✅ Documentación COMPLETA' :
   '⚠️ Documentación INCOMPLETA - Revisar observaciones'}
 
 Los datos se guardaron en:
 Firebase → edificios/nepal-2/contratistas/`);
-        
-        // Limpiar formulario
+
+        // Limpiar formulario y estado de edición
+        editandoContratistaId = null;
+        const bannerCont = document.getElementById('banner-editar-contratista');
+        if (bannerCont) bannerCont.style.display = 'none';
         e.target.reset();
         document.getElementById('cumplimientoDisplay').textContent = '0%';
         document.getElementById('cumplimientoValue').value = '0';
         limpiarArchivos('contratistas', 'filesContratistas');
-        
+        btnText = '💾 Guardar Verificación';
+
         // Recargar tabla
         cargarRegistrosContratistas();
         
@@ -1846,10 +2037,14 @@ async function cargarRegistrosContratistas() {
         }
         
         let html = '';
+
+        // Guardar referencia global para el editor
+        window._contratistas_cargados = registros;
+
         Object.entries(registros).forEach(([id, data]) => {
-            const badgeClass = data.cumplimiento === 100 ? 'success' : 
+            const badgeClass = data.cumplimiento === 100 ? 'success' :
                               data.cumplimiento >= 75 ? 'warning' : 'danger';
-            
+
             html += `
                 <tr>
                     <td>${data.empresa}</td>
@@ -1865,8 +2060,9 @@ async function cargarRegistrosContratistas() {
                         </div>
                     </td>
                     <td>
-                        <button class="btn-icon" onclick="verDetalle('${id}')" title="Ver detalles">👁️</button>
-                        <button class="btn-icon" onclick="eliminarRegistro('${id}')" title="Eliminar">🗑️</button>
+                        <button class="btn-icon" onclick="verDetalle('contratistas','${id}')" title="Ver detalles">👁️</button>
+                        <button class="btn-icon" onclick="editarContratista('${id}', window._contratistas_cargados['${id}'])" title="Editar">✏️</button>
+                        <button class="btn-icon" onclick="eliminarRegistro('contratistas','${id}')" title="Eliminar">🗑️</button>
                     </td>
                 </tr>
             `;
@@ -2099,19 +2295,82 @@ window.addEventListener('DOMContentLoaded', cargarRegistrosContratistas);
 
 <script>
 // ═══════════════════════════════════════════════════════════════
+// EDITAR ACCIDENTE/INCIDENTE
+// ═══════════════════════════════════════════════════════════════
+
+let editandoAccidenteId = null;
+
+function editarAccidente(id, data) {
+    editandoAccidenteId = id;
+    const f = document.getElementById('formAccidentes');
+
+    f.querySelector('[name="tipo"]').value = data.tipo || '';
+    f.querySelector('[name="fecha"]').value = data.fecha || '';
+    f.querySelector('[name="hora"]').value = data.hora || '';
+    f.querySelector('[name="lugar"]').value = data.lugar || '';
+    f.querySelector('[name="gravedad"]').value = data.gravedad || 'Leve';
+    f.querySelector('[name="diasIncapacidad"]').value = data.diasIncapacidad || '';
+
+    f.querySelector('[name="nombreAfectado"]').value = data.nombreAfectado || '';
+    f.querySelector('[name="identificacion"]').value = data.identificacion || '';
+    f.querySelector('[name="empresaCargo"]').value = data.empresaCargo || '';
+    f.querySelector('[name="edad"]').value = data.edad || '';
+    f.querySelector('[name="genero"]').value = data.genero || '';
+    f.querySelector('[name="telefono"]').value = data.telefono || '';
+
+    f.querySelector('[name="descripcion"]').value = data.descripcion || '';
+    f.querySelector('[name="parteAfectada"]').value = data.parteAfectada || '';
+    f.querySelector('[name="analisisCausas"]').value = data.analisisCausas || '';
+    f.querySelector('[name="accionesInmediatas"]').value = data.accionesInmediatas || '';
+    f.querySelector('[name="planPreventivo"]').value = data.planPreventivo || '';
+
+    const rep = data.reportes || {};
+    f.querySelector('[name="reportadoARL"]').checked = !!rep.reportadoARL;
+    f.querySelector('[name="furatDiligenciado"]').checked = !!rep.furatDiligenciado;
+    f.querySelector('[name="investigacionRealizada"]').checked = !!rep.investigacionRealizada;
+    f.querySelector('[name="fechaReporteARL"]').value = rep.fechaReporteARL || '';
+    f.querySelector('[name="numeroFURAT"]').value = rep.numeroFURAT || '';
+
+    f.querySelector('[name="estado"]').value = data.estado || 'Abierto';
+    f.querySelector('[name="responsableSeguimiento"]').value = data.responsableSeguimiento || '';
+
+    let banner = document.getElementById('banner-editar-accidente');
+    if (!banner) {
+        banner = document.createElement('div');
+        banner.id = 'banner-editar-accidente';
+        banner.style.cssText = 'background:#fef08a;border:2px solid #eab308;padding:10px 16px;border-radius:8px;margin-bottom:12px;font-weight:600;color:#854d0e;display:flex;justify-content:space-between;align-items:center;';
+        f.insertAdjacentElement('beforebegin', banner);
+    }
+    banner.innerHTML = `✏️ Editando registro — ${data.nombreAfectado || ''} <button onclick="cancelarEdicionAccidente()" style="background:#ef4444;color:white;border:none;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:13px;">✕ Cancelar</button>`;
+    banner.style.display = 'flex';
+
+    f.querySelector('button[type="submit"]').innerHTML = '💾 Actualizar Registro';
+    f.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function cancelarEdicionAccidente() {
+    editandoAccidenteId = null;
+    const f = document.getElementById('formAccidentes');
+    f.reset();
+    const banner = document.getElementById('banner-editar-accidente');
+    if (banner) banner.style.display = 'none';
+    f.querySelector('button[type="submit"]').innerHTML = '⚠️ Registrar Accidente/Incidente';
+}
+
+// ═══════════════════════════════════════════════════════════════
 // GUARDAR ACCIDENTE/INCIDENTE EN FIREBASE
 // ═══════════════════════════════════════════════════════════════
 
 document.getElementById('formAccidentes').addEventListener('submit', async function(e) {
     e.preventDefault();
-    
+
     // Confirmación adicional para accidentes
     if (!confirm('⚠️ ¿Confirmas el registro de este accidente/incidente?\n\nRecuerda que es obligatorio reportar a la ARL dentro de las primeras 48 horas.')) {
         return;
     }
-    
+
     const btn = e.target.querySelector('button[type="submit"]');
-    const btnText = btn.innerHTML;
+    let btnText = '⚠️ Registrar Accidente/Incidente';
     btn.disabled = true;
     btn.innerHTML = '⏳ Guardando en Firebase...';
     
@@ -2167,9 +2426,9 @@ document.getElementById('formAccidentes').addEventListener('submit', async funct
             requiereReporteARL: formData.get('tipo') === 'Accidente de Trabajo'
         };
         
-        // Generar ID único
-        const accidenteId = 'accidente-' + Date.now();
-        
+        // ID: usar existente si se está editando, o nuevo
+        const accidenteId = editandoAccidenteId || ('accidente-' + Date.now());
+
         // Subir archivos y guardar en Firebase
         datos.archivos = await uploadFilesAlStorage('accidentes', accidenteId);
         const ref = database.ref(`edificios/${EDIFICIO_ID}/accidentes/${accidenteId}`);
@@ -2197,11 +2456,15 @@ ${!datos.reportes.reportadoARL && datos.tipo === 'Accidente de Trabajo' ?
 
 Los datos se guardaron en:
 Firebase → edificios/nepal-2/accidentes/`);
-        
-        // Limpiar formulario
+
+        // Limpiar formulario y estado de edición
+        editandoAccidenteId = null;
+        const bannerAcc = document.getElementById('banner-editar-accidente');
+        if (bannerAcc) bannerAcc.style.display = 'none';
         e.target.reset();
         limpiarArchivos('accidentes', 'filesAccidentes');
-        
+        btnText = '⚠️ Registrar Accidente/Incidente';
+
         // Recargar tabla
         cargarRegistrosAccidentes();
         
@@ -2245,10 +2508,14 @@ async function cargarRegistrosAccidentes() {
         }
         
         let html = '';
+
+        // Guardar referencia global para el editor
+        window._accidentes_cargados = registros;
+
         Object.entries(registros).forEach(([id, data]) => {
-            const gravedadColor = data.gravedad === 'Leve' ? '#10b981' : 
+            const gravedadColor = data.gravedad === 'Leve' ? '#10b981' :
                                  data.gravedad === 'Moderado' ? '#f59e0b' : '#ef4444';
-            
+
             html += `
                 <tr>
                     <td>${data.fecha}</td>
@@ -2258,8 +2525,9 @@ async function cargarRegistrosAccidentes() {
                     <td><span style="color: ${gravedadColor}; font-weight: 600;">${data.gravedad}</span></td>
                     <td>${data.reportes.reportadoARL ? '✅' : '❌'} ARL<br>${data.reportes.furatDiligenciado ? '✅' : '❌'} FURAT</td>
                     <td>
-                        <button class="btn-icon" onclick="verDetalle('${id}')" title="Ver">👁️</button>
-                        <button class="btn-icon" onclick="eliminarRegistro('${id}')" title="Eliminar">🗑️</button>
+                        <button class="btn-icon" onclick="verDetalle('accidentes','${id}')" title="Ver">👁️</button>
+                        <button class="btn-icon" onclick="editarAccidente('${id}', window._accidentes_cargados['${id}'])" title="Editar">✏️</button>
+                        <button class="btn-icon" onclick="eliminarRegistro('accidentes','${id}')" title="Eliminar">🗑️</button>
                     </td>
                 </tr>
             `;
@@ -2500,14 +2768,77 @@ window.addEventListener('DOMContentLoaded', cargarRegistrosAccidentes);
 
 <script>
 // ═══════════════════════════════════════════════════════════════
+// EDITAR SIMULACRO
+// ═══════════════════════════════════════════════════════════════
+
+let editandoSimulacroId = null;
+
+function editarSimulacro(id, data) {
+    editandoSimulacroId = id;
+    const f = document.getElementById('formSimulacros');
+
+    f.querySelector('[name="tipo"]').value = data.tipo || '';
+    f.querySelector('[name="fecha"]').value = data.fecha || '';
+    f.querySelector('[name="horaInicio"]').value = data.horaInicio || '';
+    f.querySelector('[name="numeroParticipantes"]').value = data.numeroParticipantes || '';
+    f.querySelector('[name="tiempoEvacuacion"]').value = data.tiempoEvacuacion || '';
+    f.querySelector('[name="responsable"]').value = data.responsable || '';
+
+    f.querySelector('[name="escenario"]').value = data.escenario || '';
+    f.querySelector('[name="desarrollo"]').value = data.desarrollo || '';
+    f.querySelector('[name="puntoEncuentro"]').value = data.puntoEncuentro || '';
+    f.querySelector('[name="alarmaUtilizada"]').value = data.alarmaUtilizada || 'Sí';
+
+    f.querySelector('[name="calificacion"]').value = data.calificacion || 'Bueno';
+    f.querySelector('[name="aspectosPositivos"]').value = data.aspectosPositivos || '';
+    f.querySelector('[name="oportunidadesMejora"]').value = data.oportunidadesMejora || '';
+    f.querySelector('[name="planMejoramiento"]').value = data.planMejoramiento || '';
+
+    const brig = data.brigada || {};
+    f.querySelector('[name="brigadaConformada"]').checked = !!brig.conformada;
+    f.querySelector('[name="rolesDefinidos"]').checked = !!brig.rolesDefinidos;
+    f.querySelector('[name="equiposUtilizados"]').checked = !!brig.equiposUtilizados;
+    f.querySelector('[name="puntoIdentificado"]').checked = !!brig.puntoIdentificado;
+
+    f.querySelector('[name="numeroBrigadistas"]').value = data.numeroBrigadistas || '';
+    f.querySelector('[name="liderBrigada"]').value = data.liderBrigada || '';
+
+    f.querySelector('[name="observaciones"]').value = data.observaciones || '';
+    f.querySelector('[name="proximoSimulacro"]').value = data.proximoSimulacro || '';
+    f.querySelector('[name="requiereCapacitacion"]').value = data.requiereCapacitacion || 'No';
+
+    let banner = document.getElementById('banner-editar-simulacro');
+    if (!banner) {
+        banner = document.createElement('div');
+        banner.id = 'banner-editar-simulacro';
+        banner.style.cssText = 'background:#fef08a;border:2px solid #eab308;padding:10px 16px;border-radius:8px;margin-bottom:12px;font-weight:600;color:#854d0e;display:flex;justify-content:space-between;align-items:center;';
+        f.insertAdjacentElement('beforebegin', banner);
+    }
+    banner.innerHTML = `✏️ Editando simulacro — ${data.tipo || ''} (${data.fecha || ''}) <button onclick="cancelarEdicionSimulacro()" style="background:#ef4444;color:white;border:none;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:13px;">✕ Cancelar</button>`;
+    banner.style.display = 'flex';
+
+    f.querySelector('button[type="submit"]').innerHTML = '💾 Actualizar Simulacro';
+    f.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function cancelarEdicionSimulacro() {
+    editandoSimulacroId = null;
+    const f = document.getElementById('formSimulacros');
+    f.reset();
+    const banner = document.getElementById('banner-editar-simulacro');
+    if (banner) banner.style.display = 'none';
+    f.querySelector('button[type="submit"]').innerHTML = '💾 Guardar Simulacro';
+}
+
+// ═══════════════════════════════════════════════════════════════
 // GUARDAR SIMULACRO EN FIREBASE
 // ═══════════════════════════════════════════════════════════════
 
 document.getElementById('formSimulacros').addEventListener('submit', async function(e) {
     e.preventDefault();
-    
+
     const btn = e.target.querySelector('button[type="submit"]');
-    const btnText = btn.innerHTML;
+    let btnText = '💾 Guardar Simulacro';
     btn.disabled = true;
     btn.innerHTML = '⏳ Guardando en Firebase...';
     
@@ -2565,9 +2896,9 @@ document.getElementById('formSimulacros').addEventListener('submit', async funct
         const itemsOK = Object.values(checklistBrigada).filter(v => v === true).length;
         datos.puntajeBrigada = Math.round((itemsOK / totalItems) * 100);
         
-        // Generar ID único
-        const simulacroId = 'simulacro-' + Date.now();
-        
+        // ID: usar existente si se está editando, o nuevo
+        const simulacroId = editandoSimulacroId || ('simulacro-' + Date.now());
+
         // Subir archivos y guardar en Firebase
         datos.archivos = await uploadFilesAlStorage('simulacros', simulacroId);
         const ref = database.ref(`edificios/${EDIFICIO_ID}/simulacros/${simulacroId}`);
@@ -2593,11 +2924,15 @@ ${datos.proximoSimulacro ? '📆 Próximo simulacro: ' + datos.proximoSimulacro 
 
 Los datos se guardaron en:
 Firebase → edificios/nepal-2/simulacros/`);
-        
-        // Limpiar formulario
+
+        // Limpiar formulario y estado de edición
+        editandoSimulacroId = null;
+        const bannerSim = document.getElementById('banner-editar-simulacro');
+        if (bannerSim) bannerSim.style.display = 'none';
         e.target.reset();
         limpiarArchivos('simulacros', 'filesSimulacros');
-        
+        btnText = '💾 Guardar Simulacro';
+
         // Recargar tabla
         cargarRegistrosSimulacros();
         
@@ -2641,11 +2976,15 @@ async function cargarRegistrosSimulacros() {
         }
         
         let html = '';
+
+        // Guardar referencia global para el editor
+        window._simulacros_cargados = registros;
+
         Object.entries(registros).forEach(([id, data]) => {
-            const calificacionColor = data.calificacion === 'Excelente' ? '#10b981' : 
-                                     data.calificacion === 'Bueno' ? '#3b82f6' : 
+            const calificacionColor = data.calificacion === 'Excelente' ? '#10b981' :
+                                     data.calificacion === 'Bueno' ? '#3b82f6' :
                                      data.calificacion === 'Regular' ? '#f59e0b' : '#ef4444';
-            
+
             html += `
                 <tr>
                     <td>${data.fecha}</td>
@@ -2654,8 +2993,9 @@ async function cargarRegistrosSimulacros() {
                     <td>${data.tiempoEvacuacion || 'N/A'}</td>
                     <td><span style="color: ${calificacionColor}; font-weight: 600;">${data.calificacion}</span></td>
                     <td>
-                        <button class="btn-icon" onclick="verDetalle('${id}')" title="Ver detalles">👁️</button>
-                        <button class="btn-icon" onclick="eliminarRegistro('${id}')" title="Eliminar">🗑️</button>
+                        <button class="btn-icon" onclick="verDetalle('simulacros','${id}')" title="Ver detalles">👁️</button>
+                        <button class="btn-icon" onclick="editarSimulacro('${id}', window._simulacros_cargados['${id}'])" title="Editar">✏️</button>
+                        <button class="btn-icon" onclick="eliminarRegistro('simulacros','${id}')" title="Eliminar">🗑️</button>
                     </td>
                 </tr>
             `;
@@ -2821,14 +3161,51 @@ window.addEventListener('DOMContentLoaded', cargarRegistrosSimulacros);
             }
         }
 
-        function verDetalle(id) {
-            alert('Ver detalle: ' + id);
+        // ═══════════════════════════════════════════════════════════════
+        // VER / ELIMINAR REGISTROS (genérico para las 6 tablas)
+        // ═══════════════════════════════════════════════════════════════
+
+        const CACHE_POR_COLECCION = {
+            inducciones: () => window._inducciones_cargadas,
+            inspecciones: () => window._inspecciones_cargadas,
+            mantenimientos: () => window._mantenimientos_cargados,
+            contratistas: () => window._contratistas_cargados,
+            accidentes: () => window._accidentes_cargados,
+            simulacros: () => window._simulacros_cargados
+        };
+
+        const RECARGAR_POR_COLECCION = {
+            inducciones: cargarRegistrosInducciones,
+            inspecciones: cargarRegistrosInspecciones,
+            mantenimientos: cargarRegistrosMantenimientos,
+            contratistas: cargarRegistrosContratistas,
+            accidentes: cargarRegistrosAccidentes,
+            simulacros: cargarRegistrosSimulacros
+        };
+
+        function verDetalle(coleccion, id) {
+            const cache = CACHE_POR_COLECCION[coleccion] && CACHE_POR_COLECCION[coleccion]();
+            const data = cache && cache[id];
+            if (!data) { alert('No se encontró el registro.'); return; }
+
+            const lineas = Object.entries(data)
+                .filter(([k]) => k !== 'archivos')
+                .map(([k, v]) => `${k}: ${typeof v === 'object' && v !== null ? JSON.stringify(v) : v}`)
+                .join('\n');
+
+            alert(`📋 DETALLE DEL REGISTRO\n\n${lineas}`);
         }
 
-        function eliminarRegistro(id) {
-            if (confirm('¿Eliminar este registro?')) {
-                // Implementar eliminación
-                alert('Registro eliminado: ' + id);
+        async function eliminarRegistro(coleccion, id) {
+            if (!confirm('¿Eliminar este registro? Esta acción no se puede deshacer.')) return;
+            try {
+                await database.ref(`edificios/${EDIFICIO_ID}/${coleccion}/${id}`).remove();
+                const recargar = RECARGAR_POR_COLECCION[coleccion];
+                if (recargar) await recargar();
+                alert('✅ Registro eliminado correctamente');
+            } catch (error) {
+                console.error('Error al eliminar:', error);
+                alert('❌ Error al eliminar el registro:\n' + error.message);
             }
         }
     </script>
