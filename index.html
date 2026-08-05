@@ -1009,6 +1009,13 @@
         .banner-contratistas .bc-btn   { padding:7px 13px; border-radius:8px; border:none; background:var(--accent); color:white; cursor:pointer; font-size:0.82rem; font-weight:600; white-space:nowrap; flex-shrink:0; }
         .banner-contratistas .bc-close { background:none; border:none; cursor:pointer; font-size:1.1rem; color:var(--text-gray); padding:4px 6px; flex-shrink:0; }
 
+        /* Banner Cotizaciones Pendientes */
+        .banner-cotiz { display:none; border-radius:15px; padding:15px 20px; margin-bottom:14px; box-shadow:0 2px 10px rgba(0,0,0,0.05); border-left:5px solid #8b5cf6; background:linear-gradient(to right,#f5f3ff,white); }
+        .banner-cotiz.visible { display:flex; align-items:center; gap:12px; }
+        .banner-cotiz .bc-icon { font-size:1.7rem; flex-shrink:0; }
+        .banner-cotiz .bc-body { flex:1; font-size:0.88rem; color:var(--text-dark); }
+        .banner-cotiz .bc-btn  { padding:7px 13px; border-radius:8px; border:none; background:#8b5cf6; color:white; cursor:pointer; font-size:0.82rem; font-weight:600; flex-shrink:0; }
+
         /* Panel Comunicaciones */
         .comm-panel { background:white; border-radius:15px; padding:25px; box-shadow:0 2px 10px rgba(0,0,0,0.05); margin-bottom:25px; }
         .comm-panel-title { font-size:1.25rem; font-weight:700; color:var(--primary); margin-bottom:18px; padding-bottom:12px; border-bottom:2px solid #e2e8f0; }
@@ -1226,6 +1233,13 @@
             <!-- Banner Documentos Contratistas (aparece según fecha y estado Firebase) -->
             <div id="bannerContratistas" class="banner-contratistas"></div>
 
+            <!-- Banner Cotizaciones Pendientes (monto calculado en vivo desde Cotizaciones SST) -->
+            <div id="bannerCotizacionesN2" class="banner-cotiz">
+                <div class="bc-icon">💰</div>
+                <div class="bc-body"><strong>Pendiente:</strong> Aprobar e implementar elementos de seguridad obligatorios. Cumplimiento Res. 0312/2019.</div>
+                <button class="bc-btn" onclick="irACotizacionesN2Banner()">Ver Cotizaciones</button>
+            </div>
+
             <!-- Year Selector -->
             <div class="year-tabs">
                 <button class="year-tab active" onclick="filterDashboard(2026)">2026</button>
@@ -1291,15 +1305,8 @@
                 <div id="semaforoDetails"></div>
             </div>
 
-            <!-- ── Separador: Avance 2026 ── -->
-            <div style="display:flex;align-items:center;gap:12px;margin:32px 0 18px;">
-                <span style="background:#10b981;color:white;padding:5px 16px;border-radius:20px;font-size:0.8rem;font-weight:700;letter-spacing:0.5px;white-space:nowrap;">📈 AVANCE 2026 — AÑO EN CURSO</span>
-                <div style="flex:1;height:2px;background:#e2e8f0;border-radius:2px;"></div>
-                <span style="font-size:0.78rem;color:#94a3b8;font-style:italic;white-space:nowrap;">Acumulado a la fecha</span>
-            </div>
-
             <!-- Progreso General PAT (solo barras — vista pública) -->
-            <div class="record-form">
+            <div class="record-form" style="margin-top:32px;">
                 <h3 style="margin-bottom:5px;">📈 Progreso Plan Anual de Trabajo 2026</h3>
                 <p style="color:var(--text-gray);font-size:0.88rem;margin-bottom:18px;">
                     Avance de la implementación del Sistema de Gestión de Seguridad y Salud en el Trabajo — se actualiza con cada actividad registrada
@@ -1312,6 +1319,16 @@
                     </div>
                     <div class="progress-bar" style="height:14px;">
                         <div class="progress-fill" id="progressPAT" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <div class="progress-container">
+                    <div class="progress-label">
+                        <span><strong>Programa de Mantenimiento 2026</strong></span>
+                        <span id="labelMantenimiento"><strong>0/12</strong> (0%)</span>
+                    </div>
+                    <div class="progress-bar" style="height:14px;">
+                        <div class="progress-fill" id="progressMantenimiento" style="width: 0%"></div>
                     </div>
                 </div>
 
@@ -3750,6 +3767,7 @@
             // NUEVO: Banner contextual y notificaciones
             actualizarBannerAlerta();
             actualizarBannerContratistasN2();
+            actualizarBannerCotizacionesN2();
             iniciarNotificaciones();
             if (isLoggedIn) {
                 actualizarPanelAcciones();
@@ -4970,6 +4988,53 @@
                     if (roi) roi.textContent = 'En proceso';
                 }
             });
+        }
+
+        // --- BANNER COTIZACIONES PENDIENTES (monto calculado en vivo) ---
+        function actualizarBannerCotizacionesN2() {
+            var banner = document.getElementById('bannerCotizacionesN2');
+            if (!banner) return;
+            database.ref('edificios/' + EDIFICIO_ID + '/cotizaciones/2026/completado').once('value').then(function(snapCompletado) {
+                var completado = snapCompletado.exists() && snapCompletado.val() === true;
+                if (completado) { banner.className = 'banner-cotiz'; return; }
+                database.ref('edificios/' + EDIFICIO_ID + '/cotizaciones2/empresas').once('value').then(function(snap) {
+                    var empresas = snap.exists() ? snap.val() : {};
+                    var mejores = {};
+                    Object.values(empresas).forEach(function(emp) {
+                        var precios = emp.precios || {};
+                        ELEMENTOS_SST_N2.forEach(function(el) {
+                            var p = precios[el.key] ? parseInt(precios[el.key]) : 0;
+                            if (p > 0 && (!mejores[el.key] || p < mejores[el.key])) mejores[el.key] = p;
+                        });
+                    });
+                    var total = 0, faltantes = [];
+                    ELEMENTOS_SST_N2.forEach(function(el) {
+                        if (mejores[el.key]) total += mejores[el.key];
+                        else faltantes.push(el.label);
+                    });
+                    var body = banner.querySelector('.bc-body');
+                    if (body) {
+                        var montoTxt = total > 0 ? ('≈$' + total.toLocaleString('es-CO') + ', mejor precio disponible') : 'monto por definir';
+                        var faltaTxt = faltantes.length ? (' Falta cotizar: ' + faltantes.join(', ') + '.') : '';
+                        body.innerHTML = '<strong>Pendiente:</strong> Aprobar e implementar elementos de seguridad obligatorios (' + montoTxt + '). Cumplimiento Res. 0312/2019.' + faltaTxt;
+                    }
+                    banner.className = 'banner-cotiz visible';
+                }).catch(function() { banner.className = 'banner-cotiz visible'; });
+            }).catch(function() { banner.className = 'banner-cotiz visible'; });
+        }
+
+        function irACotizacionesN2Banner() {
+            document.querySelectorAll('.section').forEach(function(s) { s.classList.remove('active'); });
+            document.querySelectorAll('.nav-btn').forEach(function(b) { b.classList.remove('active'); });
+            document.getElementById('cotizacionesN2').classList.add('active');
+            var navBtn = document.getElementById('btnCotizacionesN2');
+            if (navBtn) navBtn.classList.add('active');
+            renderCotizacionesN2();
+            cargarTrackingN2Cotiz();
+            actualizarKpiEstadoN2();
+            var fc = document.getElementById('n2CartaFecha');
+            if (fc && !fc.value) fc.value = new Date().toISOString().split('T')[0];
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         // --- CARTA NEPAL 2 ---
