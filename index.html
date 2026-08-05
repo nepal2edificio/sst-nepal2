@@ -1291,10 +1291,17 @@
                 </div>
 
                 <div class="stat-card">
-                    <div class="stat-icon">🏗️</div>
-                    <div class="stat-value" id="statContratistas">85%</div>
-                    <div class="stat-label">Seguimiento Contratistas</div>
-                    <div class="stat-change positive">SOSA + SERDAN</div>
+                    <div class="stat-icon">👷</div>
+                    <div class="stat-value">1</div>
+                    <div class="stat-label">Número de Trabajadores</div>
+                    <div class="stat-change positive">Res. 0312/2019</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon">🏘️</div>
+                    <div class="stat-value">21</div>
+                    <div class="stat-label">Unidades Habitacionales</div>
+                    <div class="stat-change positive">Activas</div>
                 </div>
             </div>
 
@@ -2555,7 +2562,6 @@
                 document.getElementById('statCapacitacion').textContent = '100%';
                 document.getElementById('statAccidentes').textContent = '0';
                 document.getElementById('statInspecciones').textContent = '12/12';
-                document.getElementById('statContratistas').textContent = '85%';
                 if (document.getElementById('captionInspecciones')) document.getElementById('captionInspecciones').textContent = 'Mensual completo';
                 if (document.getElementById('statsGridTitulo')) document.getElementById('statsGridTitulo').textContent = '📊 RESULTADOS 2025 — AÑO CERRADO';
                 if (document.getElementById('statsGridSubtitulo')) document.getElementById('statsGridSubtitulo').textContent = 'Datos definitivos';
@@ -2860,15 +2866,6 @@
                     document.getElementById('statInspecciones').textContent = inspeccionesMeses + '/12';
                 }
 
-                // CONTRATISTAS
-                let porcentajeContratistas = 85; // Valor por defecto hasta que agregues contratistas a Firebase
-                if (contratistas.length > 0) {
-                    const completos = contratistas.filter(c => c.cumplimiento >= 90).length;
-                    porcentajeContratistas = Math.round((completos / contratistas.length) * 100);
-                }
-                if (document.getElementById('statContratistas')) {
-                    document.getElementById('statContratistas').textContent = porcentajeContratistas + '%';
-                }
 
                 // ACCIDENTES
                 const accidentesAño = accidentes.filter(a => new Date(a.fecha).getFullYear() === añoActual).length;
