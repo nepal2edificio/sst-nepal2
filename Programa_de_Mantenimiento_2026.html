@@ -1138,11 +1138,25 @@
         </div>
     </div>
 
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <script>
+        // ========================================
+        // FIREBASE — sincroniza el programa entre dispositivos
+        // ========================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyDvOSbIFNIVQNJIHBDmP0SgQ-YMYyakHFI",
+            databaseURL: "https://compliancepro--o--sistemass-default-rtdb.firebaseio.com",
+        };
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        const EDIFICIO_ID = 'nepal-2';
+        const FIREBASE_PATH = 'edificios/' + EDIFICIO_ID + '/programa_mantenimiento_2026';
+
         // ========================================
         // SISTEMA DE AUTO-GUARDADO
         // ========================================
-        
+
         const STORAGE_KEY = 'programa_mantenimiento_2026_data';
         
         // Guardar todos los datos
@@ -1187,27 +1201,53 @@
                 datos.costos.push(input.value);
             });
             
-            // Guardar en localStorage
+            // Guardar en localStorage (respaldo local/offline)
             try {
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(datos));
-                mostrarNotificacion('✅ Datos guardados automáticamente', 'success');
             } catch (e) {
-                console.error('Error al guardar:', e);
-                mostrarNotificacion('⚠️ Error al guardar datos', 'error');
+                console.error('Error al guardar en localStorage:', e);
             }
+
+            // Guardar en Firebase (fuente compartida entre dispositivos)
+            database.ref(FIREBASE_PATH).set(datos).then(function() {
+                mostrarNotificacion('✅ Datos guardados automáticamente', 'success');
+            }).catch(function(e) {
+                console.error('Error al guardar en Firebase:', e);
+                mostrarNotificacion('⚠️ Guardado local (sin conexión a la nube)', 'error');
+            });
         }
-        
-        // Cargar todos los datos
+
+        // Cargar todos los datos (Firebase primero, localStorage como respaldo)
         function cargarDatos() {
+            database.ref(FIREBASE_PATH).once('value').then(function(snap) {
+                if (snap.exists()) {
+                    aplicarDatosCargados(snap.val());
+                    console.log('Datos cargados desde Firebase:', snap.val().fechaGuardado);
+                } else {
+                    cargarDatosLocal();
+                }
+            }).catch(function(e) {
+                console.error('Error al leer Firebase, uso localStorage:', e);
+                cargarDatosLocal();
+            });
+        }
+
+        function cargarDatosLocal() {
             try {
                 const datosGuardados = localStorage.getItem(STORAGE_KEY);
                 if (!datosGuardados) {
                     console.log('No hay datos guardados');
                     return;
                 }
-                
-                const datos = JSON.parse(datosGuardados);
-                
+                aplicarDatosCargados(JSON.parse(datosGuardados));
+            } catch (e) {
+                console.error('Error al cargar datos locales:', e);
+                mostrarNotificacion('⚠️ Error al cargar datos guardados', 'error');
+            }
+        }
+
+        function aplicarDatosCargados(datos) {
+            try {
                 // Restaurar información de empresa
                 if (datos.nit) document.getElementById('input-nit').value = datos.nit;
                 if (datos.admin) document.getElementById('input-admin').value = datos.admin;
@@ -1282,7 +1322,9 @@
         function borrarDatos() {
             if (confirm('⚠️ ¿Estás seguro de que quieres BORRAR TODOS los datos guardados?\n\nEsta acción no se puede deshacer.')) {
                 localStorage.removeItem(STORAGE_KEY);
-                location.reload();
+                database.ref(FIREBASE_PATH).remove().finally(function() {
+                    location.reload();
+                });
             }
         }
         
@@ -1319,7 +1361,9 @@
                     try {
                         const datos = JSON.parse(event.target.result);
                         localStorage.setItem(STORAGE_KEY, JSON.stringify(datos));
-                        location.reload();
+                        database.ref(FIREBASE_PATH).set(datos).finally(function() {
+                            location.reload();
+                        });
                     } catch (error) {
                         alert('⚠️ Error al importar el archivo. Verifica que sea un respaldo válido.');
                     }

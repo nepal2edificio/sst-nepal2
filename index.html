@@ -2245,15 +2245,24 @@
 
             async cargarMantenimientos() {
                 let mantenimientos = [];
-                
+
                 const firebase = await this.cargarDesdeFuentes('mantenimientos', 'mantenimientos_nepal2');
                 mantenimientos = mantenimientos.concat(firebase);
-                
+
                 try {
-                    const programaData = localStorage.getItem('programa_mantenimiento_2026_data');
+                    let programaData = null;
+                    try {
+                        const snap = await this.firebase.ref('edificios/' + this.edificioId + '/programa_mantenimiento_2026').once('value');
+                        if (snap.exists()) programaData = JSON.stringify(snap.val());
+                    } catch (e) {
+                        console.log('⚠️ Programa mantenimiento (Firebase):', e.message);
+                    }
+                    if (!programaData) {
+                        programaData = localStorage.getItem('programa_mantenimiento_2026_data');
+                    }
                     if (programaData) {
                         const data = JSON.parse(programaData);
-                        
+
                         if (data.checkboxes && Array.isArray(data.checkboxes)) {
                             const actividades = [
                                 'Extintores', 'Botiquín', 'Iluminación emergencia', 
@@ -2788,6 +2797,28 @@
                 const inspecciones = data.inspecciones ? Object.values(data.inspecciones) : [];
                 const inducciones = data.inducciones ? Object.values(data.inducciones) : [];
                 const mantenimientos = data.mantenimientos ? Object.values(data.mantenimientos) : [];
+
+                // Programa de Mantenimiento 2026 (checklist) — cuenta como mantenimientos hechos
+                const programa = data.programa_mantenimiento_2026;
+                if (programa && Array.isArray(programa.checkboxes)) {
+                    const actividadesPrograma = [
+                        'Extintores', 'Botiquín', 'Iluminación emergencia',
+                        'Sistema eléctrico', 'Tanques de agua', 'Planta eléctrica',
+                        'Ascensor', 'Zonas comunes', 'Equipos de seguridad',
+                        'Señalización', 'Rutas de evacuación', 'Punto de encuentro'
+                    ];
+                    programa.checkboxes.forEach((marcado, index) => {
+                        if (marcado) {
+                            mantenimientos.push({
+                                fecha: programa.fechaGuardado || new Date().toISOString(),
+                                tipo: 'Preventivo',
+                                descripcion: actividadesPrograma[index] || `Mantenimiento #${index + 1}`,
+                                fuente: 'programa'
+                            });
+                        }
+                    });
+                }
+
                 const contratistas = []; // Si tienes contratistas, agrégalos aquí
                 const accidentes = []; // Si tienes accidentes, agrégalos aquí
 
