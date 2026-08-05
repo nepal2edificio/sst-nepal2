@@ -1329,13 +1329,25 @@
                     </div>
                 </div>
 
-                <div class="progress-container">
+                <div style="margin-top:24px;">
                     <div class="progress-label">
-                        <span><strong>Programa de Mantenimiento 2026</strong></span>
-                        <span id="labelMantenimiento"><strong>0/12</strong> (0%)</span>
+                        <span><strong>🔧 Especificaciones Técnicas</strong> — Mantenimientos Obligatorios</span>
+                        <span id="labelEspecTecnicasN2"><strong>0/11</strong> (0%)</span>
                     </div>
                     <div class="progress-bar" style="height:14px;">
-                        <div class="progress-fill" id="progressMantenimiento" style="width: 0%"></div>
+                        <div class="progress-fill" id="progressEspecTecnicasN2" style="width: 0%"></div>
+                    </div>
+                    <div style="overflow-x:auto;margin-top:14px;">
+                        <table style="width:100%;border-collapse:collapse;font-size:0.83rem;min-width:640px;">
+                            <thead><tr style="background:#f8fafc;">
+                                <th style="text-align:left;padding:7px 10px;color:var(--text-gray);font-weight:600;">Ítem</th>
+                                <th style="text-align:left;padding:7px 10px;color:var(--text-gray);font-weight:600;">Norma</th>
+                                <th style="text-align:left;padding:7px 10px;color:var(--text-gray);font-weight:600;white-space:nowrap;">Periodicidad</th>
+                                <th style="text-align:center;padding:7px 10px;color:var(--text-gray);font-weight:600;">Al día</th>
+                                <th style="text-align:left;padding:7px 10px;color:var(--text-gray);font-weight:600;">Última fecha</th>
+                            </tr></thead>
+                            <tbody id="tbodyEspecTecnicasN2"></tbody>
+                        </table>
                     </div>
                 </div>
 
@@ -2907,27 +2919,6 @@
                     document.getElementById('progressPAT').style.width = porcentajePAT + '%';
                 }
 
-                // MANTENIMIENTOS DEL MES
-                const mantenimientosMes = mantenimientos.filter(m => {
-                    if (!m.fecha) return false;
-                    try {
-                        const fecha = new Date(m.fecha);
-                        return fecha.getMonth() === mesActual && fecha.getFullYear() === añoActual;
-                    } catch (e) {
-                        return false;
-                    }
-                }).length;
-
-                console.log('🔧 Mantenimientos del mes:', mantenimientosMes);
-
-                const porcentajeMantenimiento = Math.round((mantenimientosMes / 12) * 100);
-                if (document.getElementById('labelMantenimiento')) {
-                    document.getElementById('labelMantenimiento').innerHTML = `<strong>${mantenimientosMes}/12</strong> (${porcentajeMantenimiento}%)`;
-                }
-                if (document.getElementById('progressMantenimiento')) {
-                    document.getElementById('progressMantenimiento').style.width = Math.min(porcentajeMantenimiento, 100) + '%';
-                }
-
                 // Mostrar cumplimiento global (95% base + datos reales)
                 let cumplimientoGlobal = 95;
                 if (totalPAT > 0) {
@@ -3765,6 +3756,7 @@
             actualizarBannerAlerta();
             actualizarBannerContratistasN2();
             actualizarBannerCotizacionesN2();
+            cargarEspecTecnicasN2();
             iniciarNotificaciones();
             if (isLoggedIn) {
                 actualizarPanelAcciones();
@@ -4985,6 +4977,69 @@
                     if (roi) roi.textContent = 'En proceso';
                 }
             });
+        }
+
+        // --- ESPECIFICACIONES TÉCNICAS (checklist mantenimientos obligatorios) ---
+        var ESPECIFICACIONES_TECNICAS_N2 = [
+            { key: 'tanques_lavado',     item: 'Tanques de agua',                    norma: 'Lavado y desinfección — Ley 9/1979, Res. 2115/2007, Decreto 1575/2007', periodicidad: 'Cada 6 meses' },
+            { key: 'tanques_potable',    item: 'Tanques de agua',                    norma: 'Certificado de potabilidad (análisis fisicoquímico/microbiológico)',     periodicidad: 'Según autoridad local' },
+            { key: 'ascensor_contrato',  item: 'Ascensor',                           norma: 'Contrato de mantenimiento preventivo — NTC 5926-1',                      periodicidad: 'Mensual' },
+            { key: 'ascensor_onac',      item: 'Ascensor',                           norma: 'Certificación de operatividad por organismo acreditado ONAC',            periodicidad: 'Anual' },
+            { key: 'gas_revision',       item: 'Instalación de gas (redes comunes)', norma: 'Revisión periódica — Res. CREG 059/2012',                                periodicidad: 'Cada 5 años' },
+            { key: 'extintores_visual',  item: 'Extintores',                        norma: 'Inspección visual — NTC 2885',                                           periodicidad: 'Mensual' },
+            { key: 'extintores_mant',    item: 'Extintores',                        norma: 'Mantenimiento preventivo / recarga — NTC 2885',                          periodicidad: 'Anual (o al descargarse)' },
+            { key: 'extintores_hidro',   item: 'Extintores',                        norma: 'Prueba hidrostática',                                                    periodicidad: 'Cada 5 años (CO2, ABC, agentes limpios)' },
+            { key: 'red_contraincendio', item: 'Red contra incendio / gabinetes',    norma: 'Mantenimiento e inspección — NTC 1669 / NFPA',                           periodicidad: 'Anual' },
+            { key: 'pararrayos',         item: 'Pararrayos / puesta a tierra',       norma: 'Certificado de medición de resistencia — RETIE',                         periodicidad: 'Anual' },
+            { key: 'planta_electrica',   item: 'Planta eléctrica de emergencia',     norma: 'Prueba de arranque y mantenimiento',                                     periodicidad: 'Mensual / según manual fabricante' }
+        ];
+
+        function cargarEspecTecnicasN2() {
+            var tbody = document.getElementById('tbodyEspecTecnicasN2');
+            if (!tbody) return;
+            database.ref('edificios/' + EDIFICIO_ID + '/especificaciones_tecnicas').once('value').then(function(snap) {
+                var data = snap.exists() ? snap.val() : {};
+                var html = '';
+                var completados = 0;
+                ESPECIFICACIONES_TECNICAS_N2.forEach(function(e) {
+                    var d = data[e.key] || {};
+                    if (d.completado) completados++;
+                    html += '<tr style="border-top:1px solid #f1f5f9;">'
+                        + '<td style="padding:6px 10px;font-weight:600;">' + e.item + '</td>'
+                        + '<td style="padding:6px 10px;">' + e.norma + '</td>'
+                        + '<td style="padding:6px 10px;white-space:nowrap;">' + e.periodicidad + '</td>'
+                        + '<td style="padding:6px 10px;text-align:center;"><input type="checkbox" id="etn2-cb-' + e.key + '"' + (d.completado ? ' checked' : '') + ' onchange="toggleEspecTecnicaN2(\'' + e.key + '\',this.checked)"></td>'
+                        + '<td style="padding:6px 10px;"><input type="date" id="etn2-fecha-' + e.key + '" value="' + (d.fecha || '') + '" onchange="guardarFechaEspecTecnicaN2(\'' + e.key + '\',this.value)"></td>'
+                        + '</tr>';
+                });
+                tbody.innerHTML = html;
+                actualizarProgresoEspecTecnicasN2(completados);
+            });
+        }
+
+        window.toggleEspecTecnicaN2 = function(key, checked) {
+            var fechaInput = document.getElementById('etn2-fecha-' + key);
+            var fecha = (fechaInput && fechaInput.value) || null;
+            database.ref('edificios/' + EDIFICIO_ID + '/especificaciones_tecnicas/' + key).update({ completado: checked, fecha: fecha }).then(function() {
+                var completados = ESPECIFICACIONES_TECNICAS_N2.filter(function(e) {
+                    var cb = document.getElementById('etn2-cb-' + e.key);
+                    return cb && cb.checked;
+                }).length;
+                actualizarProgresoEspecTecnicasN2(completados);
+                mostrarToast(checked ? '✅ Marcado al día' : 'Desmarcado');
+            });
+        };
+
+        window.guardarFechaEspecTecnicaN2 = function(key, fecha) {
+            database.ref('edificios/' + EDIFICIO_ID + '/especificaciones_tecnicas/' + key).update({ fecha: fecha });
+        };
+
+        function actualizarProgresoEspecTecnicasN2(completados) {
+            var pct = Math.round((completados / ESPECIFICACIONES_TECNICAS_N2.length) * 100);
+            var bar = document.getElementById('progressEspecTecnicasN2');
+            if (bar) bar.style.width = pct + '%';
+            var lbl = document.getElementById('labelEspecTecnicasN2');
+            if (lbl) lbl.innerHTML = '<strong>' + completados + '/' + ESPECIFICACIONES_TECNICAS_N2.length + '</strong> (' + pct + '%)';
         }
 
         // --- BANNER COTIZACIONES PENDIENTES (monto calculado en vivo) ---
