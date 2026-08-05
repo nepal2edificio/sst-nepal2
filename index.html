@@ -2445,7 +2445,16 @@
         // SISTEMA DE LOGIN
         // ═══════════════════════════════════════════════════════════════
         
-        let isLoggedIn = false;
+        let isLoggedIn = localStorage.getItem('sst_nepal2_admin') === 'true';
+
+        function restaurarSesionN2() {
+            if (!isLoggedIn) return;
+            document.querySelectorAll('.private').forEach(el => el.style.display = 'inline-block');
+            const btnIn = document.getElementById('btnLogin');
+            const btnOut = document.getElementById('btnLogout');
+            if (btnIn) btnIn.style.display = 'none';
+            if (btnOut) btnOut.style.display = 'inline-block';
+        }
 
         function openLogin() {
             document.getElementById('loginModal').classList.add('active');
@@ -2457,6 +2466,7 @@
             
             if (username === 'c3madriz' && password === 'nepal22026') {
                 isLoggedIn = true;
+                localStorage.setItem('sst_nepal2_admin', 'true');
                 document.getElementById('loginModal').classList.remove('active');
                 
                 // Mostrar elementos privados
@@ -2483,7 +2493,8 @@
 
         function logout() {
             isLoggedIn = false;
-            
+            localStorage.removeItem('sst_nepal2_admin');
+
             // Ocultar elementos privados
             document.querySelectorAll('.private').forEach(el => el.style.display = 'none');
             
@@ -3743,6 +3754,8 @@
 
         // Llamar funciones al cargar la página
         document.addEventListener('DOMContentLoaded', function() {
+            restaurarSesionN2();
+
             // La grilla mensual en el dashboard público ya fue eliminada,
             // pero la función existe con guardia if(!grid)return para no romper nada
             actualizarGrillaMonthly();
