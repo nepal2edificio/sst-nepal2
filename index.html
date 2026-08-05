@@ -1232,11 +1232,11 @@
                 <button class="year-tab" onclick="filterDashboard(2025)">2025</button>
             </div>
 
-            <!-- ── Separador: Resultados 2025 ── -->
+            <!-- ── Separador: Resultados (cambia según año seleccionado) ── -->
             <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px;">
-                <span style="background:#1C3461;color:white;padding:5px 16px;border-radius:20px;font-size:0.8rem;font-weight:700;letter-spacing:0.5px;white-space:nowrap;">📊 RESULTADOS 2025 — AÑO CERRADO</span>
+                <span id="statsGridTitulo" style="background:#1C3461;color:white;padding:5px 16px;border-radius:20px;font-size:0.8rem;font-weight:700;letter-spacing:0.5px;white-space:nowrap;">📈 AVANCE 2026 — AÑO EN CURSO</span>
                 <div style="flex:1;height:2px;background:#e2e8f0;border-radius:2px;"></div>
-                <span style="font-size:0.78rem;color:#94a3b8;font-style:italic;white-space:nowrap;">Datos definitivos</span>
+                <span id="statsGridSubtitulo" style="font-size:0.78rem;color:#94a3b8;font-style:italic;white-space:nowrap;">Acumulado a la fecha</span>
             </div>
 
             <!-- Stats Grid -->
@@ -1271,9 +1271,9 @@
 
                 <div class="stat-card">
                     <div class="stat-icon">🔍</div>
-                    <div class="stat-value" id="statInspecciones">12/12</div>
+                    <div class="stat-value" id="statInspecciones">0/12</div>
                     <div class="stat-label">Inspecciones Realizadas</div>
-                    <div class="stat-change positive">Mensual completo</div>
+                    <div class="stat-change positive" id="captionInspecciones">Meses con inspección 2026</div>
                 </div>
 
                 <div class="stat-card">
@@ -2549,7 +2549,13 @@
                 document.getElementById('statAccidentes').textContent = '0';
                 document.getElementById('statInspecciones').textContent = '12/12';
                 document.getElementById('statContratistas').textContent = '85%';
+                if (document.getElementById('captionInspecciones')) document.getElementById('captionInspecciones').textContent = 'Mensual completo';
+                if (document.getElementById('statsGridTitulo')) document.getElementById('statsGridTitulo').textContent = '📊 RESULTADOS 2025 — AÑO CERRADO';
+                if (document.getElementById('statsGridSubtitulo')) document.getElementById('statsGridSubtitulo').textContent = 'Datos definitivos';
             } else {
+                if (document.getElementById('captionInspecciones')) document.getElementById('captionInspecciones').textContent = 'Meses con inspección 2026';
+                if (document.getElementById('statsGridTitulo')) document.getElementById('statsGridTitulo').textContent = '📈 AVANCE 2026 — AÑO EN CURSO';
+                if (document.getElementById('statsGridSubtitulo')) document.getElementById('statsGridSubtitulo').textContent = 'Acumulado a la fecha';
                 actualizarDashboard2026();
             }
         }
@@ -2834,17 +2840,17 @@
                     contratistas: contratistas.length
                 });
 
-                // INSPECCIONES DEL MES
-                const inspeccionesMes = supervisiones.filter(s => {
-                    const fecha = new Date(s.fecha);
-                    return fecha.getMonth() === mesActual && fecha.getFullYear() === añoActual;
-                }).length + inspecciones.filter(i => {
-                    const fecha = new Date(i.fecha);
-                    return fecha.getMonth() === mesActual && fecha.getFullYear() === añoActual;
-                }).length;
+                // INSPECCIONES — meses del año 2026 con al menos una supervisión/inspección hecha (acumulado)
+                const mesesConInspeccion = new Set();
+                supervisiones.concat(inspecciones).forEach(r => {
+                    if (!r.fecha) return;
+                    const fecha = new Date(r.fecha);
+                    if (fecha.getFullYear() === añoActual) mesesConInspeccion.add(fecha.getMonth());
+                });
+                const inspeccionesMeses = mesesConInspeccion.size;
 
                 if (document.getElementById('statInspecciones')) {
-                    document.getElementById('statInspecciones').textContent = inspeccionesMes + '/12';
+                    document.getElementById('statInspecciones').textContent = inspeccionesMeses + '/12';
                 }
 
                 // CONTRATISTAS
