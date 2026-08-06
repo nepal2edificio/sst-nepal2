@@ -1343,6 +1343,7 @@
                                 <th style="text-align:left;padding:7px 10px;color:var(--text-gray);font-weight:600;">Ítem</th>
                                 <th style="text-align:left;padding:7px 10px;color:var(--text-gray);font-weight:600;">Norma</th>
                                 <th style="text-align:left;padding:7px 10px;color:var(--text-gray);font-weight:600;white-space:nowrap;">Periodicidad</th>
+                                <th style="text-align:center;padding:7px 10px;color:var(--text-gray);font-weight:600;">Aplica</th>
                                 <th style="text-align:center;padding:7px 10px;color:var(--text-gray);font-weight:600;">Al día</th>
                                 <th style="text-align:left;padding:7px 10px;color:var(--text-gray);font-weight:600;">Última fecha</th>
                             </tr></thead>
@@ -4994,17 +4995,17 @@
 
         // --- ESPECIFICACIONES TÉCNICAS (checklist mantenimientos obligatorios) ---
         var ESPECIFICACIONES_TECNICAS_N2 = [
-            { key: 'tanques_lavado',     item: 'Tanques de agua',                    norma: 'Lavado y desinfección — Ley 9/1979, Res. 2115/2007, Decreto 1575/2007', periodicidad: 'Cada 6 meses' },
-            { key: 'tanques_potable',    item: 'Tanques de agua',                    norma: 'Certificado de potabilidad (análisis fisicoquímico/microbiológico)',     periodicidad: 'Según autoridad local' },
+            { key: 'tanques_lavado',     item: 'Tanques de agua',                    norma: 'Lavado y desinfección — Ley 9/1979, Res. 2115/2007, Decreto 1575/2007', periodicidad: 'Cada 6 meses', aplicaToggle: true },
             { key: 'ascensor_contrato',  item: 'Ascensor',                           norma: 'Contrato de mantenimiento preventivo — NTC 5926-1',                      periodicidad: 'Mensual' },
             { key: 'ascensor_onac',      item: 'Ascensor',                           norma: 'Certificación de operatividad por organismo acreditado ONAC',            periodicidad: 'Anual' },
             { key: 'gas_revision',       item: 'Instalación de gas (redes comunes)', norma: 'Revisión periódica — Res. CREG 059/2012',                                periodicidad: 'Cada 5 años' },
-            { key: 'extintores_visual',  item: 'Extintores',                        norma: 'Inspección visual — NTC 2885',                                           periodicidad: 'Mensual' },
             { key: 'extintores_mant',    item: 'Extintores',                        norma: 'Mantenimiento preventivo / recarga — NTC 2885',                          periodicidad: 'Anual (o al descargarse)' },
             { key: 'extintores_hidro',   item: 'Extintores',                        norma: 'Prueba hidrostática',                                                    periodicidad: 'Cada 5 años (CO2, ABC, agentes limpios)' },
-            { key: 'red_contraincendio', item: 'Red contra incendio / gabinetes',    norma: 'Mantenimiento e inspección — NTC 1669 / NFPA',                           periodicidad: 'Anual' },
-            { key: 'pararrayos',         item: 'Pararrayos / puesta a tierra',       norma: 'Certificado de medición de resistencia — RETIE',                         periodicidad: 'Anual' },
-            { key: 'planta_electrica',   item: 'Planta eléctrica de emergencia',     norma: 'Prueba de arranque y mantenimiento',                                     periodicidad: 'Mensual / según manual fabricante' }
+            { key: 'red_contraincendio', item: 'Red contra incendio / gabinetes',    norma: 'Mantenimiento e inspección — NTC 1669 / NFPA',                           periodicidad: 'Anual', aplicaToggle: true },
+            { key: 'pararrayos',         item: 'Pararrayos / puesta a tierra',       norma: 'Certificado de medición de resistencia — RETIE',                         periodicidad: 'Anual', aplicaToggle: true },
+            { key: 'planta_electrica',   item: 'Planta eléctrica de emergencia',     norma: 'Prueba de arranque y mantenimiento',                                     periodicidad: 'Mensual / según manual fabricante', aplicaToggle: true },
+            { key: 'subestacion',        item: 'Subestación eléctrica',              norma: 'Mantenimiento e inspección — RETIE',                                     periodicidad: 'Anual' },
+            { key: 'puertas_electricas', item: 'Puertas eléctricas',                 norma: 'Certificación de funcionamiento',                                        periodicidad: 'Anual' }
         ];
 
         function cargarEspecTecnicasN2() {
@@ -5013,20 +5014,31 @@
             database.ref('edificios/' + EDIFICIO_ID + '/especificaciones_tecnicas').once('value').then(function(snap) {
                 var data = snap.exists() ? snap.val() : {};
                 var html = '';
-                var completados = 0;
+                var total = 0, completados = 0;
                 ESPECIFICACIONES_TECNICAS_N2.forEach(function(e) {
                     var d = data[e.key] || {};
-                    if (d.completado) completados++;
-                    html += '<tr style="border-top:1px solid #f1f5f9;">'
+                    var aplica = e.aplicaToggle ? (d.aplica !== false) : true;
+                    if (aplica) {
+                        total++;
+                        if (d.completado) completados++;
+                    }
+                    var aplicaCell = e.aplicaToggle
+                        ? '<select id="etn2-aplica-' + e.key + '" onchange="cambiarAplicaEspecTecnicaN2(\'' + e.key + '\',this.value)" style="padding:3px 6px;border:1px solid #e2e8f0;border-radius:6px;font-size:0.8rem;">'
+                            + '<option value="si"' + (aplica ? ' selected' : '') + '>Sí</option>'
+                            + '<option value="no"' + (!aplica ? ' selected' : '') + '>No</option>'
+                          + '</select>'
+                        : '<span style="color:#cbd5e1;">—</span>';
+                    html += '<tr style="border-top:1px solid #f1f5f9;' + (aplica ? '' : 'opacity:0.5;') + '">'
                         + '<td style="padding:6px 10px;font-weight:600;">' + e.item + '</td>'
                         + '<td style="padding:6px 10px;">' + e.norma + '</td>'
                         + '<td style="padding:6px 10px;white-space:nowrap;">' + e.periodicidad + '</td>'
-                        + '<td style="padding:6px 10px;text-align:center;"><input type="checkbox" id="etn2-cb-' + e.key + '"' + (d.completado ? ' checked' : '') + ' onchange="toggleEspecTecnicaN2(\'' + e.key + '\',this.checked)"></td>'
-                        + '<td style="padding:6px 10px;"><input type="date" id="etn2-fecha-' + e.key + '" value="' + (d.fecha || '') + '" onchange="guardarFechaEspecTecnicaN2(\'' + e.key + '\',this.value)"></td>'
+                        + '<td style="padding:6px 10px;text-align:center;">' + aplicaCell + '</td>'
+                        + '<td style="padding:6px 10px;text-align:center;"><input type="checkbox" id="etn2-cb-' + e.key + '"' + (d.completado ? ' checked' : '') + (aplica ? '' : ' disabled') + ' onchange="toggleEspecTecnicaN2(\'' + e.key + '\',this.checked)"></td>'
+                        + '<td style="padding:6px 10px;"><input type="date" id="etn2-fecha-' + e.key + '" value="' + (d.fecha || '') + '"' + (aplica ? '' : ' disabled') + ' onchange="guardarFechaEspecTecnicaN2(\'' + e.key + '\',this.value)"></td>'
                         + '</tr>';
                 });
                 tbody.innerHTML = html;
-                actualizarProgresoEspecTecnicasN2(completados);
+                actualizarProgresoEspecTecnicasN2(completados, total);
             });
         }
 
@@ -5034,12 +5046,8 @@
             var fechaInput = document.getElementById('etn2-fecha-' + key);
             var fecha = (fechaInput && fechaInput.value) || null;
             database.ref('edificios/' + EDIFICIO_ID + '/especificaciones_tecnicas/' + key).update({ completado: checked, fecha: fecha }).then(function() {
-                var completados = ESPECIFICACIONES_TECNICAS_N2.filter(function(e) {
-                    var cb = document.getElementById('etn2-cb-' + e.key);
-                    return cb && cb.checked;
-                }).length;
-                actualizarProgresoEspecTecnicasN2(completados);
                 mostrarToast(checked ? '✅ Marcado al día' : 'Desmarcado');
+                cargarEspecTecnicasN2();
             });
         };
 
@@ -5047,12 +5055,20 @@
             database.ref('edificios/' + EDIFICIO_ID + '/especificaciones_tecnicas/' + key).update({ fecha: fecha });
         };
 
-        function actualizarProgresoEspecTecnicasN2(completados) {
-            var pct = Math.round((completados / ESPECIFICACIONES_TECNICAS_N2.length) * 100);
+        window.cambiarAplicaEspecTecnicaN2 = function(key, valor) {
+            var aplica = valor === 'si';
+            database.ref('edificios/' + EDIFICIO_ID + '/especificaciones_tecnicas/' + key).update({ aplica: aplica }).then(function() {
+                mostrarToast(aplica ? '✅ Marcado como aplica' : '➖ Marcado como no aplica');
+                cargarEspecTecnicasN2();
+            });
+        };
+
+        function actualizarProgresoEspecTecnicasN2(completados, total) {
+            var pct = total > 0 ? Math.round((completados / total) * 100) : 0;
             var bar = document.getElementById('progressEspecTecnicasN2');
             if (bar) bar.style.width = pct + '%';
             var lbl = document.getElementById('labelEspecTecnicasN2');
-            if (lbl) lbl.innerHTML = '<strong>' + completados + '/' + ESPECIFICACIONES_TECNICAS_N2.length + '</strong> (' + pct + '%)';
+            if (lbl) lbl.innerHTML = '<strong>' + completados + '/' + total + '</strong> (' + pct + '%)';
         }
 
         // --- BANNER COTIZACIONES PENDIENTES (monto calculado en vivo) ---
