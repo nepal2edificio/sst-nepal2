@@ -584,41 +584,56 @@ async function generarTextos() {
     // ════════════════════════════════════
     let analisis = "";
 
-    // Supervisiones — síntesis, el detalle fila a fila ya está en la tabla 3.1 del PDF
+    // Supervisiones — una línea por actividad con fecha y hallazgo real
     if (supMes.length > 0) {
-      const areasSet = new Set();
-      supMes.forEach(s => (Array.isArray(s.areas) ? s.areas : [s.areas || "áreas generales"]).forEach(a => areasSet.add(a)));
-      const totalHallNeg = supMes.reduce((acc, s) => acc + (Array.isArray(s.hallazgosNegativos) ? s.hallazgosNegativos.length : (s.hallazgosNegativos ? 1 : 0)), 0);
-      analisis += `SUPERVISIONES DE SEGURIDAD: ${supMes.length} supervisión(es), cubriendo ${[...areasSet].join(", ")}. `;
-      analisis += totalHallNeg > 0
-        ? `Se registraron ${totalHallNeg} observación(es) de mejora (detalle en tabla 3.1).\n\n`
-        : `No se identificaron condiciones de riesgo durante estas visitas.\n\n`;
+      analisis += `SUPERVISIONES DE SEGURIDAD (${supMes.length})\n`;
+      supMes.forEach(s => {
+        const areas = Array.isArray(s.areas) ? s.areas.join(", ") : (s.areas || "áreas generales");
+        const hallNeg = Array.isArray(s.hallazgosNegativos) ? s.hallazgosNegativos.map(h=>h.descripcion||h.texto||h).join("; ") : (s.hallazgosNegativos || "");
+        analisis += `• ${fmtFecha(s)} — Áreas: ${areas}. ${hallNeg ? `Observación: ${hallNeg}.` : "Sin observaciones de mejora."}\n`;
+      });
+      analisis += `\n`;
     } else {
       analisis += `SUPERVISIONES DE SEGURIDAD: no se registraron supervisiones en este período.\n\n`;
     }
 
-    // Inspecciones — síntesis, el checklist completo ya está en la tabla 3.2.1 del PDF
+    // Inspecciones — una línea por actividad con cumplimiento, riesgo y hallazgo; el checklist completo va en la tabla 3.2.1
     if (insMes.length > 0) {
-      analisis += `INSPECCIONES DE INSTALACIONES: ${insMes.length} inspección(es) realizada(s) (${analInsp.locativas.length} locativa(s), ${analInsp.equipos.length} de equipos contra incendio). `;
-      analisis += analInsp.itemsFallidos.length > 0
-        ? `Se identificaron ${analInsp.itemsFallidos.length} ítem(s) no conforme(s) (detalle en tabla 3.2.1 y en Hallazgos).\n\n`
-        : `Todos los ítems evaluados resultaron conformes (detalle en tabla 3.2.1).\n\n`;
+      analisis += `INSPECCIONES DE INSTALACIONES (${insMes.length})\n`;
+      insMes.forEach(ins => {
+        const tipoLabel = ins.tipoInspeccion === "mensual" ? "Locativa" : ins.tipoInspeccion === "trimestral" ? "Equipos CI" : ins.tipoInspeccion || "General";
+        analisis += `• ${fmtFecha(ins)} — ${tipoLabel}, cumplimiento ${ins.cumplimiento || "N/R"}%, riesgo ${ins.nivelRiesgo || "Sin hallazgos"}.`;
+        if (ins.hallazgos && ins.hallazgos !== "Sin hallazgos") analisis += ` ${ins.hallazgos}`;
+        analisis += `\n`;
+      });
+      analisis += `(Checklist completo en tabla 3.2.1)\n\n`;
     } else {
       analisis += `INSPECCIONES DE INSTALACIONES: no se registraron inspecciones en este período.\n\n`;
     }
 
     // Capacitaciones
     if (indMes.length > 0) {
-      const temas = indMes.map(s => s.tema || s.temaCapacitacion || s.titulo || "Tema SST");
-      analisis += `CAPACITACIONES E INDUCCIONES: ${indMes.length} actividad(es) de formación — ${temas.join("; ")}.\n\n`;
+      analisis += `CAPACITACIONES E INDUCCIONES (${indMes.length})\n`;
+      indMes.forEach(s => {
+        const tema = s.tema || s.temaCapacitacion || s.titulo || "Tema SST";
+        const asist = s.asistentes || s.numeroAsistentes || s.participantes || "N/R";
+        analisis += `• ${fmtFecha(s)} — ${tema}. Asistentes: ${asist}.\n`;
+      });
+      analisis += `\n`;
     } else {
       analisis += `CAPACITACIONES E INDUCCIONES: no se registraron capacitaciones en este período.\n\n`;
     }
 
     // Mantenimientos
-    analisis += mantMes.length > 0
-      ? `MANTENIMIENTOS: ${mantMes.length} actividad(es) ejecutada(s) (detalle en tabla 3.4).`
-      : `MANTENIMIENTOS: no se registraron mantenimientos en este período.`;
+    if (mantMes.length > 0) {
+      analisis += `MANTENIMIENTOS (${mantMes.length})\n`;
+      mantMes.forEach(s => {
+        const desc = s.descripcion || s.actividad || s.tipo || "Mantenimiento general";
+        analisis += `• ${fmtFecha(s)} — ${desc}.\n`;
+      });
+    } else {
+      analisis += `MANTENIMIENTOS: no se registraron mantenimientos en este período.`;
+    }
 
     document.getElementById("txtAnalisis").value = analisis;
 
@@ -661,7 +676,7 @@ async function generarTextos() {
     //  4. CONCLUSIONES
     // ════════════════════════════════════
     const cumpTexto = cumpTotal !== null ? `${cumpTotal}%` : "en evaluación";
-    const conclusiones = `• Cumplimiento del período: ${cumpTexto}, con ${totalActs} actividad(es) ejecutada(s) conforme al Plan Anual SST ${anio}.\n\n• ${analInsp.itemsFallidos.length > 0 ? `Persisten ${analInsp.itemsFallidos.length} no conformidad(es) pendientes de cierre (ver Hallazgos).` : "No se identificaron no conformidades pendientes de cierre."} No se reportaron accidentes de trabajo ni enfermedades laborales en el período.`;
+    const conclusiones = `El Sistema de Gestión de Seguridad y Salud en el Trabajo (SG-SST) registró un cumplimiento de ${cumpTexto} durante ${mesNom} de ${anio}, con la ejecución de ${totalActs} actividad(es) conforme al Plan Anual SST ${anio}. ${analInsp.itemsFallidos.length > 0 ? `Se identificaron ${analInsp.itemsFallidos.length} no conformidad(es) pendiente(s) de cierre, detalladas en la sección de Hallazgos, sobre las cuales se recomienda dar seguimiento.` : "Las inspecciones y supervisiones realizadas no evidenciaron condiciones de riesgo que requieran intervención inmediata."} No se reportaron accidentes de trabajo ni enfermedades laborales durante el período evaluado.`;
 
     document.getElementById("txtConclusiones").value = conclusiones;
 
@@ -672,21 +687,19 @@ async function generarTextos() {
 
     // Recomendaciones específicas según hallazgos reales del mes
     if (analInsp.itemsFallidos.length > 0) {
-      recomendaciones += `• Cerrar las no conformidades de ${mesNom}: ${analInsp.itemsFallidos.map(i=>i.label).join("; ")}. Asignar responsable y fecha límite.\n\n`;
+      recomendaciones += `Se recomienda priorizar el cierre de las no conformidades identificadas en las inspecciones de ${mesNom}: ${analInsp.itemsFallidos.map(i=>i.label).join("; ")}, asignando responsable y fecha límite de ejecución.\n\n`;
     }
     if (analInsp.nivelMaximo === "Crítico" || analInsp.nivelMaximo === "Alto") {
-      recomendaciones += `• Atender con carácter urgente los hallazgos de nivel "${analInsp.nivelMaximo}" identificados en el período.\n\n`;
+      recomendaciones += `Los hallazgos de nivel "${analInsp.nivelMaximo}" identificados en el período requieren atención prioritaria, dado el riesgo que representan para la seguridad de trabajadores y residentes.\n\n`;
     }
     if (analInsp.acciones.length > 0) {
-      recomendaciones += `• Verificar el cumplimiento de las acciones correctivas propuestas: ${analInsp.acciones.slice(0,2).join(". ")}.\n\n`;
+      recomendaciones += `Se debe verificar el cumplimiento de las siguientes acciones correctivas: ${analInsp.acciones.slice(0,2).join("; ")}.\n\n`;
     }
 
     // Si no hubo hallazgos que atender, dejar solo el recordatorio de continuidad del plan
-    if (!recomendaciones) {
-      recomendaciones = `• Mantener la periodicidad de inspecciones y capacitaciones establecida en el Plan Anual SST ${anio}.`;
-    } else {
-      recomendaciones += `• Mantener la periodicidad de inspecciones y capacitaciones establecida en el Plan Anual SST ${anio}.`;
-    }
+    recomendaciones += !recomendaciones
+      ? `Se recomienda mantener la periodicidad de las actividades de supervisión, inspección y capacitación establecida en el Plan Anual SST ${anio}, garantizando el registro oportuno de la información en el sistema.`
+      : `Adicionalmente, se recomienda mantener la periodicidad de las actividades establecida en el Plan Anual SST ${anio}.`;
 
     document.getElementById("txtRecomendaciones").value = recomendaciones;
 
