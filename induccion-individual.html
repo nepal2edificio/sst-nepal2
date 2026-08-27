@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+    <title>Inducción SST — Edificio Nepal 2</title>
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="induccion-contenido.js"></script>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #1f4e78;
+            --secondary: #2e5c8a;
+            --accent: #4a90e2;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --light-bg: #f8fafc;
+            --border: #e2e8f0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--light-bg);
+            color: #1e293b;
+            min-height: 100vh;
+            padding: 20px 16px 60px;
+        }
+
+        .wrap { max-width: 560px; margin: 0 auto; }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 26px 22px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .header h1 { font-size: 1.4rem; margin-bottom: 4px; }
+        .header p { opacity: 0.85; font-size: 0.85rem; }
+
+        .card {
+            background: white;
+            border-radius: 14px;
+            padding: 22px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            margin-bottom: 16px;
+        }
+
+        .form-group { margin-bottom: 16px; }
+        .form-label { display: block; font-weight: 600; margin-bottom: 6px; color: #334155; font-size: 0.9rem; }
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: inherit;
+        }
+        .form-input:focus { outline: none; border-color: var(--accent); }
+
+        .btn {
+            padding: 13px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+        }
+        .btn-primary { background: var(--accent); color: white; }
+        .btn-primary:hover { background: var(--primary); }
+        .btn-primary:disabled { background: #cbd5e1; cursor: not-allowed; }
+        .btn-secondary { background: #e2e8f0; color: #334155; margin-top: 10px; }
+
+        .tema-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 16px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+        .tema-item:hover { border-color: var(--accent); }
+        .tema-item.aprobado { border-color: var(--success); background: #f0fdf9; }
+        .tema-main { flex: 1; }
+        .tema-mes { font-size: 0.7rem; font-weight: 700; color: var(--accent); text-transform: uppercase; }
+        .tema-nombre { font-weight: 700; color: var(--primary); margin-top: 2px; }
+        .tema-estado { font-size: 0.78rem; color: #64748b; margin-top: 4px; }
+        .tema-estado.ok { color: var(--success); font-weight: 600; }
+        .tema-badge { font-size: 1.4rem; flex-shrink: 0; }
+
+        .contenido-text {
+            background: var(--light-bg);
+            border-radius: 10px;
+            padding: 16px 18px;
+            line-height: 1.6;
+            font-size: 0.95rem;
+            margin-bottom: 18px;
+        }
+        .contenido-text p { margin-bottom: 12px; }
+        .contenido-text h4 { color: var(--primary); font-size: 0.95rem; margin: 16px 0 8px; }
+        .contenido-text h4:first-child { margin-top: 0; }
+        .contenido-text ul { margin: 8px 0 12px 20px; }
+        .contenido-text li { margin-bottom: 6px; }
+
+        .pregunta-block { margin-bottom: 22px; }
+        .pregunta-texto { font-weight: 600; margin-bottom: 10px; color: var(--primary); }
+        .opcion {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            margin-bottom: 8px;
+            cursor: pointer;
+        }
+        .opcion:hover { border-color: var(--accent); }
+        .opcion input { width: 18px; height: 18px; }
+        .opcion label { flex: 1; cursor: pointer; }
+
+        .resultado-icon { font-size: 3rem; text-align: center; margin-bottom: 10px; }
+        .resultado-puntaje { text-align: center; font-size: 1.8rem; font-weight: 700; margin-bottom: 6px; }
+        .resultado-msg { text-align: center; color: #64748b; margin-bottom: 20px; }
+
+        .alert {
+            padding: 14px 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-size: 0.9rem;
+        }
+        .alert-info { background: #dbeafe; color: #1e40af; border-left: 4px solid var(--accent); }
+        .alert-warning { background: #fef3c7; color: #92400e; border-left: 4px solid var(--warning); }
+
+        .top-name {
+            text-align: center;
+            font-size: 0.82rem;
+            color: #64748b;
+            margin-bottom: 14px;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 14px;
+            color: var(--accent);
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <div class="header">
+        <h1>🎓 Inducción SST</h1>
+        <p>Edificio Nepal 2 &middot; Compliance Pro</p>
+    </div>
+
+    <div id="app"></div>
+</div>
+
+<script>
+    /* ── FIREBASE ── */
+    const firebaseConfig = {
+        apiKey: "AIzaSyCb2pko11_UOP6V5VPQV_xARWrC5wybQ6w",
+        authDomain: "compliancepro--o--sistemass.firebaseapp.com",
+        databaseURL: "https://compliancepro--o--sistemass-default-rtdb.firebaseio.com",
+        projectId: "compliancepro--o--sistemass",
+        storageBucket: "compliancepro--o--sistemass.firebasestorage.app",
+        messagingSenderId: "188559834704",
+        appId: "1:188559834704:web:73f1b088e9dcda16ab9b55"
+    };
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+    const EDIFICIO_ID = 'nepal-2';
+    const REF_INDIVIDUALES = database.ref(`edificios/${EDIFICIO_ID}/induccionesIndividuales`);
+
+    /* ── ESTADO ── */
+    let trabajador = null;
+    let misRegistros = {};
+    let temaActual = null;
+
+    const app = document.getElementById('app');
+
+    function claveTrabajador(cedula, temaId) {
+        return (cedula || '').replace(/[.\-\s\/#\$\[\]]/g, '') + '_' + temaId;
+    }
+
+    /* ── PANTALLA 1: IDENTIFICACIÓN ── */
+    function renderIdentificacion() {
+        app.innerHTML = `
+            <div class="card">
+                <div class="alert alert-info">Antes de comenzar, dinos quién eres. No necesitas contraseña.</div>
+                <form id="formIdent">
+                    <div class="form-group">
+                        <label class="form-label">Nombre completo *</label>
+                        <input type="text" class="form-input" id="campoNombre" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Cédula *</label>
+                        <input type="text" class="form-input" id="campoCedula" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Empresa / Contratista *</label>
+                        <input type="text" class="form-input" id="campoEmpresa" placeholder="Ej: SERDAN, SOSA..." required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Continuar →</button>
+                </form>
+            </div>`;
+
+        document.getElementById('formIdent').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button');
+            btn.disabled = true; btn.textContent = 'Cargando...';
+
+            trabajador = {
+                nombre: document.getElementById('campoNombre').value.trim(),
+                cedula: document.getElementById('campoCedula').value.trim(),
+                empresa: document.getElementById('campoEmpresa').value.trim()
+            };
+
+            try {
+                const snap = await REF_INDIVIDUALES.once('value');
+                const todos = snap.val() || {};
+                misRegistros = {};
+                Object.values(todos).forEach(r => {
+                    if (r.cedula === trabajador.cedula && r.aprobado) misRegistros[r.temaId] = r;
+                });
+            } catch (err) {
+                console.error(err);
+            }
+
+            renderTemas();
+        });
+    }
+
+    /* ── PANTALLA 2: LISTA DE TEMAS ── */
+    function renderTemas() {
+        const completados = Object.keys(misRegistros).length;
+        app.innerHTML = `
+            <div class="top-name">👤 ${trabajador.nombre} &middot; ${trabajador.empresa}</div>
+            <div class="alert alert-info">${completados}/${TEMAS_INDUCCION.length} temas capacitados</div>
+            <div id="listaTemas"></div>
+        `;
+
+        const lista = document.getElementById('listaTemas');
+        lista.innerHTML = TEMAS_INDUCCION.map(t => {
+            const ok = misRegistros[t.id];
+            return `
+                <div class="tema-item ${ok ? 'aprobado' : ''}" onclick="abrirTema('${t.id}')">
+                    <div class="tema-main">
+                        <div class="tema-mes">${t.mes}</div>
+                        <div class="tema-nombre">${t.tema}</div>
+                        <div class="tema-estado ${ok ? 'ok' : ''}">${ok ? `✅ Aprobado &middot; ${ok.puntaje}%` : '⏳ Pendiente'}</div>
+                    </div>
+                    <div class="tema-badge">${ok ? '✓' : '›'}</div>
+                </div>`;
+        }).join('');
+    }
+
+    /* ── PANTALLA 3: CONTENIDO ── */
+    function abrirTema(temaId) {
+        temaActual = TEMAS_INDUCCION.find(t => t.id === temaId);
+        const yaAprobado = misRegistros[temaId];
+
+        app.innerHTML = `
+            <a class="back-link" onclick="renderTemas()">← Volver a temas</a>
+            <div class="card">
+                <div class="tema-mes">${temaActual.mes}</div>
+                <h2 style="color:var(--primary); margin:4px 0 14px;">${temaActual.tema}</h2>
+                ${yaAprobado ? `<div class="alert alert-info">Ya aprobaste este tema con ${yaAprobado.puntaje}%. Puedes repasarlo y volver a presentar la evaluación si quieres.</div>` : ''}
+                <div class="contenido-text">${temaActual.contenido}</div>
+                <button class="btn btn-primary" onclick="irAEvaluacion()">Continuar a la evaluación →</button>
+            </div>`;
+    }
+
+    /* ── PANTALLA 4: EVALUACIÓN ── */
+    function irAEvaluacion() {
+        if (!temaActual.preguntas || temaActual.preguntas.length === 0) {
+            app.innerHTML = `
+                <a class="back-link" onclick="abrirTema('${temaActual.id}')">← Volver</a>
+                <div class="card">
+                    <div class="alert alert-warning">⏳ La evaluación de este tema todavía está en preparación. Vuelve a intentarlo más adelante.</div>
+                    <button class="btn btn-secondary" onclick="renderTemas()">Volver a temas</button>
+                </div>`;
+            return;
+        }
+
+        app.innerHTML = `
+            <a class="back-link" onclick="abrirTema('${temaActual.id}')">← Volver al contenido</a>
+            <div class="card">
+                <h2 style="color:var(--primary); margin-bottom:16px;">Evaluación: ${temaActual.tema}</h2>
+                <form id="formEval">
+                    ${temaActual.preguntas.map((p, pi) => `
+                        <div class="pregunta-block">
+                            <div class="pregunta-texto">${pi + 1}. ${p.pregunta}</div>
+                            ${p.opciones.map((op, oi) => `
+                                <div class="opcion">
+                                    <input type="radio" name="p${pi}" id="p${pi}o${oi}" value="${oi}" required>
+                                    <label for="p${pi}o${oi}">${op}</label>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `).join('')}
+                    <button type="submit" class="btn btn-primary">Enviar evaluación</button>
+                </form>
+            </div>`;
+
+        document.getElementById('formEval').addEventListener('submit', enviarEvaluacion);
+    }
+
+    /* ── PANTALLA 5: RESULTADO ── */
+    async function enviarEvaluacion(e) {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        let correctas = 0;
+        temaActual.preguntas.forEach((p, pi) => {
+            if (parseInt(formData.get('p' + pi)) === p.correcta) correctas++;
+        });
+        const total = temaActual.preguntas.length;
+        const puntaje = Math.round((correctas / total) * 100);
+        const aprobado = puntaje >= (temaActual.minAprobar || 80);
+
+        if (aprobado) {
+            const registro = {
+                nombre: trabajador.nombre,
+                cedula: trabajador.cedula,
+                empresa: trabajador.empresa,
+                temaId: temaActual.id,
+                temaNombre: temaActual.tema,
+                mes: temaActual.mes,
+                correctas, totalPreguntas: total, puntaje,
+                aprobado: true,
+                fecha: new Date().toISOString().slice(0, 10),
+                timestamp: Date.now()
+            };
+            try {
+                await REF_INDIVIDUALES.child(claveTrabajador(trabajador.cedula, temaActual.id)).set(registro);
+                misRegistros[temaActual.id] = registro;
+            } catch (err) {
+                console.error(err);
+                alert('❌ No se pudo guardar el resultado: ' + err.message);
+                return;
+            }
+        }
+
+        app.innerHTML = `
+            <div class="card">
+                <div class="resultado-icon">${aprobado ? '✅' : '⚠️'}</div>
+                <div class="resultado-puntaje" style="color:${aprobado ? 'var(--success)' : 'var(--danger)'}">${puntaje}%</div>
+                <div class="resultado-msg">
+                    ${correctas} de ${total} respuestas correctas.<br>
+                    ${aprobado ? 'Quedaste registrado como capacitado en este tema.' : `Necesitas mínimo ${temaActual.minAprobar}% para aprobar. Repasa el contenido e inténtalo de nuevo.`}
+                </div>
+                ${aprobado
+                    ? `<button class="btn btn-primary" onclick="renderTemas()">Volver a temas</button>`
+                    : `<button class="btn btn-primary" onclick="abrirTema('${temaActual.id}')">Repasar contenido</button>
+                       <button class="btn btn-secondary" onclick="irAEvaluacion()">Reintentar evaluación</button>`
+                }
+            </div>`;
+    }
+
+    /* ── INICIO ── */
+    renderIdentificacion();
+</script>
+</body>
+</html>

@@ -402,6 +402,7 @@
             <h1 id="pageTitle">📝 Registros Operacionales Nepal 2</h1>
             <p id="pageSubtitle">Sistema de Gestión SST 2026</p>
             <button class="back-btn" onclick="window.close()">← Volver al Sistema</button>
+            <a class="back-btn" href="induccion-individual.html" target="_blank" style="text-decoration:none; display:inline-block;">🎓 Abrir Inducción Individual</a>
         </div>
 
         <!-- Navigation Tabs -->
@@ -448,7 +449,7 @@
         <div class="form-row">
             <div class="form-group">
                 <label class="form-label">Mes <span class="required">*</span></label>
-                <select name="mes" class="form-select" required>
+                <select name="mes" id="mesInduccion" class="form-select" required onchange="cargarAsistentesDesdeIndividual(this.value)">
                     <option value="">Seleccionar...</option>
                     <option value="Enero 2026">Enero 2026</option>
                     <option value="Febrero 2026">Febrero 2026</option>
@@ -504,21 +505,10 @@
     </div>
 
     <div class="form-section">
-        <h3 class="section-title">Asistentes</h3>
-        <div class="form-row">
-            <div class="form-group">
-                <label class="form-label">Personal SERDAN <span class="required">*</span></label>
-                <input type="number" name="asistentesSerdan" id="asistentesSerdan" class="form-input" placeholder="Número de asistentes" min="0" required onchange="calcularTotalAsistentes()">
-            </div>
-            <div class="form-group">
-                <label class="form-label">Personal SOSA <span class="required">*</span></label>
-                <input type="number" name="asistentesSosa" id="asistentesSosa" class="form-input" placeholder="Número de asistentes" min="0" required onchange="calcularTotalAsistentes()">
-            </div>
-            <div class="form-group">
-                <label class="form-label">Total Asistentes <span class="required">*</span></label>
-                <input type="number" name="totalAsistentes" id="totalAsistentes" class="form-input" placeholder="Total" readonly>
-            </div>
-        </div>
+        <h3 class="section-title">Asistentes (automático desde Inducción Individual)</h3>
+        <div class="alert alert-info" id="asistentesInfo">Selecciona el mes arriba para calcular los asistentes según <a href="induccion-individual.html" target="_blank">Inducción Individual</a>.</div>
+        <input type="hidden" name="totalAsistentes" id="totalAsistentes" value="0">
+        <div id="asistentesDetalle"></div>
     </div>
 
     <div class="form-section">
@@ -583,9 +573,8 @@ function editarInduccion(id, data) {
     f.querySelector('[name="duracion"]').value = data.duracion || '';
     f.querySelector('[name="responsable"]').value = data.responsable || '';
     f.querySelector('[name="temasTratados"]').value = data.temasTratados || '';
-    document.getElementById('asistentesSerdan').value = data.asistentesSerdan || '';
-    document.getElementById('asistentesSosa').value = data.asistentesSosa || '';
-    document.getElementById('totalAsistentes').value = data.totalAsistentes || '';
+    document.getElementById('totalAsistentes').value = data.totalAsistentes || 0;
+    cargarAsistentesDesdeIndividual(data.mes);
     f.querySelector('[name="observaciones"]').value = data.observaciones || '';
 
     // Checkboxes
@@ -615,23 +604,72 @@ function editarInduccion(id, data) {
 function cancelarEdicionInduccion() {
     editandoInduccionId = null;
     document.getElementById('formInduccion').reset();
-    document.getElementById('totalAsistentes').value = '';
+    document.getElementById('totalAsistentes').value = '0';
+    document.getElementById('asistentesDetalle').innerHTML = '';
     const banner = document.getElementById('banner-editar-induccion');
     if (banner) banner.style.display = 'none';
     document.querySelector('#formInduccion button[type="submit"]').innerHTML = '💾 Guardar Registro';
 }
 
-function calcularTotalAsistentes() {
-    const serdan = parseInt(document.getElementById('asistentesSerdan').value) || 0;
-    const sosa = parseInt(document.getElementById('asistentesSosa').value) || 0;
-    document.getElementById('totalAsistentes').value = serdan + sosa;
+// Trae de Firebase los trabajadores que aprobaron su Inducción Individual
+// para el mes seleccionado y calcula el total de asistentes automáticamente.
+let ultimosAsistentesAprobados = [];
+
+async function cargarAsistentesDesdeIndividual(mesConAno) {
+    const info = document.getElementById('asistentesInfo');
+    const detalle = document.getElementById('asistentesDetalle');
+    if (!mesConAno) {
+        info.innerHTML = 'Selecciona el mes arriba para calcular los asistentes según <a href="induccion-individual.html" target="_blank">Inducción Individual</a>.';
+        detalle.innerHTML = '';
+        document.getElementById('totalAsistentes').value = '0';
+        ultimosAsistentesAprobados = [];
+        return;
+    }
+
+    const nombreMes = mesConAno.split(' ')[0];
+    info.innerHTML = '⏳ Calculando asistentes...';
+
+    try {
+        const snap = await database.ref(`edificios/${EDIFICIO_ID}/induccionesIndividuales`).once('value');
+        const registros = snap.val() || {};
+        const aprobados = Object.values(registros).filter(r => r.aprobado && r.mes === nombreMes);
+        ultimosAsistentesAprobados = aprobados;
+        document.getElementById('totalAsistentes').value = aprobados.length;
+
+        if (!aprobados.length) {
+            info.innerHTML = `⚠️ Aún no hay trabajadores capacitados individualmente para ${nombreMes}. El total de asistentes quedará en 0 hasta que completen su inducción en <a href="induccion-individual.html" target="_blank">Inducción Individual</a>.`;
+            detalle.innerHTML = '';
+            return;
+        }
+
+        info.innerHTML = `✅ ${aprobados.length} trabajador(es) capacitado(s) individualmente en ${nombreMes}.`;
+        const porEmpresa = {};
+        aprobados.forEach(a => {
+            const key = a.empresa || 'Sin empresa';
+            if (!porEmpresa[key]) porEmpresa[key] = [];
+            porEmpresa[key].push(a);
+        });
+        detalle.innerHTML = Object.entries(porEmpresa).map(([empresa, lista]) => `
+            <div style="margin-bottom:10px;">
+                <strong>${empresa} (${lista.length})</strong>
+                <ul style="margin:4px 0 0 20px;">
+                    ${lista.map(l => `<li>${l.nombre} — C.C. ${l.cedula} — ${l.puntaje}%</li>`).join('')}
+                </ul>
+            </div>`).join('');
+    } catch (error) {
+        console.error(error);
+        info.innerHTML = '❌ Error al calcular asistentes: ' + error.message;
+    }
 }
 
 function limpiarFormulario(formId) {
     if (confirm('¿Deseas limpiar el formulario? Se perderán los datos no guardados.')) {
         document.getElementById(formId).reset();
-        document.getElementById('totalAsistentes').value = '';
-        document.getElementById('filesInduccion').innerHTML = '';
+        if (document.getElementById('totalAsistentes')) {
+            document.getElementById('totalAsistentes').value = '0';
+            document.getElementById('asistentesDetalle').innerHTML = '';
+        }
+        if (document.getElementById('filesInduccion')) document.getElementById('filesInduccion').innerHTML = '';
     }
 }
 
@@ -663,10 +701,9 @@ document.getElementById('formInduccion').addEventListener('submit', async functi
             responsable: formData.get('responsable'),
             temasTratados: formData.get('temasTratados'),
             
-            // Asistentes
-            asistentesSerdan: parseInt(formData.get('asistentesSerdan')),
-            asistentesSosa: parseInt(formData.get('asistentesSosa')),
-            totalAsistentes: parseInt(formData.get('totalAsistentes')),
+            // Asistentes (calculados automáticamente desde Inducción Individual)
+            totalAsistentes: parseInt(formData.get('totalAsistentes')) || 0,
+            asistentesLista: ultimosAsistentesAprobados.map(a => ({ nombre: a.nombre, cedula: a.cedula, empresa: a.empresa, puntaje: a.puntaje })),
             
             // Evaluación (checkboxes)
             evaluacionRealizada: formData.get('evaluacionRealizada') === 'true',
