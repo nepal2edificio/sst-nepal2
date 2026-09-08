@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>Curso Simulacro Nacional 2026 — Propiedad Horizontal Nepal 2</title>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+<style>
+    *{margin:0;padding:0;box-sizing:border-box;}
+    :root{
+        --primary:#1f4e78;
+        --secondary:#2e5c8a;
+        --accent:#4a90e2;
+        --success:#10b981;
+        --danger:#ef4444;
+        --warning:#f59e0b;
+        --bg:#f8fafc;
+        --border:#e2e8f0;
+    }
+    body{
+        font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+        background:var(--bg);color:#1e293b;min-height:100vh;padding:20px 16px 60px;
+    }
+    .wrap{max-width:600px;margin:0 auto;}
+    .header{
+        background:linear-gradient(135deg,var(--primary),var(--secondary));
+        color:#fff;padding:26px 22px;border-radius:15px;margin-bottom:20px;text-align:center;
+    }
+    .header h1{font-size:1.35rem;margin-bottom:4px;}
+    .header p{opacity:.85;font-size:.85rem;}
+    .card{background:#fff;border-radius:14px;padding:22px;box-shadow:0 2px 10px rgba(0,0,0,.08);margin-bottom:16px;}
+    .form-group{margin-bottom:16px;}
+    .form-label{display:block;font-weight:600;margin-bottom:6px;color:#334155;font-size:.9rem;}
+    .form-input{width:100%;padding:12px;border:2px solid var(--border);border-radius:8px;font-size:1rem;font-family:inherit;}
+    .form-input:focus{outline:none;border-color:var(--accent);}
+    .btn{padding:13px 24px;border:none;border-radius:8px;font-size:1rem;font-weight:600;cursor:pointer;width:100%;}
+    .btn-primary{background:var(--accent);color:#fff;}
+    .btn-primary:hover{background:var(--primary);}
+    .btn-primary:disabled{background:#cbd5e1;cursor:not-allowed;}
+    .btn-secondary{background:#e2e8f0;color:#334155;margin-top:10px;}
+    .alert{padding:14px 16px;border-radius:8px;margin-bottom:16px;font-size:.9rem;}
+    .alert-info{background:#dbeafe;color:#1e40af;border-left:4px solid var(--accent);}
+    .alert-warning{background:#fef3c7;color:#92400e;border-left:4px solid var(--warning);}
+    .contenido h4{color:var(--primary);font-size:1rem;margin:18px 0 8px;}
+    .contenido h4:first-child{margin-top:0;}
+    .contenido p{margin-bottom:12px;line-height:1.6;font-size:.95rem;}
+    .contenido ul{margin:8px 0 14px 20px;}
+    .contenido li{margin-bottom:6px;line-height:1.55;font-size:.95rem;}
+    .progreso{font-size:.8rem;color:#64748b;text-align:center;margin-bottom:12px;}
+    .pregunta-block{margin-bottom:22px;}
+    .pregunta-texto{font-weight:600;margin-bottom:10px;color:var(--primary);}
+    .opcion{display:flex;align-items:center;gap:10px;padding:10px 12px;border:2px solid var(--border);border-radius:8px;margin-bottom:8px;cursor:pointer;}
+    .opcion:hover{border-color:var(--accent);}
+    .opcion input{width:18px;height:18px;}
+    .opcion label{flex:1;cursor:pointer;}
+    .resultado-icon{font-size:3rem;text-align:center;margin-bottom:10px;}
+    .resultado-puntaje{text-align:center;font-size:1.8rem;font-weight:700;margin-bottom:6px;}
+    .resultado-msg{text-align:center;color:#64748b;margin-bottom:20px;line-height:1.5;}
+    .back-link{display:inline-block;margin-bottom:14px;color:var(--accent);text-decoration:none;font-size:.85rem;font-weight:600;cursor:pointer;}
+</style>
+</head>
+<body>
+<div class="wrap">
+    <div class="header">
+        <h1>🚨 Curso — Simulacro Nacional 2026</h1>
+        <p>Propiedad Horizontal Nepal 2 &middot; Rol del delegado de seguridad</p>
+    </div>
+    <div id="app"></div>
+</div>
+
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyCb2pko11_UOP6V5VPQV_xARWrC5wybQ6w",
+        authDomain: "compliancepro--o--sistemass.firebaseapp.com",
+        databaseURL: "https://compliancepro--o--sistemass-default-rtdb.firebaseio.com",
+        projectId: "compliancepro--o--sistemass",
+        storageBucket: "compliancepro--o--sistemass.firebasestorage.app",
+        messagingSenderId: "188559834704",
+        appId: "1:188559834704:web:73f1b088e9dcda16ab9b55"
+    };
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+
+    const EDIFICIO_ID = 'nepal-2';
+    const EDIFICIO_NOMBRE = 'Propiedad Horizontal Nepal 2';
+    const TEMA_ID = 'simulacro-nacional';
+    const TEMA_NOMBRE = 'Simulacro Nacional ante sismo — rol del delegado de seguridad';
+    const MIN_APROBAR = 80;
+    const REF = database.ref(`edificios/${EDIFICIO_ID}/induccionesIndividuales`);
+
+    const CONTENIDO = `
+        <h4>1. Qué es el Simulacro Nacional y el papel del delegado</h4>
+        <p>El Simulacro Nacional es un ejercicio coordinado por la Unidad Nacional para la Gestión del Riesgo de Desastres (UNGRD) en el que entidades públicas, privadas, instituciones educativas y familias de todo el país practican, el mismo día y a la misma hora, su respuesta ante una emergencia. La edición 2026 se realiza el <strong>miércoles 21 de octubre a las 10:00 a.m.</strong> y el escenario es un <strong>sismo (terremoto)</strong>.</p>
+        <p>El edificio se inscribe ante la oficina municipal de gestión del riesgo y participa como una organización más. El ejercicio no es un trámite: es la única forma de comprobar, antes de un sismo real, si las rutas de evacuación, la señalización, la alarma y los tiempos de reacción de la comunidad funcionan como se espera.</p>
+        <p>El <strong>delegado de seguridad laboral</strong> (vigía SST y líder de la brigada) es quien planea, coordina y evalúa la participación del edificio en las tres fases del ejercicio: antes, durante y después.</p>
+
+        <h4>2. Antes del simulacro</h4>
+        <p>La preparación es responsabilidad del delegado junto con la administración:</p>
+        <ul>
+            <li>Confirmar la inscripción del edificio ante la alcaldía y la fecha y hora del ejercicio.</li>
+            <li>Revisar que las rutas de evacuación, las salidas de emergencia y el punto de encuentro estén señalizados, despejados y visibles.</li>
+            <li>Actualizar el censo de personas con movilidad reducida, adultos mayores, niños y visitantes frecuentes que requieran apoyo prioritario.</li>
+            <li>Verificar que la alarma se escuche en todos los pisos y zonas comunes.</li>
+            <li>Difundir el ejercicio con anticipación: carteleras, página web del edificio y los canales de la comunidad, recordando los tres pasos de autoprotección.</li>
+            <li>Asignar roles: quién activa la alarma, quién guía cada piso o torre, quién hace el conteo en el punto de encuentro y quién cronometra.</li>
+        </ul>
+
+        <h4>3. Durante el simulacro: Agáchate, Cúbrete, Agárrate</h4>
+        <p>A las 10:00 a.m. se activa la alarma. La secuencia de autoprotección ante sismo, que el delegado debe conocer y hacer cumplir, es:</p>
+        <ul>
+            <li><strong>Agáchate:</strong> bajar al nivel del piso antes de que el movimiento lo tumbe.</li>
+            <li><strong>Cúbrete:</strong> proteger cabeza y cuello bajo una mesa o escritorio resistente, o junto a un muro estructural interno, lejos de ventanas, vidrios y objetos que puedan caer.</li>
+            <li><strong>Agárrate:</strong> sujetarse del mueble de protección y permanecer ahí hasta que el movimiento termine.</li>
+        </ul>
+        <p>Solo cuando el sismo simulado termina se da la orden de evacuar. El delegado y los guías de piso conducen la salida: caminando sin correr, sin devolverse por objetos personales, <strong>sin usar los ascensores</strong>, manteniendo la derecha en las escaleras y apoyando a las personas del censo de vulnerables. Todos se dirigen al punto de encuentro definido, alejado de la edificación y de las vías de acceso de los organismos de socorro.</p>
+
+        <h4>4. Después del simulacro</h4>
+        <ul>
+            <li>En el punto de encuentro, el responsable asignado hace el <strong>conteo</strong> y lo verifica contra el censo para saber quién evacuó.</li>
+            <li>Se reporta de inmediato a cualquier persona que no haya logrado salir.</li>
+            <li>Nadie reingresa al edificio hasta que el delegado o la autoridad competente lo autorice explícitamente.</li>
+            <li>Se realiza la <strong>retroalimentación (debriefing)</strong>: tiempo total de evacuación, hallazgos (puertas trabadas, tramos mal señalizados, alarma que no se oye, personas que no supieron su ruta) y acciones de mejora.</li>
+        </ul>
+
+        <h4>5. Evaluación y reporte</h4>
+        <p>El delegado consolida los resultados y <strong>diligencia el formulario de registro del simulacro</strong> publicado en el sistema SST del edificio (participantes, tiempos, llegada al punto de encuentro, observaciones). Con esa información se elabora el <strong>informe de evaluación</strong> que se entrega a la alcaldía en la segunda semana de noviembre. El objetivo no es el tiempo más rápido, sino una evacuación ordenada, completa y segura en la que nadie quede atrás ni se lesione.</p>
+    `;
+
+    const PREGUNTAS = [
+        { pregunta: '¿Cuándo se realiza el Simulacro Nacional 2026 y cuál es el escenario?', opciones: ['El 21 de octubre a las 10:00 a.m., escenario de sismo', 'El 22 de octubre a las 9:00 a.m., escenario de incendio', 'Cualquier día de octubre, escenario de inundación', 'El 21 de octubre en la noche, escenario de fuga de gas'], correcta: 0 },
+        { pregunta: 'Antes del simulacro, ¿cuál de estas tareas corresponde al delegado de seguridad?', opciones: ['Esperar a que la comunidad se organice sola', 'Actualizar el censo de personas que requieren apoyo prioritario y verificar rutas y alarma', 'Cerrar las salidas de emergencia para que nadie salga antes de tiempo', 'Encargarse únicamente de tomar fotos del ejercicio'], correcta: 1 },
+        { pregunta: '¿Cuál es la secuencia de autoprotección ante un sismo?', opciones: ['Correr hacia la salida más cercana de inmediato', 'Agáchate, Cúbrete, Agárrate', 'Ubicarse junto a una ventana para pedir ayuda', 'Tomar el ascensor para bajar más rápido'], correcta: 1 },
+        { pregunta: 'Durante la evacuación del simulacro, ¿qué NO se debe hacer?', opciones: ['Caminar sin correr', 'Usar los ascensores', 'Mantener la derecha en las escaleras', 'Apoyar a personas con movilidad reducida'], correcta: 1 },
+        { pregunta: 'Después del ejercicio, ¿qué debe hacer el responsable en el punto de encuentro?', opciones: ['Autorizar el reingreso inmediato al edificio', 'Hacer el conteo contra el censo y reportar a quien no haya evacuado', 'Retirarse sin dar información', 'Esperar a que cada quien regrese cuando quiera'], correcta: 1 }
+    ];
+
+    const app = document.getElementById('app');
+    let persona = null;
+
+    function claveRegistro(cedula) {
+        return (cedula || '').replace(/[.\-\s\/#\$\[\]]/g, '') + '_' + TEMA_ID;
+    }
+
+    function renderIdent() {
+        app.innerHTML = `
+            <div class="card">
+                <div class="alert alert-info">Antes de comenzar, dinos quién eres. No necesitas contraseña.</div>
+                <form id="fIdent">
+                    <div class="form-group">
+                        <label class="form-label">Nombre completo *</label>
+                        <input type="text" class="form-input" id="cNombre" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Cédula *</label>
+                        <input type="text" class="form-input" id="cCedula" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Cargo / rol en el edificio *</label>
+                        <input type="text" class="form-input" id="cCargo" placeholder="Ej: Delegado SST, brigadista, guía de piso..." required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Continuar &rarr;</button>
+                </form>
+            </div>`;
+        document.getElementById('fIdent').addEventListener('submit', (e) => {
+            e.preventDefault();
+            persona = {
+                nombre: document.getElementById('cNombre').value.trim(),
+                cedula: document.getElementById('cCedula').value.trim(),
+                empresa: document.getElementById('cCargo').value.trim()
+            };
+            renderContenido();
+        });
+    }
+
+    function renderContenido() {
+        app.innerHTML = `
+            <a class="back-link" onclick="location.reload()">&larr; Cambiar de persona</a>
+            <div class="card">
+                <div class="progreso">👤 ${persona.nombre} &middot; ${persona.empresa}</div>
+                <h2 style="color:var(--primary);margin-bottom:6px;">${TEMA_NOMBRE}</h2>
+                <p style="color:#64748b;font-size:.85rem;margin-bottom:14px;">Lectura estimada: 15 minutos &middot; Evaluación: 5 preguntas &middot; Se aprueba con ${MIN_APROBAR}%</p>
+                <div class="contenido">${CONTENIDO}</div>
+                <button class="btn btn-primary" onclick="renderQuiz()">Continuar a la evaluación &rarr;</button>
+            </div>`;
+        window.scrollTo(0, 0);
+    }
+
+    window.renderQuiz = function() {
+        app.innerHTML = `
+            <a class="back-link" onclick="renderContenido()">&larr; Volver al contenido</a>
+            <div class="card">
+                <h2 style="color:var(--primary);margin-bottom:16px;">Evaluación</h2>
+                <form id="fEval">
+                    ${PREGUNTAS.map((p, i) => `
+                        <div class="pregunta-block">
+                            <div class="pregunta-texto">${i + 1}. ${p.pregunta}</div>
+                            ${p.opciones.map((op, o) => `
+                                <div class="opcion">
+                                    <input type="radio" name="p${i}" id="p${i}o${o}" value="${o}" required>
+                                    <label for="p${i}o${o}">${op}</label>
+                                </div>`).join('')}
+                        </div>`).join('')}
+                    <button type="submit" class="btn btn-primary">Enviar evaluación</button>
+                </form>
+            </div>`;
+        window.scrollTo(0, 0);
+        document.getElementById('fEval').addEventListener('submit', enviar);
+    };
+
+    async function enviar(e) {
+        e.preventDefault();
+        const fd = new FormData(e.target);
+        let correctas = 0;
+        PREGUNTAS.forEach((p, i) => { if (parseInt(fd.get('p' + i)) === p.correcta) correctas++; });
+        const total = PREGUNTAS.length;
+        const puntaje = Math.round((correctas / total) * 100);
+        const aprobado = puntaje >= MIN_APROBAR;
+
+        if (aprobado) {
+            const registro = {
+                nombre: persona.nombre, cedula: persona.cedula, empresa: persona.empresa,
+                temaId: TEMA_ID, temaNombre: TEMA_NOMBRE, mes: 'Octubre',
+                correctas, totalPreguntas: total, puntaje, aprobado: true,
+                fecha: new Date().toISOString().slice(0, 10), timestamp: Date.now()
+            };
+            try {
+                await REF.child(claveRegistro(persona.cedula)).set(registro);
+            } catch (err) {
+                console.error(err);
+                alert('❌ No se pudo guardar el resultado: ' + err.message);
+                return;
+            }
+        }
+
+        app.innerHTML = `
+            <div class="card">
+                <div class="resultado-icon">${aprobado ? '✅' : '⚠️'}</div>
+                <div class="resultado-puntaje" style="color:${aprobado ? 'var(--success)' : 'var(--danger)'}">${puntaje}%</div>
+                <div class="resultado-msg">
+                    ${correctas} de ${total} respuestas correctas.<br>
+                    ${aprobado ? 'Quedaste registrado como capacitado en este tema.' : `Necesitas mínimo ${MIN_APROBAR}% para aprobar. Repasa el contenido e inténtalo de nuevo.`}
+                </div>
+                ${aprobado
+                    ? `<button class="btn btn-primary" onclick="location.reload()">Finalizar</button>`
+                    : `<button class="btn btn-primary" onclick="renderContenido()">Repasar contenido</button>
+                       <button class="btn btn-secondary" onclick="renderQuiz()">Reintentar evaluación</button>`}
+            </div>`;
+        window.scrollTo(0, 0);
+    }
+
+    renderIdent();
+</script>
+</body>
+</html>

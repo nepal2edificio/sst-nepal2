@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cartelera Simulacro Nacional 2026 — Propiedad Horizontal Nepal 2</title>
+<style>
+    :root{
+        --primary:#1f4e78;
+        --secondary:#2e5c8a;
+        --ink:#1e293b;
+        --alert:#dc2626;
+    }
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{
+        font-family:'Segoe UI',Roboto,-apple-system,BlinkMacSystemFont,sans-serif;
+        background:#e2e8f0;
+        color:var(--ink);
+        padding:24px;
+        display:flex;
+        justify-content:center;
+    }
+    .hoja{
+        width:210mm;
+        min-height:297mm;
+        background:#fff;
+        padding:16mm 15mm;
+        box-shadow:0 10px 40px rgba(0,0,0,.25);
+        display:flex;
+        flex-direction:column;
+    }
+    .encabezado{
+        text-align:center;
+        border-bottom:4px solid var(--primary);
+        padding-bottom:14px;
+        margin-bottom:20px;
+    }
+    .encabezado .kicker{
+        font-size:13px;
+        letter-spacing:3px;
+        font-weight:700;
+        color:var(--secondary);
+        text-transform:uppercase;
+    }
+    .encabezado h1{
+        font-size:40px;
+        line-height:1.05;
+        color:var(--primary);
+        margin:6px 0 8px;
+        text-transform:uppercase;
+    }
+    .encabezado .edificio{
+        font-size:17px;
+        font-weight:600;
+        color:var(--ink);
+    }
+    .fecha{
+        background:var(--primary);
+        color:#fff;
+        border-radius:14px;
+        padding:18px 20px;
+        text-align:center;
+        margin-bottom:22px;
+    }
+    .fecha .dia{font-size:26px;font-weight:800;text-transform:uppercase;letter-spacing:1px;}
+    .fecha .hora{font-size:40px;font-weight:800;margin:2px 0;}
+    .fecha .escenario{
+        display:inline-block;
+        margin-top:6px;
+        background:rgba(255,255,255,.2);
+        border-radius:999px;
+        padding:5px 16px;
+        font-size:15px;
+        font-weight:700;
+        letter-spacing:1px;
+    }
+    .pasos-titulo,.no-titulo{
+        font-size:16px;
+        font-weight:800;
+        text-transform:uppercase;
+        letter-spacing:1px;
+        margin-bottom:12px;
+        color:var(--primary);
+    }
+    .pasos{
+        display:grid;
+        grid-template-columns:repeat(3,1fr);
+        gap:14px;
+        margin-bottom:22px;
+    }
+    .paso{
+        border:2px solid var(--secondary);
+        border-radius:14px;
+        padding:16px 12px;
+        text-align:center;
+    }
+    .paso .num{
+        display:inline-flex;
+        width:34px;height:34px;
+        align-items:center;justify-content:center;
+        background:var(--primary);color:#fff;
+        border-radius:50%;
+        font-weight:800;font-size:18px;
+        margin-bottom:8px;
+    }
+    .paso .accion{font-size:22px;font-weight:800;color:var(--primary);text-transform:uppercase;display:block;margin-bottom:4px;}
+    .paso .detalle{font-size:13px;line-height:1.4;color:var(--ink);}
+    .luego{
+        background:#f5f3ff;
+        border-left:6px solid var(--primary);
+        border-radius:10px;
+        padding:14px 18px;
+        font-size:14px;
+        line-height:1.5;
+        margin-bottom:22px;
+    }
+    .luego strong{color:var(--primary);}
+    .no-hacer{
+        border:2px dashed var(--alert);
+        border-radius:14px;
+        padding:16px 20px;
+        margin-bottom:auto;
+    }
+    .no-titulo{color:var(--alert);margin-bottom:10px;}
+    .no-hacer ul{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:6px 20px;}
+    .no-hacer li{font-size:14px;font-weight:600;padding-left:24px;position:relative;}
+    .no-hacer li::before{content:"✕";position:absolute;left:0;color:var(--alert);font-weight:800;}
+    .pie{
+        border-top:2px solid #e2e8f0;
+        margin-top:22px;
+        padding-top:12px;
+        font-size:11.5px;
+        color:#64748b;
+        display:flex;
+        justify-content:space-between;
+        gap:12px;
+    }
+    .pie strong{color:var(--ink);}
+    @media print{
+        @page{size:A4 portrait;margin:0;}
+        body{background:#fff;padding:0;}
+        .hoja{box-shadow:none;width:auto;min-height:auto;padding:14mm;}
+        *{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+    }
+</style>
+</head>
+<body>
+<div class="hoja">
+    <div class="encabezado">
+        <div class="kicker">Ejercicio coordinado por la UNGRD</div>
+        <h1>Simulacro<br>Nacional 2026</h1>
+        <div class="edificio">🏢 Propiedad Horizontal Nepal 2 &nbsp;·&nbsp; Escenario: sismo (terremoto)</div>
+    </div>
+
+    <div class="fecha">
+        <div class="dia">Miércoles 21 de octubre</div>
+        <div class="hora">10:00 a.m.</div>
+        <span class="escenario">SISMO / TERREMOTO</span>
+    </div>
+
+    <div class="pasos-titulo">Cuando suene la alarma</div>
+    <div class="pasos">
+        <div class="paso">
+            <span class="num">1</span>
+            <span class="accion">Agáchate</span>
+            <span class="detalle">Baja al nivel del piso antes de que el movimiento te tumbe.</span>
+        </div>
+        <div class="paso">
+            <span class="num">2</span>
+            <span class="accion">Cúbrete</span>
+            <span class="detalle">Protege cabeza y cuello bajo una mesa resistente o junto a un muro interno, lejos de ventanas.</span>
+        </div>
+        <div class="paso">
+            <span class="num">3</span>
+            <span class="accion">Agárrate</span>
+            <span class="detalle">Sujétate del mueble y permanece ahí hasta que termine el movimiento.</span>
+        </div>
+    </div>
+
+    <div class="luego">
+        <strong>Cuando termine el movimiento:</strong> evacúa con calma, camina sin correr,
+        <strong>no uses el ascensor</strong>, mantén tu derecha en las escaleras y dirígete al
+        <strong>punto de encuentro señalizado</strong>. Apoya a niños, adultos mayores y
+        personas con movilidad reducida. No reingreses hasta que el coordinador lo autorice.
+    </div>
+
+    <div class="no-hacer">
+        <div class="no-titulo">Qué NO hacer</div>
+        <ul>
+            <li>Usar los ascensores</li>
+            <li>Correr o empujar</li>
+            <li>Devolverte por objetos personales</li>
+            <li>Ubicarte junto a ventanas o vidrios</li>
+            <li>Ignorar la alarma "por ser simulacro"</li>
+            <li>Abandonar el punto de encuentro sin avisar</li>
+        </ul>
+    </div>
+
+    <div class="pie">
+        <span><strong>Propiedad Horizontal Nepal 2</strong> · NIT 830142380-4<br>Inscrito ante la Alcaldía · SG-SST Resolución 0312/2019</span>
+        <span style="text-align:right;">Carla Castellano Madriz · C.E. 679955<br><strong>Compliance Pro · 2026</strong></span>
+    </div>
+</div>
+</body>
+</html>
