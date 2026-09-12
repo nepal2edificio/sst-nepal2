@@ -620,7 +620,7 @@ async function generarTextos() {
       analisis += `CAPACITACIONES E INDUCCIONES (${indMes.length})\n`;
       indMes.forEach(s => {
         const tema = s.tema || s.temaCapacitacion || s.titulo || "Tema SST";
-        const asist = s.asistentes || s.numeroAsistentes || s.participantes || "N/R";
+        const asist = s.asistentes || s.numeroAsistentes || s.participantes || s.totalAsistentes || s.total_asistentes || "no registrado";
         analisis += `• ${fmtFecha(s)} — ${tema}. Asistentes: ${asist}.\n`;
       });
       analisis += `\n`;
@@ -1174,7 +1174,7 @@ async function construirPDF() {
       body: indMes.map(s => [
         fmtFecha(s),
         s.tema || s.temaCapacitacion || s.titulo || "Tema SST",
-        String(s.asistentes || s.numeroAsistentes || s.participantes || "N/R"),
+        String(s.asistentes || s.numeroAsistentes || s.participantes || s.totalAsistentes || s.total_asistentes || "No registrado"),
         String(s.duracion || s.horas || "N/R"),
       ]),
       headStyles: { fillColor: C_MED, textColor: C_BLANC, fontStyle:"bold", fontSize:9 },
