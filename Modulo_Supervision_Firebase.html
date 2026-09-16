@@ -796,13 +796,13 @@
                         const snap = await database.ref(ruta).once('value');
                         if (!snap.exists()) return [];
                         const arr = [];
-                        snap.forEach(child => arr.push({ id: child.key, _ruta: ruta, ...child.val() }));
+                        snap.forEach(child => { arr.push({ id: child.key, _ruta: ruta, ...child.val() }); });
                         return arr;
                     } catch(e) { return []; }
                 };
 
                 const sups = await leer(`edificios/nepal-2/supervisiones`);
-                sups.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+                sups.sort((a, b) => (b.timestamp || '').localeCompare(a.timestamp || ''));
 
                 if (sups.length === 0) {
                     lista.innerHTML = '<p style="color:#64748b; padding:20px; text-align:center;">No hay supervisiones guardadas aun.</p>';
