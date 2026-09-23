@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manual de Capacitación — Simulacro Nacional 2026 — Propiedad Horizontal Nepal 2</title>
+<style>
+    :root{
+        --primary:#1f4e78;
+        --secondary:#2e5c8a;
+        --ink:#1e293b;
+        --gray:#64748b;
+        --border:#e2e8f0;
+        --bg-soft:#faf9ff;
+    }
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{
+        font-family:'Segoe UI',Roboto,-apple-system,BlinkMacSystemFont,sans-serif;
+        background:#e2e8f0;color:var(--ink);line-height:1.55;
+        display:flex;flex-direction:column;align-items:center;gap:18px;padding:24px;
+    }
+    .barra{display:flex;gap:10px;}
+    .barra button{
+        background:var(--primary);color:#fff;border:0;border-radius:8px;
+        padding:10px 22px;font-size:14px;font-weight:700;cursor:pointer;
+    }
+    .barra button:hover{filter:brightness(1.08);}
+    .hoja{
+        width:210mm;min-height:297mm;background:#fff;
+        padding:18mm 16mm;box-shadow:0 10px 40px rgba(0,0,0,.2);
+    }
+
+    /* ── PORTADA ── */
+    .portada{
+        display:flex;flex-direction:column;align-items:center;justify-content:center;
+        text-align:center;min-height:265mm;
+    }
+    .portada .kicker{
+        font-size:13px;letter-spacing:4px;font-weight:800;color:var(--secondary);
+        text-transform:uppercase;margin-bottom:14px;
+    }
+    .portada h1{font-size:38px;color:var(--primary);line-height:1.15;margin-bottom:10px;}
+    .portada .edificio{font-size:20px;font-weight:700;margin-bottom:34px;}
+    .portada .ficha{
+        border:2px solid var(--secondary);border-radius:16px;padding:22px 30px;
+        display:inline-block;text-align:left;font-size:14px;
+    }
+    .portada .ficha div{margin-bottom:6px;}
+    .portada .ficha strong{color:var(--primary);}
+    .portada .pie-portada{margin-top:40px;font-size:12px;color:var(--gray);}
+
+    /* ── CONTENIDO ── */
+    .encab-seccion{
+        display:flex;justify-content:space-between;align-items:center;
+        border-bottom:3px solid var(--primary);padding-bottom:8px;margin-bottom:16px;
+    }
+    .encab-seccion .tit{font-size:12px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--gray);}
+    .encab-seccion .pag{font-size:11px;color:var(--gray);}
+    h4{color:var(--primary);font-size:15px;margin:18px 0 8px;}
+    h4:first-child{margin-top:0;}
+    p{font-size:12.5px;margin-bottom:10px;text-align:justify;}
+    ul{margin:6px 0 12px 20px;}
+    li{font-size:12.5px;margin-bottom:5px;}
+    strong{color:var(--ink);}
+
+    .caja-clave{
+        background:var(--bg-soft);border-left:5px solid var(--primary);
+        border-radius:8px;padding:14px 18px;margin-top:16px;
+    }
+    .caja-clave h4{margin-top:0;}
+    .caja-clave li{font-weight:600;}
+
+    .pasos3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:14px 0;}
+    .pasos3 .paso{border:2px solid var(--secondary);border-radius:12px;padding:12px;text-align:center;}
+    .pasos3 .paso .num{
+        display:inline-flex;width:26px;height:26px;align-items:center;justify-content:center;
+        background:var(--primary);color:#fff;border-radius:50%;font-weight:800;font-size:13px;margin-bottom:6px;
+    }
+    .pasos3 .paso .accion{display:block;font-size:13px;font-weight:800;color:var(--primary);text-transform:uppercase;margin-bottom:4px;}
+    .pasos3 .paso .detalle{font-size:11px;color:var(--ink);}
+
+    /* ── AUTOEVALUACIÓN ── */
+    .pregunta{margin-bottom:16px;}
+    .pregunta .txt{font-weight:700;font-size:12.5px;margin-bottom:6px;}
+    .opcion{display:flex;align-items:center;gap:8px;font-size:12px;margin-bottom:4px;}
+    .opcion .casilla{width:13px;height:13px;border:2px solid var(--gray);border-radius:3px;flex-shrink:0;}
+
+    .clave-respuestas{
+        margin-top:26px;padding-top:16px;border-top:2px dashed var(--gray);
+    }
+    .clave-respuestas .aviso{
+        display:inline-block;background:#fef3c7;color:#92400e;font-size:11px;font-weight:700;
+        padding:4px 10px;border-radius:6px;margin-bottom:10px;
+    }
+    .clave-respuestas table{width:100%;border-collapse:collapse;font-size:12px;}
+    .clave-respuestas td{padding:5px 8px;border-bottom:1px solid var(--border);}
+    .clave-respuestas td:first-child{font-weight:700;color:var(--primary);width:60px;}
+
+    .pie-hoja{
+        margin-top:20px;padding-top:10px;border-top:1px solid var(--border);
+        font-size:10px;color:var(--gray);display:flex;justify-content:space-between;
+    }
+
+    @media print{
+        @page{size:A4 portrait;margin:0;}
+        body{background:#fff;padding:0;gap:0;}
+        .barra{display:none;}
+        .hoja{box-shadow:none;width:auto;min-height:auto;padding:16mm 15mm;page-break-after:always;}
+        .hoja:last-child{page-break-after:auto;}
+        *{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+    }
+</style>
+</head>
+<body>
+
+<div class="barra">
+    <button onclick="window.print()">🖨️ Imprimir / Guardar PDF</button>
+</div>
+
+<!-- ═══ PORTADA ═══ -->
+<div class="hoja portada">
+    <div class="kicker">Compliance Pro · SG-SST</div>
+    <h1>Manual de Capacitación<br>Simulacro Nacional 2026</h1>
+    <div class="edificio">🏢 Propiedad Horizontal Nepal 2</div>
+    <div class="ficha">
+        <div><strong>Escenario:</strong> Sismo (terremoto)</div>
+        <div><strong>Fecha del ejercicio:</strong> Miércoles 21 de octubre de 2026, 10:00 a.m.</div>
+        <div><strong>Dirigido a:</strong> Delegado de seguridad laboral y brigada de emergencia</div>
+        <div><strong>Coordina:</strong> Unidad Nacional para la Gestión del Riesgo de Desastres (UNGRD)</div>
+    </div>
+    <div class="pie-portada">
+        Propiedad Horizontal Nepal 2 · NIT 830142380-4<br>
+        Carla Castellano Madriz · C.E. 679955 · Compliance Pro · 2026
+    </div>
+</div>
+
+<!-- ═══ CONTENIDO 1-2 ═══ -->
+<div class="hoja">
+    <div class="encab-seccion"><span class="tit">Manual de Capacitación · Simulacro Nacional 2026</span><span class="pag">Propiedad Horizontal Nepal 2</span></div>
+
+    <h4>1. Qué es el Simulacro Nacional y el papel del delegado</h4>
+    <p>El Simulacro Nacional es un ejercicio coordinado por la Unidad Nacional para la Gestión del Riesgo de Desastres (UNGRD) en el que entidades públicas, privadas, instituciones educativas y familias de todo el país practican, el mismo día y a la misma hora, su respuesta ante una emergencia. La edición 2026 se realiza el <strong>miércoles 21 de octubre a las 10:00 a.m.</strong> y el escenario es un <strong>sismo (terremoto)</strong>.</p>
+    <p>El edificio se inscribe ante la oficina municipal de gestión del riesgo y participa como una organización más. El ejercicio no es un trámite: es la única forma de comprobar, antes de un sismo real, si las rutas de evacuación, la señalización, la alarma y los tiempos de reacción de la comunidad funcionan como se espera.</p>
+    <p>El <strong>delegado de seguridad laboral</strong> (vigía SST y líder de la brigada) es quien planea, coordina y evalúa la participación del edificio en las tres fases del ejercicio: antes, durante y después.</p>
+
+    <h4>2. Antes del simulacro</h4>
+    <p>La preparación es responsabilidad del delegado junto con la administración:</p>
+    <ul>
+        <li>Confirmar la inscripción del edificio ante la alcaldía y la fecha y hora del ejercicio.</li>
+        <li>Revisar que las rutas de evacuación, las salidas de emergencia y el punto de encuentro estén señalizados, despejados y visibles.</li>
+        <li>Actualizar el censo de personas con movilidad reducida, adultos mayores, niños y visitantes frecuentes que requieran apoyo prioritario.</li>
+        <li>Verificar que la alarma se escuche en todos los pisos y zonas comunes.</li>
+        <li>Difundir el ejercicio con anticipación: carteleras, página web del edificio y los canales de la comunidad, recordando los tres pasos de autoprotección.</li>
+        <li>Asignar roles: quién activa la alarma, quién guía cada piso o torre, quién hace el conteo en el punto de encuentro y quién cronometra.</li>
+    </ul>
+
+    <div class="pie-hoja"><span>Manual de Capacitación — Simulacro Nacional 2026</span><span>Página 2</span></div>
+</div>
+
+<!-- ═══ CONTENIDO 3-4 ═══ -->
+<div class="hoja">
+    <div class="encab-seccion"><span class="tit">Manual de Capacitación · Simulacro Nacional 2026</span><span class="pag">Propiedad Horizontal Nepal 2</span></div>
+
+    <h4>3. Durante el simulacro: Agáchate, Cúbrete, Agárrate</h4>
+    <p>A las 10:00 a.m. se activa la alarma. La secuencia de autoprotección ante sismo, que el delegado debe conocer y hacer cumplir, es:</p>
+
+    <div class="pasos3">
+        <div class="paso"><span class="num">1</span><span class="accion">Agáchate</span><span class="detalle">Baja al nivel del piso antes de que el movimiento te tumbe.</span></div>
+        <div class="paso"><span class="num">2</span><span class="accion">Cúbrete</span><span class="detalle">Protege cabeza y cuello bajo una mesa resistente o junto a un muro interno, lejos de ventanas.</span></div>
+        <div class="paso"><span class="num">3</span><span class="accion">Agárrate</span><span class="detalle">Sujétate del mueble y permanece ahí hasta que termine el movimiento.</span></div>
+    </div>
+
+    <p>Solo cuando el sismo simulado termina se da la orden de evacuar. El delegado y los guías de piso conducen la salida: caminando sin correr, sin devolverse por objetos personales, <strong>sin usar los ascensores</strong>, manteniendo la derecha en las escaleras y apoyando a las personas del censo de vulnerables. Todos se dirigen al punto de encuentro definido, alejado de la edificación y de las vías de acceso de los organismos de socorro.</p>
+
+    <h4>4. Después del simulacro</h4>
+    <ul>
+        <li>En el punto de encuentro, el responsable asignado hace el <strong>conteo</strong> y lo verifica contra el censo para saber quién evacuó.</li>
+        <li>Se reporta de inmediato a cualquier persona que no haya logrado salir.</li>
+        <li>Nadie reingresa al edificio hasta que el delegado o la autoridad competente lo autorice explícitamente.</li>
+        <li>Se realiza la <strong>retroalimentación (debriefing)</strong>: tiempo total de evacuación, hallazgos (puertas trabadas, tramos mal señalizados, alarma que no se oye, personas que no supieron su ruta) y acciones de mejora.</li>
+    </ul>
+
+    <h4>5. Evaluación y reporte</h4>
+    <p>El delegado consolida los resultados y <strong>diligencia el formulario de registro del simulacro</strong> publicado en el sistema SST del edificio (participantes, tiempos, llegada al punto de encuentro, observaciones). Con esa información se elabora el <strong>informe de evaluación</strong> que se entrega a la alcaldía en la segunda semana de noviembre. El objetivo no es el tiempo más rápido, sino una evacuación ordenada, completa y segura en la que nadie quede atrás ni se lesione.</p>
+
+    <div class="caja-clave">
+        <h4>Puntos clave</h4>
+        <ul>
+            <li>Simulacro Nacional 2026: miércoles 21 de octubre, 10:00 a.m., escenario de sismo.</li>
+            <li>El delegado planea, coordina y evalúa la participación del edificio en las tres fases.</li>
+            <li>Antes: inscripción, rutas despejadas, censo de vulnerables, prueba de alarma, difusión y asignación de roles.</li>
+            <li>Durante: Agáchate, Cúbrete, Agárrate; evacuar solo al terminar el movimiento y nunca por el ascensor.</li>
+            <li>Después: conteo en el punto de encuentro, reporte de faltantes, no reingresar sin autorización, debriefing.</li>
+            <li>Cerrar con el formulario de registro y el informe para la alcaldía en la segunda semana de noviembre.</li>
+        </ul>
+    </div>
+
+    <div class="pie-hoja"><span>Manual de Capacitación — Simulacro Nacional 2026</span><span>Página 3</span></div>
+</div>
+
+<!-- ═══ AUTOEVALUACIÓN ═══ -->
+<div class="hoja">
+    <div class="encab-seccion"><span class="tit">Autoevaluación</span><span class="pag">Propiedad Horizontal Nepal 2</span></div>
+    <p style="margin-bottom:16px;">Marca con una X la opción correcta. Puedes usar esta hoja para repasar antes del ejercicio o como constancia de estudio individual.</p>
+
+    <div class="pregunta">
+        <div class="txt">1. ¿Cuándo se realiza el Simulacro Nacional 2026 y cuál es el escenario?</div>
+        <div class="opcion"><span class="casilla"></span> El 21 de octubre a las 10:00 a.m., escenario de sismo</div>
+        <div class="opcion"><span class="casilla"></span> El 22 de octubre a las 9:00 a.m., escenario de incendio</div>
+        <div class="opcion"><span class="casilla"></span> Cualquier día de octubre, escenario de inundación</div>
+        <div class="opcion"><span class="casilla"></span> El 21 de octubre en la noche, escenario de fuga de gas</div>
+    </div>
+
+    <div class="pregunta">
+        <div class="txt">2. Antes del simulacro, ¿cuál de estas tareas corresponde al delegado de seguridad?</div>
+        <div class="opcion"><span class="casilla"></span> Esperar a que la comunidad se organice sola</div>
+        <div class="opcion"><span class="casilla"></span> Actualizar el censo de personas que requieren apoyo prioritario y verificar rutas y alarma</div>
+        <div class="opcion"><span class="casilla"></span> Cerrar las salidas de emergencia para que nadie salga antes de tiempo</div>
+        <div class="opcion"><span class="casilla"></span> Encargarse únicamente de tomar fotos del ejercicio</div>
+    </div>
+
+    <div class="pregunta">
+        <div class="txt">3. ¿Cuál es la secuencia de autoprotección ante un sismo?</div>
+        <div class="opcion"><span class="casilla"></span> Correr hacia la salida más cercana de inmediato</div>
+        <div class="opcion"><span class="casilla"></span> Agáchate, Cúbrete, Agárrate</div>
+        <div class="opcion"><span class="casilla"></span> Ubicarse junto a una ventana para pedir ayuda</div>
+        <div class="opcion"><span class="casilla"></span> Tomar el ascensor para bajar más rápido</div>
+    </div>
+
+    <div class="pregunta">
+        <div class="txt">4. Durante la evacuación del simulacro, ¿qué NO se debe hacer?</div>
+        <div class="opcion"><span class="casilla"></span> Caminar sin correr</div>
+        <div class="opcion"><span class="casilla"></span> Usar los ascensores</div>
+        <div class="opcion"><span class="casilla"></span> Mantener la derecha en las escaleras</div>
+        <div class="opcion"><span class="casilla"></span> Apoyar a personas con movilidad reducida</div>
+    </div>
+
+    <div class="pregunta">
+        <div class="txt">5. Después del ejercicio, ¿qué debe hacer el responsable en el punto de encuentro?</div>
+        <div class="opcion"><span class="casilla"></span> Autorizar el reingreso inmediato al edificio</div>
+        <div class="opcion"><span class="casilla"></span> Hacer el conteo contra el censo y reportar a quien no haya evacuado</div>
+        <div class="opcion"><span class="casilla"></span> Retirarse sin dar información</div>
+        <div class="opcion"><span class="casilla"></span> Esperar a que cada quien regrese cuando quiera</div>
+    </div>
+
+    <div class="clave-respuestas">
+        <span class="aviso">⚠️ Solo para el instructor — recortar o no repartir esta parte</span>
+        <table>
+            <tr><td>Pregunta 1</td><td>a) El 21 de octubre a las 10:00 a.m., escenario de sismo</td></tr>
+            <tr><td>Pregunta 2</td><td>b) Actualizar el censo de personas que requieren apoyo prioritario y verificar rutas y alarma</td></tr>
+            <tr><td>Pregunta 3</td><td>b) Agáchate, Cúbrete, Agárrate</td></tr>
+            <tr><td>Pregunta 4</td><td>b) Usar los ascensores (es lo que NO se debe hacer)</td></tr>
+            <tr><td>Pregunta 5</td><td>b) Hacer el conteo contra el censo y reportar a quien no haya evacuado</td></tr>
+        </table>
+    </div>
+
+    <div class="pie-hoja"><span>Manual de Capacitación — Simulacro Nacional 2026</span><span>Página 4</span></div>
+</div>
+
+</body>
+</html>
