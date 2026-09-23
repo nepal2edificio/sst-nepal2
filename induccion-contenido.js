@@ -160,6 +160,66 @@ const TEMAS_INDUCCION = [
         ]
     },
     {
+        id: 'simulacro-nacional',
+        mes: 'Octubre',
+        tema: 'Simulacro Nacional ante sismo — rol del delegado de seguridad',
+        duracion: '1 hora',
+        minAprobar: 80,
+        contenido: `
+            <h4>1. Qué es el Simulacro Nacional y el papel del delegado</h4>
+            <p>El Simulacro Nacional es un ejercicio coordinado por la Unidad Nacional para la Gestión del Riesgo de Desastres (UNGRD) en el que entidades públicas, privadas, instituciones educativas y familias de todo el país practican, el mismo día y a la misma hora, su respuesta ante una emergencia. La edición 2026 se realiza el <strong>miércoles 21 de octubre a las 10:00 a.m.</strong> y el escenario es un <strong>sismo (terremoto)</strong>.</p>
+            <p>El edificio se inscribe ante la oficina municipal de gestión del riesgo y participa como una organización más. El ejercicio no es un trámite: es la única forma de comprobar, antes de un sismo real, si las rutas de evacuación, la señalización, la alarma y los tiempos de reacción de la comunidad funcionan como se espera.</p>
+            <p>El <strong>delegado de seguridad laboral</strong> (vigía SST y líder de la brigada) es quien planea, coordina y evalúa la participación del edificio en las tres fases del ejercicio: antes, durante y después.</p>
+
+            <h4>2. Antes del simulacro</h4>
+            <p>La preparación es responsabilidad del delegado junto con la administración:</p>
+            <ul>
+                <li>Confirmar la inscripción del edificio ante la alcaldía y la fecha y hora del ejercicio.</li>
+                <li>Revisar que las rutas de evacuación, las salidas de emergencia y el punto de encuentro estén señalizados, despejados y visibles.</li>
+                <li>Actualizar el censo de personas con movilidad reducida, adultos mayores, niños y visitantes frecuentes que requieran apoyo prioritario.</li>
+                <li>Verificar que la alarma se escuche en todos los pisos y zonas comunes.</li>
+                <li>Difundir el ejercicio con anticipación: carteleras, página web del edificio y los canales de la comunidad, recordando los tres pasos de autoprotección.</li>
+                <li>Asignar roles: quién activa la alarma, quién guía cada piso o torre, quién hace el conteo en el punto de encuentro y quién cronometra.</li>
+            </ul>
+
+            <h4>3. Durante el simulacro: Agáchate, Cúbrete, Agárrate</h4>
+            <p>A las 10:00 a.m. se activa la alarma. La secuencia de autoprotección ante sismo, que el delegado debe conocer y hacer cumplir, es:</p>
+            <ul>
+                <li><strong>Agáchate:</strong> bajar al nivel del piso antes de que el movimiento lo tumbe.</li>
+                <li><strong>Cúbrete:</strong> proteger cabeza y cuello bajo una mesa o escritorio resistente, o junto a un muro estructural interno, lejos de ventanas, vidrios y objetos que puedan caer.</li>
+                <li><strong>Agárrate:</strong> sujetarse del mueble de protección y permanecer ahí hasta que el movimiento termine.</li>
+            </ul>
+            <p>Solo cuando el sismo simulado termina se da la orden de evacuar. El delegado y los guías de piso conducen la salida: caminando sin correr, sin devolverse por objetos personales, <strong>sin usar los ascensores</strong>, manteniendo la derecha en las escaleras y apoyando a las personas del censo de vulnerables. Todos se dirigen al punto de encuentro definido, alejado de la edificación y de las vías de acceso de los organismos de socorro.</p>
+
+            <h4>4. Después del simulacro</h4>
+            <ul>
+                <li>En el punto de encuentro, el responsable asignado hace el <strong>conteo</strong> y lo verifica contra el censo para saber quién evacuó.</li>
+                <li>Se reporta de inmediato a cualquier persona que no haya logrado salir.</li>
+                <li>Nadie reingresa al edificio hasta que el delegado o la autoridad competente lo autorice explícitamente.</li>
+                <li>Se realiza la <strong>retroalimentación (debriefing)</strong>: tiempo total de evacuación, hallazgos (puertas trabadas, tramos mal señalizados, alarma que no se oye, personas que no supieron su ruta) y acciones de mejora.</li>
+            </ul>
+
+            <h4>5. Evaluación y reporte</h4>
+            <p>El delegado consolida los resultados y <strong>diligencia el formulario de registro del simulacro</strong> publicado en el sistema SST del edificio (participantes, tiempos, llegada al punto de encuentro, observaciones). Con esa información se elabora el <strong>informe de evaluación</strong> que se entrega a la alcaldía en la segunda semana de noviembre. El objetivo no es el tiempo más rápido, sino una evacuación ordenada, completa y segura en la que nadie quede atrás ni se lesione.</p>
+
+            <h4>Puntos clave</h4>
+            <ul>
+                <li>Simulacro Nacional 2026: miércoles 21 de octubre, 10:00 a.m., escenario de sismo.</li>
+                <li>El delegado planea, coordina y evalúa la participación del edificio en las tres fases.</li>
+                <li>Antes: inscripción, rutas despejadas, censo de vulnerables, prueba de alarma, difusión y asignación de roles.</li>
+                <li>Durante: Agáchate, Cúbrete, Agárrate; evacuar solo al terminar el movimiento y nunca por el ascensor.</li>
+                <li>Después: conteo en el punto de encuentro, reporte de faltantes, no reingresar sin autorización, debriefing.</li>
+                <li>Cerrar con el formulario de registro y el informe para la alcaldía en la segunda semana de noviembre.</li>
+            </ul>`,
+        preguntas: [
+            { pregunta: '¿Cuándo se realiza el Simulacro Nacional 2026 y cuál es el escenario?', opciones: ['El 21 de octubre a las 10:00 a.m., escenario de sismo', 'El 22 de octubre a las 9:00 a.m., escenario de incendio', 'Cualquier día de octubre, escenario de inundación', 'El 21 de octubre en la noche, escenario de fuga de gas'], correcta: 0 },
+            { pregunta: 'Antes del simulacro, ¿cuál de estas tareas corresponde al delegado de seguridad?', opciones: ['Esperar a que la comunidad se organice sola', 'Actualizar el censo de personas que requieren apoyo prioritario y verificar rutas y alarma', 'Cerrar las salidas de emergencia para que nadie salga antes de tiempo', 'Encargarse únicamente de tomar fotos del ejercicio'], correcta: 1 },
+            { pregunta: '¿Cuál es la secuencia de autoprotección ante un sismo?', opciones: ['Correr hacia la salida más cercana de inmediato', 'Agáchate, Cúbrete, Agárrate', 'Ubicarse junto a una ventana para pedir ayuda', 'Tomar el ascensor para bajar más rápido'], correcta: 1 },
+            { pregunta: 'Durante la evacuación del simulacro, ¿qué NO se debe hacer?', opciones: ['Caminar sin correr', 'Usar los ascensores', 'Mantener la derecha en las escaleras', 'Apoyar a personas con movilidad reducida'], correcta: 1 },
+            { pregunta: 'Después del ejercicio, ¿qué debe hacer el responsable en el punto de encuentro?', opciones: ['Autorizar el reingreso inmediato al edificio', 'Hacer el conteo contra el censo y reportar a quien no haya evacuado', 'Retirarse sin dar información', 'Esperar a que cada quien regrese cuando quiera'], correcta: 1 }
+        ]
+    },
+    {
         id: 'noviembre',
         mes: 'Noviembre',
         tema: 'Manejo seguro de sustancias químicas',
