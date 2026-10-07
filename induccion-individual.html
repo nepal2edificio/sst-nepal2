@@ -231,11 +231,13 @@
             };
 
             try {
-                const snap = await REF_INDIVIDUALES.once('value');
-                const todos = snap.val() || {};
+                /* Solo los temas de esta cédula: la lista completa es privada (Habeas Data) */
+                const snaps = await Promise.all(TEMAS_INDUCCION.map(t =>
+                    REF_INDIVIDUALES.child(claveTrabajador(trabajador.cedula, t.id)).once('value')));
                 misRegistros = {};
-                Object.values(todos).forEach(r => {
-                    if (r.cedula === trabajador.cedula && r.aprobado) misRegistros[r.temaId] = r;
+                snaps.forEach(s => {
+                    const r = s.val();
+                    if (r && r.aprobado) misRegistros[r.temaId] = r;
                 });
             } catch (err) {
                 console.error(err);
