@@ -362,6 +362,8 @@
             }
         }
     </style>
+    <!-- Sin fotos ni adjuntos: el Storage no está activado y no se usan (oct 2026). Quitar este estilo para volver a mostrarlos. -->
+    <style id="sinAdjuntos">.form-section:has(#foto-upload), .resumen-stat:has(#total-fotos), .form-group:has(> select[id^="foto-"]) { display: none !important; }</style>
 </head>
 <body>
     <div class="container">
