@@ -2846,13 +2846,17 @@
         // DASHBOARD DINÁMICO - LEE DATOS DE LOCALSTORAGE
         // ═══════════════════════════════════════════════════════════════
 
+        /* Lee solo los apartados que muestra el panel (el nodo completo del edificio no es público) */
+        function leerResumenN2() {
+            const nodos = ['supervisiones', 'inspecciones', 'inducciones', 'mantenimientos', 'programa_mantenimiento_2026'];
+            return Promise.all(nodos.map(n => firebase.database().ref('edificios/nepal-2/' + n).once('value')))
+                .then(snaps => { const data = {}; nodos.forEach((n, i) => { data[n] = snaps[i].val(); }); return data; });
+        }
+
         function actualizarDashboard2026() {
             // LEER DATOS DE FIREBASE EN TIEMPO REAL
             const db = firebase.database();
-            const edificioRef = db.ref('edificios/nepal-2');
-
-            edificioRef.once('value').then(snapshot => {
-                const data = snapshot.val() || {};
+            leerResumenN2().then(data => {
                 
                 // Convertir objetos de Firebase a arrays
                 const supervisiones = data.supervisiones ? Object.values(data.supervisiones) : [];
@@ -2976,10 +2980,7 @@
         
         function actualizarBadgesEjecucion() {
             const db = firebase.database();
-            const edificioRef = db.ref('edificios/nepal-2');
-
-            edificioRef.once('value').then(snapshot => {
-                const data = snapshot.val() || {};
+            leerResumenN2().then(data => {
                 
                 const supervisiones = data.supervisiones ? Object.values(data.supervisiones) : [];
                 const inspecciones = data.inspecciones ? Object.values(data.inspecciones) : [];
@@ -3119,8 +3120,7 @@
 
         async function cargarDatosUnificados() {
             try {
-                const snap = await database.ref('edificios/nepal-2').once('value');
-                const n = snap.val() || {};
+                const n = await leerResumenN2();
                 return {
                     supervisiones:  n.supervisiones  ? Object.values(n.supervisiones)  : [],
                     inspecciones:   n.inspecciones   ? Object.values(n.inspecciones)   : [],
