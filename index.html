@@ -7,6 +7,8 @@
     
     <!-- Firebase Scripts (v9 compat) -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="sst-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
     
@@ -2183,18 +2185,16 @@
             <h2 class="modal-title">🔐 Acceso Privado</h2>
             <form id="loginForm" onsubmit="event.preventDefault(); attemptLogin();" autocomplete="on">
                 <div class="form-group">
-                    <label class="form-label">Usuario</label>
-                    <input type="text" id="loginUser" name="username" class="form-input"
-                           placeholder="Ingresa tu usuario"
-                           autocomplete="username"
-                           onkeypress="if(event.key==='Enter') attemptLogin()">
+                    <label class="form-label">Correo</label>
+                    <input type="email" id="loginUser" name="username" class="form-input"
+                           placeholder="Tu correo de Compliance Pro"
+                           autocomplete="username">
                 </div>
                 <div class="form-group">
                     <label class="form-label">Contraseña</label>
                     <input type="password" id="loginPass" name="password" class="form-input"
                            placeholder="Ingresa tu contraseña"
-                           autocomplete="current-password"
-                           onkeypress="if(event.key==='Enter') attemptLogin()">
+                           autocomplete="current-password">
                 </div>
                 <button type="submit" class="btn btn-primary" style="width: 100%; margin-bottom: 10px;">
                     Iniciar Sesión
@@ -2211,7 +2211,7 @@
         // CONFIGURACIÓN FIREBASE
         // ═══════════════════════════════════════════════════════════════
         const firebaseConfig = {
-            apiKey: "AIzaSyDvOSbIFNIVQNJIHBDmP0SgQ-YMYyakHFI",
+            apiKey: "AIzaSyCb2pko11_UOP6V5VPQV_xARWrC5wybQ6w",
             authDomain: "compliancepro--o--sistemass.firebaseapp.com",
             databaseURL: "https://compliancepro--o--sistemass-default-rtdb.firebaseio.com",
             projectId: "compliancepro--o--sistemass",
@@ -2464,6 +2464,7 @@
         // ═══════════════════════════════════════════════════════════════
         
         let isLoggedIn = localStorage.getItem('sst_nepal2_admin') === 'true';
+        document.addEventListener('sst-auth', e => { if (!e.detail && isLoggedIn) logout(); });
 
         function restaurarSesionN2() {
             if (!isLoggedIn) return;
@@ -2478,11 +2479,11 @@
             document.getElementById('loginModal').classList.add('active');
         }
 
-        function attemptLogin() {
+        async function attemptLogin() {
             const username = document.getElementById('loginUser').value;
             const password = document.getElementById('loginPass').value;
             
-            if (username === 'c3madriz' && password === 'nepal22026') {
+            if (await sstAuth.entrar(username, password)) {
                 isLoggedIn = true;
                 localStorage.setItem('sst_nepal2_admin', 'true');
                 document.getElementById('loginModal').classList.remove('active');
@@ -2501,7 +2502,7 @@
                 iniciarNotificaciones();
                 renderMensajesTabN2('sosa');
             } else {
-                alert('❌ Credenciales incorrectas');
+                alert('❌ ' + sstAuth.ultimoError);
             }
         }
 
@@ -2512,6 +2513,7 @@
         function logout() {
             isLoggedIn = false;
             localStorage.removeItem('sst_nepal2_admin');
+            if (window.sstAuth) sstAuth.salir();
 
             // Ocultar elementos privados
             document.querySelectorAll('.private').forEach(el => el.style.display = 'none');

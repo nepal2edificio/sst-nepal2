@@ -6,6 +6,8 @@
     <title>Generador Cuenta por Cobrar - Compliance Pro</title>
     <!-- Firebase Scripts -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="sst-auth.js" data-modo="admin"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
     <!-- Librerías para generar PDF -->
@@ -497,7 +499,7 @@
         // FIREBASE — Inicialización
         // ============================================
         const _firebaseCCConfig = {
-            apiKey: "AIzaSyDvOSbIFNIVQNJIHBDmP0SgQ-YMYyakHFI",
+            apiKey: "AIzaSyCb2pko11_UOP6V5VPQV_xARWrC5wybQ6w",
             authDomain: "compliancepro--o--sistemass.firebaseapp.com",
             databaseURL: "https://compliancepro--o--sistemass-default-rtdb.firebaseio.com",
             projectId: "compliancepro--o--sistemass",
@@ -507,17 +509,11 @@
         };
         let _dbCC, _storageCC;
         try {
-            firebase.app('cc-app');
-            _dbCC      = firebase.app('cc-app').database();
-            _storageCC = firebase.app('cc-app').storage();
+            const _appCC = firebase.apps.length ? firebase.app() : firebase.initializeApp(_firebaseCCConfig);
+            _dbCC        = _appCC.database();
+            _storageCC   = _appCC.storage();
         } catch(e) {
-            try {
-                const _appCC = firebase.initializeApp(_firebaseCCConfig, 'cc-app');
-                _dbCC        = _appCC.database();
-                _storageCC   = _appCC.storage();
-            } catch(e2) {
-                console.log('Firebase CC init:', e2);
-            }
+            console.log('Firebase CC init:', e);
         }
 
         // ============================================
