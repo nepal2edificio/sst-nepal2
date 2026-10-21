@@ -339,7 +339,18 @@
         const panel = crearPanel('Redactar por mí', 'Frases listas para cada área que marcaste');
         seccionPos.parentElement.insertBefore(panel, seccionPos);
         const body = panel.querySelector('.ar-body');
-        const usados = new Set();
+        const listaPos = document.getElementById('hallazgos-positivos-lista');
+        const listaNeg = document.getElementById('hallazgos-negativos-lista');
+        /* frase usada → texto del hallazgo positivo o id del hallazgo negativo que creó */
+        const usados = new Map();
+
+        function textosPositivos() {
+            return listaPos ? [...listaPos.querySelectorAll('.hallazgo-item p')].map(p => p.textContent) : [];
+        }
+        function sigueEnLista(k) {
+            const v = usados.get(k);
+            return k.split('|')[1] === 'p' ? textosPositivos().includes(v) : !!document.getElementById('hallazgo-' + v);
+        }
 
         function areasMarcadas() {
             return [...document.querySelectorAll('.checkbox-item input[type="checkbox"]:checked')].map(cb => cb.value).filter(v => AREAS[v]);
@@ -352,7 +363,7 @@
                 return;
             }
             body.innerHTML = `
-                <p class="ar-ayuda">Toca una frase <b style="color:#15803d">verde</b> para agregarla como hallazgo positivo, o una <b style="color:#b91c1c">roja</b> para crear el hallazgo negativo con acción correctiva, responsable y plazo ya llenos.</p>
+                <p class="ar-ayuda">Toca una frase <b style="color:#15803d">verde</b> para agregarla como hallazgo positivo, o una <b style="color:#b91c1c">roja</b> para crear el hallazgo negativo con acción correctiva, responsable y plazo ya llenos. Si te equivocaste, vuelve a tocar la frase y se quita.</p>
                 ${areas.map(a => `
                     <div class="ar-item"><div class="ar-item-t">${esc(a)}</div>
                         <div class="ar-sub">Positivo</div>
@@ -373,11 +384,29 @@
         function usar(ch) {
             const k = ch.dataset.k;
             const ok = body.querySelector('.ar-ok');
-            if (usados.has(k)) { ok.textContent = 'Esa frase ya la agregaste. Si quieres quitarla, usa "Eliminar" en la lista de abajo.'; return; }
             const [area, tipo, i] = k.split('|');
+            if (usados.has(k)) {
+                /* Segundo toque: quitar el hallazgo que creó esta frase (el módulo pide confirmación) */
+                if (!sigueEnLista(k)) {
+                    usados.delete(k);
+                } else if (tipo === 'p') {
+                    const idx = textosPositivos().indexOf(usados.get(k));
+                    if (idx >= 0) window.eliminarHallazgoPositivo(idx);
+                } else {
+                    window.eliminarHallazgoNegativo(String(usados.get(k)));
+                }
+                if (!usados.has(k) || !sigueEnLista(k)) {
+                    usados.delete(k);
+                    ch.setAttribute('aria-pressed', 'false');
+                    ok.textContent = `↩️ Frase quitada (${area}). Ya puedes escoger otra.`;
+                }
+                return;
+            }
             if (tipo === 'p') {
-                txtPos.value = AREAS[area].pos[Number(i)];
+                const texto = AREAS[area].pos[Number(i)];
+                txtPos.value = texto;
                 window.agregarHallazgoPositivo();
+                usados.set(k, texto);
                 ok.textContent = `✅ Hallazgo positivo agregado (${area}).`;
             } else {
                 const n = AREAS[area].neg[Number(i)];
@@ -387,9 +416,10 @@
                 const nuevo = items[items.length - 1];
                 const id = nuevo && nuevo.id.replace('hallazgo-', '');
                 if (id) {
+                    usados.set(k, id);
                     const nivel = document.getElementById('nivel-' + id);
                     if (nivel) {
-                        nivel.value = n.r;
+                        ponerSelect(nivel, n.r);
                         if (typeof window.actualizarNivelRiesgo === 'function') window.actualizarNivelRiesgo(nivel);
                     }
                     poner(document.getElementById('ubicacion-' + id), area);
@@ -399,22 +429,20 @@
                 }
                 ok.textContent = `✅ Hallazgo negativo agregado (${area}), con un plazo de ${PLAZO_DIAS[n.r] || 15} días. Puedes ajustar la ubicación exacta abajo.`;
             }
-            usados.add(k);
-            ch.setAttribute('aria-pressed', 'true');
+            ch.setAttribute('aria-pressed', String(usados.has(k)));
         }
 
         document.addEventListener('change', e => {
             if (e.target.matches('.checkbox-item input[type="checkbox"]') && panel.classList.contains('ar-abierto')) panel._render();
         });
-        /* Al guardar o limpiar, el módulo vacía las listas: se liberan las frases usadas */
-        const listaPos = document.getElementById('hallazgos-positivos-lista');
-        const listaNeg = document.getElementById('hallazgos-negativos-lista');
+        /* Si un hallazgo se elimina desde la lista (o el módulo la vacía al guardar o limpiar),
+           su frase queda libre para volver a escogerla */
         if (window.MutationObserver && listaPos && listaNeg) {
             const obs = new MutationObserver(() => {
-                if (!listaPos.children.length && !listaNeg.children.length && usados.size) {
-                    usados.clear();
-                    if (panel.classList.contains('ar-abierto')) panel._render();
-                }
+                const liberadas = [...usados.keys()].filter(k => !sigueEnLista(k));
+                if (!liberadas.length) return;
+                liberadas.forEach(k => usados.delete(k));
+                if (panel.classList.contains('ar-abierto')) panel._render();
             });
             obs.observe(listaPos, { childList: true });
             obs.observe(listaNeg, { childList: true });
